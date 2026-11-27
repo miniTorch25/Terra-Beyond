@@ -229,6 +229,8 @@ elements.biomeList.addEventListener("click", (event) => {
     const biome = getBiomeById(visitButton.dataset.biomeVisit);
     if (biome && getBiomeAction(biome, currentBiomeId) === "Visit") {
       currentBiomeId = biome.id;
+      state = createInitialState(Math.random, currentBiomeId);
+      elements.helper.textContent = "Entered " + biome.name + ". A new block appeared!";
       render();
       renderMap();
     }
