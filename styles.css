@@ -161,3 +161,39 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 .detail-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid #405744; }
 .detail-row:last-child { border-bottom: 0; padding-bottom: 0; }
 .detail-row strong { color: #f1f7ed; font-size: 14px; text-align: right; overflow-wrap: anywhere; }
+
+/* Map and exclusive navigation panels */
+.map-panel, .simple-panel {
+  position: fixed; z-index: 20; inset: 0 0 calc(72px + env(safe-area-inset-bottom));
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 18px max(16px, calc((100vw - 620px) / 2)) 24px;
+  border-bottom: 1px solid #405844;
+  background: linear-gradient(160deg, #1d2e23, #101a14);
+  box-shadow: 0 16px 40px #0008;
+}
+.map-panel[hidden], .simple-panel[hidden] { display: none; }
+.map-intro { margin: -5px 0 16px; color: #a9bda6; font-size: 12px; line-height: 1.5; }
+.biome-list { display: grid; gap: 10px; }
+.map-biome-row { overflow: hidden; border: 1px solid #405744; border-radius: 11px; background: #1a2a20; }
+.map-biome-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 58px; padding: 9px 10px 9px 14px; }
+.map-biome-heading h3 { margin: 0; color: #e2efd9; font-size: 14px; font-weight: 850; }
+.map-biome-actions { display: flex; align-items: center; gap: 7px; }
+.biome-info-toggle {
+  display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 36px;
+  border: 1px solid #66845c; border-radius: 7px; background: #2b4030; color: #d7edc8;
+  font-size: 18px; font-weight: 900; cursor: pointer;
+}
+.biome-info-toggle.is-open { border-color: #a3c47c; background: #3a5639; }
+.biome-visit-button {
+  display: grid; place-items: center; min-width: 88px; min-height: 36px; padding: 0 12px;
+  border: 1px solid #78965f; border-radius: 7px; background: #354e35; color: #e3f2d6;
+  font-size: 12px; font-weight: 850; cursor: pointer;
+}
+.biome-visit-button.is-current { border-color: #4d7254; background: #253d2b; color: #a8d5a3; }
+.biome-visit-button.is-locked { border-color: #4a594b; background: #242f26; color: #91a08e; }
+.biome-visit-button:disabled { cursor: default; opacity: 1; }
+.biome-info-toggle:focus-visible, .biome-visit-button:focus-visible { outline: 2px solid #c9ed9c; outline-offset: 2px; }
+.map-biome-info { padding: 0 14px 13px; border-top: 1px solid #354b39; }
+.map-biome-info[hidden] { display: none; }
+.map-biome-info p { margin: 10px 0 0; color: #b8cbb5; font-size: 12px; line-height: 1.6; }
+.simple-panel .panel-placeholder { margin: 0; padding: 14px; border: 1px solid #405744; border-radius: 10px; background: #1a2a20; color: #9fb39b; font-size: 13px; line-height: 1.5; }
