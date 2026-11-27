@@ -1,5 +1,5 @@
 import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
-import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, chunkItems } from "./inventory.js";
+import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -16,6 +16,14 @@ const elements = {
   inventoryClose: document.querySelector("#inventory-close"),
   inventoryContent: document.querySelector("#inventory-content"),
   inventoryTabs: [...document.querySelectorAll(".inventory-tab")],
+  detailOverlay: document.querySelector("#item-detail-overlay"),
+  detailCard: document.querySelector("#item-detail-card"),
+  detailImage: document.querySelector("#detail-item-image"),
+  detailName: document.querySelector("#detail-item-name"),
+  detailDescription: document.querySelector("#detail-item-description"),
+  detailOrigin: document.querySelector("#item-detail-origin"),
+  detailTag: document.querySelector("#detail-item-tag"),
+  detailCount: document.querySelector("#detail-item-count"),
 };
 
 let state = createInitialState();
@@ -41,7 +49,7 @@ function render() {
 function renderInventory() {
   const plainsSections = PLAINS_INVENTORY[activeCategory];
   const tundraSections = TUNDRA_INVENTORY[activeCategory];
-  elements.inventoryTabs.forEach((tab) => {
+  elements.inventoryContent.addEventListener("click", (event) => {\n  const slot = event.target.closest(".inventory-slot");\n  if (slot) openItemDetails(slot.dataset.itemId, slot.dataset.itemTag);\n});\nelements.detailOverlay.addEventListener("click", (event) => {\n  if (event.target === elements.detailOverlay) closeItemDetails();\n});\nelements.detailCard.addEventListener("click", (event) => event.stopPropagation());\nelements.inventoryTabs.forEach((tab) => {
     const selected = tab.dataset.category === activeCategory;
     tab.classList.toggle("is-active", selected);
     tab.setAttribute("aria-selected", String(selected));
@@ -60,7 +68,7 @@ function renderInventory() {
     const rows = chunkItems(items, 6).map((row) => `
       <div class="item-row">
         ${row.map((item) => `
-          <div class="inventory-slot" title="${item.name}">
+          <button class="inventory-slot" type="button" data-item-id="${item.id}" data-item-tag="${sectionName}" title="${item.name}" aria-label="View ${item.name} details">
             <img src="${item.image}" alt="${item.name}" loading="lazy">
             <span class="item-count">${item.count}</span>
           </div>
@@ -80,7 +88,7 @@ function renderInventory() {
       <h3>Liquid</h3>
       <div class="item-row">
         ${LIQUID_INVENTORY.map((item) => `
-          <div class="inventory-slot" title="${item.name}">
+          <button class="inventory-slot" type="button" data-item-id="${item.id}" data-item-tag="Liquid" title="${item.name}" aria-label="View ${item.name} details">
             <img src="${item.image}" alt="${item.name}" loading="lazy">
             <span class="item-count">${item.count}</span>
           </div>
@@ -102,8 +110,34 @@ function renderInventory() {
   `;
 }
 
-function setInventoryOpen(isOpen) {
-  elements.inventory.hidden = !isOpen;
+
+function openItemDetails(id, fallbackTag) {
+  const item = getItemDetails(id, fallbackTag);
+  if (!item) return;
+  elements.detailImage.src = item.image;
+  elements.detailImage.alt = item.name;
+  elements.detailName.textContent = item.name;
+  elements.detailDescription.textContent = item.description;
+  elements.detailTag.textContent = item.tag;
+  elements.detailCount.textContent = String(Math.floor(item.count ?? 0));
+  if (item.tag === "Natural" && item.origin) {
+    elements.detailOrigin.hidden = false;
+    elements.detailOrigin.querySelector("img").src = item.origin.image;
+    elements.detailOrigin.querySelector("img").alt = item.origin.name;
+    elements.detailOrigin.querySelector(".origin-name").textContent = item.origin.name;
+  } else {
+    elements.detailOrigin.hidden = true;
+  }
+  elements.detailOverlay.hidden = false;
+  elements.detailOverlay.setAttribute("aria-hidden", "false");
+  elements.detailCard.focus();
+}
+function closeItemDetails() {
+  elements.detailOverlay.hidden = true;
+  elements.detailOverlay.setAttribute("aria-hidden", "true");
+}
+\nfunction setInventoryOpen(isOpen) {
+  if (!isOpen) closeItemDetails();\n  elements.inventory.hidden = !isOpen;
   elements.inventory.setAttribute("aria-hidden", String(!isOpen));
   elements.inventoryOpen.setAttribute("aria-expanded", String(isOpen));
   elements.inventoryOpen.classList.toggle("is-selected", isOpen);
@@ -135,7 +169,7 @@ elements.inventoryTabs.forEach((tab) => {
   });
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !elements.inventory.hidden) setInventoryOpen(false);
+  if (event.key === "Escape" && !elements.detailOverlay.hidden) closeItemDetails();\n  else if (event.key === "Escape" && !elements.inventory.hidden) setInventoryOpen(false);
 });
 
 render();
