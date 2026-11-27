@@ -1,5 +1,5 @@
 import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
-import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, chunkItems } from "./inventory.js";
+import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, chunkItems } from "./inventory.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -39,7 +39,8 @@ function render() {
 }
 
 function renderInventory() {
-  const sections = PLAINS_INVENTORY[activeCategory];
+  const plainsSections = PLAINS_INVENTORY[activeCategory];
+  const tundraSections = TUNDRA_INVENTORY[activeCategory];
   elements.inventoryTabs.forEach((tab) => {
     const selected = tab.dataset.category === activeCategory;
     tab.classList.toggle("is-active", selected);
@@ -55,7 +56,7 @@ function renderInventory() {
     }
   });
 
-  const sectionMarkup = Object.entries(sections).map(([sectionName, items]) => {
+  const renderSections = (sections) => Object.entries(sections).map(([sectionName, items]) => {
     const rows = chunkItems(items, 6).map((row) => `
       <div class="item-row">
         ${row.map((item) => `
@@ -74,15 +75,30 @@ function renderInventory() {
     `;
   }).join("");
 
+  const liquidMarkup = activeCategory === "item" ? `
+    <section class="inventory-section liquid-inventory">
+      <h3>Liquid</h3>
+      <div class="item-row">
+        ${LIQUID_INVENTORY.map((item) => `
+          <div class="inventory-slot" title="${item.name}">
+            <img src="${item.image}" alt="${item.name}" loading="lazy">
+            <span class="item-count">${item.count}</span>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  ` : "";
+
   elements.inventoryContent.innerHTML = `
     <details class="biome-drawer" open>
       <summary><span>Plains</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>
-      <div class="biome-content">${sectionMarkup}</div>
+      <div class="biome-content">${renderSections(plainsSections)}</div>
     </details>
-    <details class="biome-drawer">
-      <summary><span>Tundra</span><span class="drawer-arrow" aria-hidden="true">⌃</span></summary>
-      <div class="biome-content"><p class="empty-inventory">No items yet</p></div>
+    <details class="biome-drawer" open>
+      <summary><span>Tundra</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>
+      <div class="biome-content">${renderSections(tundraSections)}</div>
     </details>
+    ${liquidMarkup}
   `;
 }
 

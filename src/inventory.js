@@ -8,33 +8,72 @@ export const INVENTORY_CATEGORIES = Object.freeze([
 const emptySections = () => ({
   Natural: [],
   Crafted: [],
-  Liquid: [],
+});
+
+const item = (id, name, biome, count = 0) => Object.freeze({
+  id,
+  name,
+  image: `./sprites/item/${biome}/${id}.png`,
+  count,
+});
+
+const tool = (id, name, biome, count = 0) => Object.freeze({
+  id,
+  name,
+  image: `./sprites/tool/${biome}/${id}.png`,
+  count,
 });
 
 export const PLAINS_INVENTORY = Object.freeze({
   item: Object.freeze({
     Natural: Object.freeze([
-      Object.freeze({ id: "item_grass", name: "Grass", image: "./sprites/item/plains/item_grass.png", count: 0 }),
-      Object.freeze({ id: "wood_scrap", name: "Wood Scrap", image: "./sprites/item/plains/wood_scrap.png", count: 0 }),
-      Object.freeze({ id: "cobble_rock", name: "Cobble Rock", image: "./sprites/item/plains/cobble_rock.png", count: 0 }),
-      Object.freeze({ id: "emerald", name: "Emerald", image: "./sprites/item/plains/emerald.png", count: 0 }),
+      item("item_grass", "Grass", "plains"),
+      item("wood_scrap", "Wood Scrap", "plains"),
+      item("cobble_rock", "Cobble Rock", "plains"),
+      item("emerald", "Emerald", "plains"),
+      item("sapphire", "Sapphire", "plains"),
     ]),
     Crafted: Object.freeze([]),
-    Liquid: Object.freeze([]),
   }),
   tool: Object.freeze({
     Natural: Object.freeze([
-      Object.freeze({ id: "oak_pick", name: "Oak Pick", image: "./sprites/tool/plains/oak_pick.png", count: 0 }),
-      Object.freeze({ id: "rock_pick", name: "Rock Pick", image: "./sprites/tool/plains/rock_pick.png", count: 0 }),
-      Object.freeze({ id: "emerald_pick", name: "Emerald Pick", image: "./sprites/tool/plains/emerald_pick.png", count: 0 }),
-      Object.freeze({ id: "stone_dagger", name: "Stone Dagger", image: "./sprites/tool/plains/stone_dagger.png", count: 0 }),
+      tool("oak_pick", "Oak Pick", "plains"),
+      tool("rock_pick", "Rock Pick", "plains"),
+      tool("emerald_pick", "Emerald Pick", "plains"),
+      tool("stone_dagger", "Stone Dagger", "plains"),
     ]),
     Crafted: Object.freeze([]),
-    Liquid: Object.freeze([]),
   }),
   sword: Object.freeze(emptySections()),
   artifact: Object.freeze(emptySections()),
 });
+
+export const TUNDRA_INVENTORY = Object.freeze({
+  item: Object.freeze({
+    Natural: Object.freeze([
+      item("sweet_berry", "Sweet Berry", "tundra"),
+      item("snowball", "Snowball", "tundra"),
+      item("spruce_wood", "Spruce Wood", "tundra"),
+      item("ice_shard", "Ice Shard", "tundra"),
+    ]),
+    Crafted: Object.freeze([]),
+  }),
+  tool: Object.freeze({
+    Natural: Object.freeze([
+      tool("ice_pick", "Ice Pick", "tundra"),
+      tool("sapphire_dagger", "Sapphire Dagger", "tundra"),
+      tool("sapphire_pick", "Sapphire Pick", "tundra"),
+    ]),
+    Crafted: Object.freeze([]),
+  }),
+  sword: Object.freeze(emptySections()),
+  artifact: Object.freeze(emptySections()),
+});
+
+export const LIQUID_INVENTORY = Object.freeze([
+  Object.freeze({ id: "cold_water", name: "Cold Water", image: "./sprites/liquid/cold_water.png", count: 0 }),
+  Object.freeze({ id: "water", name: "Water", image: "./sprites/liquid/water.png", count: 0 }),
+]);
 
 export function chunkItems(items, perRow = 6) {
   if (!Array.isArray(items)) throw new TypeError("Items must be an array.");
