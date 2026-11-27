@@ -125,7 +125,7 @@ export function getItemDetails(id, fallbackTag = "Natural") {
   if (!item) return null;
   const originData = ORIGIN_BLOCKS[id];
   const origin = originData ? {
-    name: originData[1].replaceAll("_", " ").replace(/\\b\\w/g, (letter) => letter.toUpperCase()),
+    name: originData[1].replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase()),
     image: `./sprites/block/${originData[0]}/${originData[1]}.png`,
   } : null;
   return {
