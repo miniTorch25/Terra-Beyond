@@ -1,0 +1,70 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #101914;
+  color: #edf4ec;
+  font-synthesis: none;
+}
+* { box-sizing: border-box; }
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: radial-gradient(ellipse at 50% 18%, #263a2c 0, #17251d 44%, #101914 100%);
+}
+button { font: inherit; }
+.game-shell { width: min(100% - 32px, 620px); margin: 0 auto; padding: 28px 0 24px; }
+.topbar { display: flex; align-items: center; gap: 13px; margin-bottom: 28px; }
+.brand-mark {
+  display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid #607b57;
+  border-radius: 13px; background: #304a35; color: #d8efc8; font-weight: 900; letter-spacing: -1px;
+}
+.eyebrow { margin: 0 0 5px; color: #9bb39b; font-size: 10px; font-weight: 800; letter-spacing: 1.6px; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin: 0; font-size: 21px; letter-spacing: -.4px; }
+h2 { margin: 0; font-size: 20px; }
+.mine-panel, .rules-panel {
+  border: 1px solid #3b5140; border-radius: 18px; background: linear-gradient(155deg, #24372a, #1a2920);
+  box-shadow: 0 18px 50px #0004;
+}
+.mine-panel { padding: 22px; }
+.panel-heading, .block-info { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.status-pill { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid #49654b; border-radius: 999px; color: #c4e2bd; font-size: 11px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #8fce75; box-shadow: 0 0 10px #8fce7580; }
+.block-stage {
+  display: grid; place-items: center; min-height: 290px; margin: 20px 0;
+  border: 1px solid #405844; border-radius: 14px;
+  background: repeating-linear-gradient(45deg, #263a2b 0 12px, #293e2e 12px 24px);
+}
+.block-target {
+  display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px;
+  border: 0; border-radius: 12px; background: transparent; color: #d4e5d0; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.block-target:focus-visible { outline: 3px solid #b4db83; outline-offset: 5px; }
+.block-target:active .block-art { transform: scale(.94); }
+.block-art { position: relative; display: block; width: 160px; height: 160px; transition: transform 80ms ease; image-rendering: pixelated; }
+.block-image, .damage-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.damage-image { pointer-events: none; }
+.tap-hint { color: #b8cbb5; font-size: 10px; font-weight: 800; letter-spacing: 2px; }
+.block-info { margin-bottom: 11px; }
+.block-info h3 { margin: 0; font-size: 19px; }
+.hp-readout { display: flex; align-items: baseline; gap: 5px; color: #b8cbb5; }
+.hp-readout strong { color: #f1f7ed; font-size: 25px; font-variant-numeric: tabular-nums; }
+.hp-readout small { margin-left: 3px; color: #9bb39b; font-size: 10px; font-weight: 800; letter-spacing: 1px; }
+.hp-track { height: 10px; overflow: hidden; border-radius: 99px; background: #101a13; box-shadow: inset 0 1px 3px #0008; }
+.hp-fill { width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #76b75d, #b4d77b); transition: width 120ms ease; }
+.helper-text { min-height: 18px; margin: 12px 0 0; color: #a9bda6; font-size: 12px; text-align: center; }
+.rules-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; padding: 16px 18px; }
+.rule-item { display: flex; align-items: center; gap: 8px; color: #b7c9b3; font-size: 12px; }
+.rule-item strong { margin-left: auto; color: #eff7e9; font-size: 14px; }
+.rule-icon { color: #b5d58c; }
+footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center; letter-spacing: .3px; }
+@media (max-width: 420px) {
+  .game-shell { width: min(100% - 22px, 620px); padding-top: 18px; }
+  .mine-panel { padding: 15px; }
+  .block-stage { min-height: 250px; margin: 15px 0; }
+  .block-art { width: 144px; height: 144px; }
+  .rules-panel { padding: 14px 12px; gap: 8px; }
+  .rule-item { font-size: 11px; }
+}
