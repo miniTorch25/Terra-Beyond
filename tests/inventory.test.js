@@ -5,7 +5,7 @@ import {
   PLAINS_INVENTORY,
   TUNDRA_INVENTORY,
   LIQUID_INVENTORY,
-  chunkItems,
+  chunkItems, formatItemCount, getItemDetails,
 } from "../src/inventory.js";
 
 test("inventory has the four requested categories", () => {
@@ -45,4 +45,23 @@ test("empty categories have Natural and Crafted sections", () => {
 
 test("invalid row sizes are rejected", () => {
   assert.throws(() => chunkItems([1, 2], 0), RangeError);
+});
+
+test("inventory count formatter uses integer compact suffixes", () => {
+  assert.deepEqual([999, 1000, 1999, 12000, 999999, 1e6, 1e9, 1e12, 1e15].map(formatItemCount),
+    ["999", "1k", "1k", "12k", "999k", "1M", "1B", "1T", "1Qa"]);
+  assert.equal(formatItemCount(1e36), "1e36");
+  assert.throws(() => formatItemCount(-1), RangeError);
+});
+test("item detail metadata includes origin blocks for Natural items", () => {
+  const grass = getItemDetails("item_grass");
+  assert.equal(grass.tag, "Natural");
+  assert.equal(grass.origin.image, "./sprites/block/plains/grass.png");
+  assert.equal(getItemDetails("sapphire").origin.image, "./sprites/block/tundra/sapphire_ore.png");
+});
+test("liquid detail metadata uses Liquid tag and omits block origin", () => {
+  const water = getItemDetails("water");
+  assert.equal(water.tag, "Liquid");
+  assert.equal(water.biome, "Plains");
+  assert.equal(water.origin, null);
 });
