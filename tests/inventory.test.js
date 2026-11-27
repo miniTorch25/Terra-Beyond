@@ -1,15 +1,33 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, chunkItems } from "../src/inventory.js";
+import {
+  INVENTORY_CATEGORIES,
+  PLAINS_INVENTORY,
+  TUNDRA_INVENTORY,
+  LIQUID_INVENTORY,
+  chunkItems,
+} from "../src/inventory.js";
 
 test("inventory has the four requested categories", () => {
   assert.deepEqual(INVENTORY_CATEGORIES.map(({ id }) => id), ["item", "tool", "sword", "artifact"]);
 });
 
-test("the Plains item drawer uses the existing item sprites and starts with zero counts", () => {
+test("Plains keeps its existing items and includes Sapphire", () => {
   const items = PLAINS_INVENTORY.item.Natural;
-  assert.deepEqual(items.map(({ id }) => id), ["item_grass", "wood_scrap", "cobble_rock", "emerald"]);
-  assert.ok(items.every((item) => item.count === 0 && item.image.startsWith("./sprites/item/plains/")));
+  assert.deepEqual(items.map(({ id }) => id), ["item_grass", "wood_scrap", "cobble_rock", "emerald", "sapphire"]);
+  assert.ok(items.every((entry) => entry.count === 0 && entry.image.startsWith("./sprites/item/plains/")));
+});
+
+test("Tundra item and tool sprites use their biome folders", () => {
+  assert.deepEqual(TUNDRA_INVENTORY.item.Natural.map(({ id }) => id), ["sweet_berry", "snowball", "spruce_wood", "ice_shard"]);
+  assert.deepEqual(TUNDRA_INVENTORY.tool.Natural.map(({ id }) => id), ["ice_pick", "sapphire_dagger", "sapphire_pick"]);
+  assert.ok([...TUNDRA_INVENTORY.item.Natural, ...TUNDRA_INVENTORY.tool.Natural]
+    .every((entry) => entry.count === 0 && entry.image.includes("/tundra/")));
+});
+
+test("liquids are shared globally instead of being biome-specific", () => {
+  assert.deepEqual(LIQUID_INVENTORY.map(({ id }) => id), ["cold_water", "water"]);
+  assert.ok(LIQUID_INVENTORY.every((entry) => entry.image.startsWith("./sprites/liquid/")));
 });
 
 test("inventory item rows contain at most six items", () => {
@@ -19,8 +37,8 @@ test("inventory item rows contain at most six items", () => {
   assert.deepEqual(rows.flat(), items);
 });
 
-test("empty categories have all three drawer sections", () => {
-  assert.deepEqual(Object.keys(PLAINS_INVENTORY.sword), ["Natural", "Crafted", "Liquid"]);
+test("empty categories have Natural and Crafted sections", () => {
+  assert.deepEqual(Object.keys(PLAINS_INVENTORY.sword), ["Natural", "Crafted"]);
   assert.ok(Object.values(PLAINS_INVENTORY.sword).every((items) => items.length === 0));
 });
 
