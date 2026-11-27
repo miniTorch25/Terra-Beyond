@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18251f">
+  <title>Terra Beyond — Block Mining Prototype</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true">TB</div>
+      <div>
+        <p class="eyebrow">M25TB · PROTOTYPE 01</p>
+        <h1>Terra Beyond</h1>
+      </div>
+    </header>
+
+    <section class="mine-panel" aria-labelledby="mine-title">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">PLAINS BIOME</p>
+          <h2 id="mine-title">Block Mining</h2>
+        </div>
+        <span class="status-pill"><span class="status-dot"></span> Mining</span>
+      </div>
+
+      <div class="block-stage">
+        <button class="block-target" id="mine-button" type="button" aria-label="Mine the current block">
+          <span class="block-art">
+            <img class="block-image" id="block-image" src="./sprites/block/plains/grass.png" alt="">
+            <img class="damage-image" id="damage-image" src="./sprites/environment/destroy_stage_0.png" alt="">
+          </span>
+          <span class="tap-hint">CLICK TO MINE</span>
+        </button>
+      </div>
+
+      <div class="block-info">
+        <div>
+          <p class="eyebrow">CURRENT BLOCK</p>
+          <h3 id="block-name">Grass</h3>
+        </div>
+        <div class="hp-readout"><strong id="hp-current">5</strong><span>/</span><span id="hp-max">5</span><small>HP</small></div>
+      </div>
+      <div class="hp-track" role="progressbar" id="hp-progress" aria-label="Block health" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5">
+        <div class="hp-fill" id="hp-fill"></div>
+      </div>
+      <p class="helper-text" id="helper-text" aria-live="polite">Each click deals 1 damage.</p>
+    </section>
+
+    <section class="rules-panel" aria-label="Mining rules">
+      <div class="rule-item"><span class="rule-icon">✦</span><span>Player damage</span><strong>1</strong></div>
+      <div class="rule-item"><span class="rule-icon">↻</span><span>Block breaks at</span><strong>0 HP</strong></div>
+    </section>
+    <footer>Early prototype · Mining and random block respawn only</footer>
+  </main>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
