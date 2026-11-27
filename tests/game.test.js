@@ -1,11 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BLOCKS, PLAYER_DAMAGE, createInitialState, mineBlock, randomBlock } from "../src/game.js";
+import { BLOCKS, BLOCKS_BY_BIOME, PLAYER_DAMAGE, createInitialState, mineBlock, randomBlock } from "../src/game.js";
 
-test("the four starter blocks have the requested maximum HP", () => {
-  assert.deepEqual(BLOCKS.map(({ name, maxHp }) => [name, maxHp]), [
-    ["Grass", 5], ["Oak Log", 7], ["Stone", 10], ["Emerald", 15],
+test("Plains blocks use the requested spawn rates", () => {
+  assert.deepEqual(BLOCKS.map(({ name, spawnRate }) => [name, spawnRate]), [
+    ["Grass", 40], ["Oak Log", 30], ["Cobblestone", 25], ["Emerald Ore", 5],
   ]);
+  assert.equal(BLOCKS.reduce((sum, block) => sum + block.spawnRate, 0), 100);
+});
+
+test("Tundra blocks use the requested spawn rates", () => {
+  assert.deepEqual(BLOCKS_BY_BIOME.tundra.map(({ name, spawnRate }) => [name, spawnRate]), [
+    ["Berry Bush", 40], ["Snow", 25], ["Ice Block", 20], ["Spruce Log", 10], ["Sapphire Ore", 5],
+  ]);
+  assert.equal(BLOCKS_BY_BIOME.tundra.reduce((sum, block) => sum + block.spawnRate, 0), 100);
 });
 
 test("player default damage is 1", () => {
@@ -20,19 +28,38 @@ test("mining reduces the current block by one HP", () => {
   assert.equal(result.state.block.id, "grass");
 });
 
-test("block at zero HP is replaced and the new block starts at full HP", () => {
+test("breaking a block respawns from the selected biome", () => {
   const state = { block: BLOCKS[0], hp: 1 };
-  const result = mineBlock(state, PLAYER_DAMAGE, () => 0.99);
+  const result = mineBlock(state, PLAYER_DAMAGE, () => 0.99, "tundra");
   assert.equal(result.broken, true);
-  assert.equal(result.state.block.id, "emerald");
-  assert.equal(result.state.hp, 15);
+  assert.equal(result.state.block.id, "sapphire_ore");
+  assert.equal(result.state.hp, result.state.block.maxHp);
 });
 
-test("random selection can select each block from the random range", () => {
+test("weighted random selection respects Plains probability intervals", () => {
   assert.equal(randomBlock(() => 0).id, "grass");
-  assert.equal(randomBlock(() => 0.25).id, "oak_log");
-  assert.equal(randomBlock(() => 0.5).id, "stone");
-  assert.equal(randomBlock(() => 0.99).id, "emerald");
+  assert.equal(randomBlock(() => 0.399999).id, "grass");
+  assert.equal(randomBlock(() => 0.4).id, "oak_log");
+  assert.equal(randomBlock(() => 0.7).id, "cobblestone");
+  assert.equal(randomBlock(() => 0.95).id, "emerald_ore");
+  assert.equal(randomBlock(() => 0.999).id, "emerald_ore");
+});
+
+test("weighted random selection respects Tundra probability intervals", () => {
+  assert.equal(randomBlock(() => 0, "tundra").id, "berry_bush");
+  assert.equal(randomBlock(() => 0.4, "tundra").id, "snow");
+  assert.equal(randomBlock(() => 0.65, "tundra").id, "ice_block");
+  assert.equal(randomBlock(() => 0.85, "tundra").id, "spruce_log");
+  assert.equal(randomBlock(() => 0.95, "tundra").id, "sapphire_ore");
+});
+
+test("initial state uses the requested biome", () => {
+  assert.equal(createInitialState(() => 0, "tundra").block.id, "berry_bush");
+});
+
+test("unknown biome and invalid random sources are rejected", () => {
+  assert.throws(() => randomBlock(() => 0, "unknown"), RangeError);
+  assert.throws(() => randomBlock(null), TypeError);
 });
 
 test("invalid damage is rejected", () => {
