@@ -31,7 +31,7 @@ const elements = {
   navPanels: [...document.querySelectorAll(".navigation-panel")],
 };
 
-let state = createInitialState();
+let state = createInitialState(Math.random, "plains");
 let activeCategory = "item";
 let activePanel = null;
 let currentBiomeId = "plains";
@@ -187,7 +187,7 @@ function closeActivePanel() {
 }
 
 elements.button.addEventListener("click", () => {
-  const result = mineBlock(state, PLAYER_DAMAGE);
+  const result = mineBlock(state, PLAYER_DAMAGE, Math.random, currentBiomeId);
   state = result.state;
   elements.helper.textContent = result.broken
     ? result.state.block.name + " appeared. Keep mining!"
