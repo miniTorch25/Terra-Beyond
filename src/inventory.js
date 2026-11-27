@@ -110,9 +110,9 @@ const ITEM_DESCRIPTIONS = Object.freeze({
 });
 const ORIGIN_BLOCKS = Object.freeze({
   item_grass: ["plains", "grass"], wood_scrap: ["plains", "oak_log"],
-  cobble_rock: ["plains", "cobblestone"], emerald: ["plains", "emerald_block"],
+  cobble_rock: ["plains", "cobblestone"], emerald: ["plains", "emerald_ore"],
   oak_pick: ["plains", "oak_log"], rock_pick: ["plains", "cobblestone"],
-  emerald_pick: ["plains", "emerald_block"], stone_dagger: ["plains", "cobblestone"],
+  emerald_pick: ["plains", "emerald_ore"], stone_dagger: ["plains", "cobblestone"],
   sweet_berry: ["tundra", "berry_bush"], snowball: ["tundra", "snow"],
   spruce_wood: ["tundra", "spruce_log"], ice_shard: ["tundra", "ice_block"],
   sapphire: ["tundra", "sapphire_ore"], ice_pick: ["tundra", "ice_block"],

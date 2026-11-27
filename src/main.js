@@ -31,7 +31,7 @@ const elements = {
   navPanels: [...document.querySelectorAll(".navigation-panel")],
 };
 
-let state = createInitialState();
+let state = createInitialState(Math.random, "plains");
 let activeCategory = "item";
 let activePanel = null;
 let currentBiomeId = "plains";
@@ -187,7 +187,7 @@ function closeActivePanel() {
 }
 
 elements.button.addEventListener("click", () => {
-  const result = mineBlock(state, PLAYER_DAMAGE);
+  const result = mineBlock(state, PLAYER_DAMAGE, Math.random, currentBiomeId);
   state = result.state;
   elements.helper.textContent = result.broken
     ? result.state.block.name + " appeared. Keep mining!"
@@ -229,6 +229,8 @@ elements.biomeList.addEventListener("click", (event) => {
     const biome = getBiomeById(visitButton.dataset.biomeVisit);
     if (biome && getBiomeAction(biome, currentBiomeId) === "Visit") {
       currentBiomeId = biome.id;
+      state = createInitialState(Math.random, currentBiomeId);
+      elements.helper.textContent = "Entered " + biome.name + ". A new block appeared!";
       render();
       renderMap();
     }
