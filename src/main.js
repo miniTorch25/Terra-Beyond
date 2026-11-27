@@ -1,5 +1,6 @@
 import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
+import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -11,8 +12,8 @@ const elements = {
   fill: document.querySelector("#hp-fill"),
   progress: document.querySelector("#hp-progress"),
   helper: document.querySelector("#helper-text"),
+  currentBiomeLabel: document.querySelector("#current-biome-label"),
   inventory: document.querySelector("#inventory-panel"),
-  inventoryOpen: document.querySelector("#inventory-open"),
   inventoryClose: document.querySelector("#inventory-close"),
   inventoryContent: document.querySelector("#inventory-content"),
   inventoryTabs: [...document.querySelectorAll(".inventory-tab")],
@@ -24,10 +25,17 @@ const elements = {
   detailOrigin: document.querySelector("#item-detail-origin"),
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
+  map: document.querySelector("#map-panel"),
+  biomeList: document.querySelector("#biome-list"),
+  navButtons: [...document.querySelectorAll(".menu-button[data-nav-target]")],
+  navPanels: [...document.querySelectorAll(".navigation-panel")],
 };
 
 let state = createInitialState();
 let activeCategory = "item";
+let activePanel = null;
+let currentBiomeId = "plains";
+const expandedBiomeInfo = new Set();
 
 function render() {
   const { block, hp } = state;
@@ -43,6 +51,8 @@ function render() {
   elements.progress.setAttribute("aria-valuenow", String(hp));
   elements.damage.src = "./sprites/environment/destroy_stage_" + stage + ".png";
   elements.button.setAttribute("aria-label", "Mine " + block.name + ". " + hp + " of " + block.maxHp + " HP remaining.");
+  const currentBiome = getBiomeById(currentBiomeId);
+  elements.currentBiomeLabel.textContent = (currentBiome?.name || "Unknown").toUpperCase() + " BIOME";
 }
 
 function renderInventory() {
@@ -95,6 +105,24 @@ function renderInventory() {
     '<div class="biome-content">' + renderSections(tundraSections) + '</div></details>' + liquidMarkup;
 }
 
+function renderMap() {
+  elements.biomeList.innerHTML = BIOMES.map((biome) => {
+    const action = getBiomeAction(biome, currentBiomeId);
+    const isCurrent = action === "Current";
+    const isLocked = action === "Lock" || (!biome.unlocked && action !== "Current");
+    const buttonLabel = action === "Visit" ? "Visit" : action === "Current" ? "Current" : action === "Lock" ? "Lock" : action;
+    const infoOpen = expandedBiomeInfo.has(biome.id);
+    return '<article class="map-biome-row" data-biome-row="' + biome.id + '">' +
+      '<div class="map-biome-heading"><h3>' + biome.name + '</h3>' +
+      '<div class="map-biome-actions">' +
+      '<button class="biome-info-toggle' + (infoOpen ? ' is-open' : '') + '" type="button" data-biome-info="' + biome.id + '" aria-expanded="' + String(infoOpen) + '" aria-label="' + (infoOpen ? 'Hide' : 'Show') + ' ' + biome.name + ' information">!</button>' +
+      '<button class="biome-visit-button' + (isCurrent ? ' is-current' : isLocked ? ' is-locked' : '') + '" type="button" data-biome-visit="' + biome.id + '"' + (isCurrent || isLocked ? ' disabled' : '') + '>' + buttonLabel + '</button>' +
+      '</div></div>' +
+      '<div class="map-biome-info"' + (infoOpen ? '' : ' hidden') + '><p>' + biome.description + '</p></div>' +
+      '</article>';
+  }).join("");
+}
+
 function openItemDetails(id, fallbackTag) {
   const item = getItemDetails(id, fallbackTag);
   if (!item) return;
@@ -122,18 +150,40 @@ function closeItemDetails() {
   elements.detailOverlay.setAttribute("aria-hidden", "true");
 }
 
-function setInventoryOpen(isOpen) {
-  if (!isOpen) closeItemDetails();
-  elements.inventory.hidden = !isOpen;
-  elements.inventory.setAttribute("aria-hidden", String(!isOpen));
-  elements.inventoryOpen.setAttribute("aria-expanded", String(isOpen));
-  elements.inventoryOpen.classList.toggle("is-selected", isOpen);
-  if (isOpen) {
-    renderInventory();
-    elements.inventoryClose.focus();
-  } else {
-    elements.inventoryOpen.focus();
-  }
+function setActivePanel(panelName) {
+  const nextPanel = activePanel === panelName ? null : panelName;
+  if (activePanel === "map" && nextPanel !== "map") expandedBiomeInfo.clear();
+  if (activePanel === "inventory" && nextPanel !== "inventory") closeItemDetails();
+  if (nextPanel !== "inventory") closeItemDetails();
+  activePanel = nextPanel;
+
+  elements.navPanels.forEach((panel) => {
+    const isOpen = panel.dataset.navPanel === activePanel;
+    panel.hidden = !isOpen;
+    panel.setAttribute("aria-hidden", String(!isOpen));
+  });
+  elements.navButtons.forEach((button) => {
+    const isOpen = button.dataset.navTarget === activePanel;
+    button.classList.toggle("is-selected", isOpen);
+    button.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  if (activePanel === "inventory") renderInventory();
+  if (activePanel === "map") renderMap();
+}
+
+function closeActivePanel() {
+  if (activePanel === "map") expandedBiomeInfo.clear();
+  closeItemDetails();
+  activePanel = null;
+  elements.navPanels.forEach((panel) => {
+    panel.hidden = true;
+    panel.setAttribute("aria-hidden", "true");
+  });
+  elements.navButtons.forEach((button) => {
+    button.classList.remove("is-selected");
+    button.setAttribute("aria-expanded", "false");
+  });
 }
 
 elements.button.addEventListener("click", () => {
@@ -144,8 +194,11 @@ elements.button.addEventListener("click", () => {
     : "-" + PLAYER_DAMAGE + " HP · " + result.state.hp + " HP remaining";
   render();
 });
-elements.inventoryOpen.addEventListener("click", () => setInventoryOpen(elements.inventory.hidden));
-elements.inventoryClose.addEventListener("click", () => setInventoryOpen(false));
+
+elements.navButtons.forEach((button) => {
+  button.addEventListener("click", () => setActivePanel(button.dataset.navTarget));
+});
+elements.inventoryClose.addEventListener("click", closeActivePanel);
 elements.inventoryTabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     activeCategory = INVENTORY_CATEGORIES.find((category) => category.id === tab.dataset.category)?.id ?? "item";
@@ -160,9 +213,31 @@ elements.detailOverlay.addEventListener("click", (event) => {
   if (event.target === elements.detailOverlay) closeItemDetails();
 });
 elements.detailCard.addEventListener("click", (event) => event.stopPropagation());
+
+elements.biomeList.addEventListener("click", (event) => {
+  const infoButton = event.target.closest("[data-biome-info]");
+  if (infoButton) {
+    const biomeId = infoButton.dataset.biomeInfo;
+    if (expandedBiomeInfo.has(biomeId)) expandedBiomeInfo.delete(biomeId);
+    else expandedBiomeInfo.add(biomeId);
+    renderMap();
+    elements.biomeList.querySelector('[data-biome-info="' + biomeId + '"]')?.focus();
+    return;
+  }
+  const visitButton = event.target.closest("[data-biome-visit]");
+  if (visitButton) {
+    const biome = getBiomeById(visitButton.dataset.biomeVisit);
+    if (biome && getBiomeAction(biome, currentBiomeId) === "Visit") {
+      currentBiomeId = biome.id;
+      render();
+      renderMap();
+    }
+  }
+});
+
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !elements.detailOverlay.hidden) closeItemDetails();
-  else if (event.key === "Escape" && !elements.inventory.hidden) setInventoryOpen(false);
+  else if (event.key === "Escape" && activePanel !== null) closeActivePanel();
 });
 
 render();
