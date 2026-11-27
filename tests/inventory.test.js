@@ -12,17 +12,18 @@ test("inventory has the four requested categories", () => {
   assert.deepEqual(INVENTORY_CATEGORIES.map(({ id }) => id), ["item", "tool", "sword", "artifact"]);
 });
 
-test("Plains keeps its existing items and includes Sapphire", () => {
+test("Plains contains only its four original items", () => {
   const items = PLAINS_INVENTORY.item.Natural;
-  assert.deepEqual(items.map(({ id }) => id), ["item_grass", "wood_scrap", "cobble_rock", "emerald", "sapphire"]);
+  assert.deepEqual(items.map(({ id }) => id), ["item_grass", "wood_scrap", "cobble_rock", "emerald"]);
   assert.ok(items.every((entry) => entry.count === 0 && entry.image.startsWith("./sprites/item/plains/")));
 });
 
-test("Tundra item and tool sprites use their biome folders", () => {
-  assert.deepEqual(TUNDRA_INVENTORY.item.Natural.map(({ id }) => id), ["sweet_berry", "snowball", "spruce_wood", "ice_shard"]);
+test("Tundra contains Sapphire with its other biome items and tools", () => {
+  assert.deepEqual(TUNDRA_INVENTORY.item.Natural.map(({ id }) => id), ["sweet_berry", "snowball", "spruce_wood", "ice_shard", "sapphire"]);
   assert.deepEqual(TUNDRA_INVENTORY.tool.Natural.map(({ id }) => id), ["ice_pick", "sapphire_dagger", "sapphire_pick"]);
   assert.ok([...TUNDRA_INVENTORY.item.Natural, ...TUNDRA_INVENTORY.tool.Natural]
     .every((entry) => entry.count === 0 && entry.image.includes("/tundra/")));
+  assert.equal(TUNDRA_INVENTORY.item.Natural.at(-1).image, "./sprites/item/tundra/sapphire.png");
 });
 
 test("liquids are shared globally instead of being biome-specific", () => {
