@@ -71,8 +71,8 @@ export const TUNDRA_INVENTORY = Object.freeze({
 });
 
 export const LIQUID_INVENTORY = Object.freeze([
-  Object.freeze({ id: "cold_water", name: "Cold Water", image: "./sprites/liquid/cold_water.png", count: 0 }),
-  Object.freeze({ id: "water", name: "Water", image: "./sprites/liquid/water.png", count: 0 }),
+  Object.freeze({ id: "cold_water", name: "Cold Water", image: "./sprites/liquid/cold_water.png", count: 0, biome: "Tundra", tag: "Liquid" }),
+  Object.freeze({ id: "water", name: "Water", image: "./sprites/liquid/water.png", count: 0, biome: "Plains", tag: "Liquid" }),
 ]);
 
 export function chunkItems(items, perRow = 6) {
