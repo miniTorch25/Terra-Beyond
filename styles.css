@@ -10,6 +10,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  padding-bottom: calc(88px + env(safe-area-inset-bottom));
   background: radial-gradient(ellipse at 50% 18%, #263a2c 0, #17251d 44%, #101914 100%);
 }
 button { font: inherit; }
@@ -60,6 +61,67 @@ h2 { margin: 0; font-size: 20px; }
 .rule-item strong { margin-left: auto; color: #eff7e9; font-size: 14px; }
 .rule-icon { color: #b5d58c; }
 footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center; letter-spacing: .3px; }
+
+/* Bottom navigation */
+.bottom-menu {
+  position: fixed; z-index: 30; inset: auto 0 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-height: 72px; padding: 7px max(8px, env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  border-top: 1px solid #405844; background: #17251ff2; backdrop-filter: blur(12px);
+}
+.menu-button {
+  display: flex; min-width: 0; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  border: 0; border-radius: 10px; background: transparent; color: #91a591; font-size: 10px; font-weight: 700;
+}
+.menu-button:disabled { opacity: .48; }
+.menu-button.is-selected { background: #2c4432; color: #d7edc8; }
+.menu-icon { font-size: 22px; line-height: 1.15; }
+
+/* Inventory overlay and drawers */
+.inventory-panel {
+  position: fixed; z-index: 20; inset: 0 0 calc(72px + env(safe-area-inset-bottom));
+  overflow-y: auto; overscroll-behavior: contain; padding: 18px max(16px, calc((100vw - 620px) / 2)) 24px;
+  border-bottom: 1px solid #405844; background: linear-gradient(160deg, #1d2e23, #101a14);
+  box-shadow: 0 16px 40px #0008;
+}
+.inventory-panel[hidden] { display: none; }
+.inventory-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.inventory-heading h2 { font-size: 21px; }
+.inventory-close {
+  display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #526b53;
+  border-radius: 9px; background: #2a3e2d; color: #eff7e9; font-size: 26px; line-height: 1; cursor: pointer;
+}
+.inventory-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin-bottom: 16px; }
+.inventory-tab {
+  display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 38px; padding: 6px 4px;
+  border: 1px solid #3e5542; border-radius: 9px; background: #1b2a20; color: #a8bba4; font-size: 12px; font-weight: 750;
+}
+.inventory-tab.is-active { border-color: #8eaf70; background: #354e35; color: #e3f2d6; }
+.tab-check { color: #c9ed9c; font-weight: 900; }
+.inventory-content { display: grid; gap: 10px; }
+.biome-drawer { overflow: hidden; border: 1px solid #405744; border-radius: 11px; background: #1a2a20; }
+.biome-drawer > summary {
+  display: flex; align-items: center; justify-content: space-between; min-height: 42px; padding: 0 13px;
+  background: #2b4030; color: #e2efd9; font-size: 13px; font-weight: 850; letter-spacing: .5px; cursor: pointer; list-style: none;
+}
+.biome-drawer > summary::-webkit-details-marker { display: none; }
+.drawer-arrow { color: #b9d69b; font-size: 18px; }
+.biome-content { padding: 5px 11px 12px; }
+.inventory-section { padding: 10px 0 5px; }
+.inventory-section + .inventory-section { border-top: 1px solid #354b39; }
+.inventory-section h3 { margin: 0 0 9px; color: #a9c39e; font-size: 11px; font-weight: 850; letter-spacing: 1px; text-transform: uppercase; }
+.item-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; margin-bottom: 7px; }
+.inventory-slot {
+  position: relative; display: grid; place-items: center; aspect-ratio: 1; min-width: 0; overflow: hidden;
+  border: 1px solid #506650; border-radius: 8px; background: linear-gradient(145deg, #344936, #233528);
+}
+.inventory-slot img { width: 72%; height: 72%; object-fit: contain; image-rendering: pixelated; }
+.item-count {
+  position: absolute; right: 3px; bottom: 2px; min-width: 14px; padding: 1px 3px;
+  border-radius: 4px; background: #101810d9; color: #f0f5e9; font-size: 10px; font-weight: 800;
+  line-height: 1.2; text-align: right; font-variant-numeric: tabular-nums;
+}
+.empty-inventory { margin: 7px 0 3px; color: #718775; font-size: 11px; font-style: italic; }
+
 @media (max-width: 420px) {
   .game-shell { width: min(100% - 22px, 620px); padding-top: 18px; }
   .mine-panel { padding: 15px; }
@@ -67,4 +129,7 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
   .block-art { width: 144px; height: 144px; }
   .rules-panel { padding: 14px 12px; gap: 8px; }
   .rule-item { font-size: 11px; }
+  .inventory-panel { padding-top: 14px; }
+  .item-row { gap: 5px; }
+  .biome-content { padding-right: 8px; padding-left: 8px; }
 }
