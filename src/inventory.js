@@ -87,3 +87,60 @@ export function chunkItems(items, perRow = 6) {
   }
   return rows;
 }
+
+const ITEM_DESCRIPTIONS = Object.freeze({
+  item_grass: "A little piece of the world. It looks ordinary, but every journey starts somewhere.",
+  wood_scrap: "A rough piece of timber left behind after gathering wood.",
+  cobble_rock: "A sturdy stone fragment. Useful, dependable, and not very comfortable to carry.",
+  emerald: "A bright green gem that seems far too valuable to leave lying around.",
+  sweet_berry: "A bright berry that brings a little colour to the frozen landscape.",
+  snowball: "A tightly packed ball of snow. Cold, round, and ready to be thrown.",
+  spruce_wood: "A piece of hardy wood gathered from the northern forest.",
+  ice_shard: "A sharp fragment of clear ice that catches the light.",
+  sapphire: "A precious blue gemstone hidden beneath the frozen ground.",
+  oak_pick: "A simple wooden pick made for getting started.",
+  rock_pick: "A rough but reliable pick for harder materials.",
+  emerald_pick: "A brilliant pick with an unmistakable green shine.",
+  stone_dagger: "A small stone blade. Better than facing the wilderness empty-handed.",
+  ice_pick: "A cold-forged pick suited to the frozen frontier.",
+  sapphire_dagger: "A blue gemstone blade with a crisp edge.",
+  sapphire_pick: "A powerful pick fitted with a sapphire head.",
+  cold_water: "Water chilled by the frozen air of the Tundra.",
+  water: "A clear and familiar liquid found in the Plains.",
+});
+const ORIGIN_BLOCKS = Object.freeze({
+  item_grass: ["plains", "grass"], wood_scrap: ["plains", "oak_log"],
+  cobble_rock: ["plains", "cobblestone"], emerald: ["plains", "emerald_block"],
+  oak_pick: ["plains", "oak_log"], rock_pick: ["plains", "cobblestone"],
+  emerald_pick: ["plains", "emerald_block"], stone_dagger: ["plains", "cobblestone"],
+  sweet_berry: ["tundra", "berry_bush"], snowball: ["tundra", "snow"],
+  spruce_wood: ["tundra", "spruce_log"], ice_shard: ["tundra", "ice_block"],
+  sapphire: ["tundra", "sapphire_ore"], ice_pick: ["tundra", "ice_block"],
+  sapphire_dagger: ["tundra", "sapphire_ore"], sapphire_pick: ["tundra", "sapphire_ore"],
+});
+export function getItemDetails(id, fallbackTag = "Natural") {
+  const all = [...PLAINS_INVENTORY.item.Natural, ...PLAINS_INVENTORY.tool.Natural,
+    ...TUNDRA_INVENTORY.item.Natural, ...TUNDRA_INVENTORY.tool.Natural, ...LIQUID_INVENTORY];
+  const item = all.find((entry) => entry.id === id);
+  if (!item) return null;
+  const originData = ORIGIN_BLOCKS[id];
+  const origin = originData ? {
+    name: originData[1].replaceAll("_", " ").replace(/\\b\\w/g, (letter) => letter.toUpperCase()),
+    image: `./sprites/block/${originData[0]}/${originData[1]}.png`,
+  } : null;
+  return {
+    ...item,
+    description: ITEM_DESCRIPTIONS[id] || "A curious item waiting to be discovered.",
+    tag: item.tag || (id === "water" || id === "cold_water" ? "Liquid" : fallbackTag),
+    origin: item.origin || origin,
+  };
+}
+const COUNT_SUFFIXES = ["", "k", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"];
+export function formatItemCount(value) {
+  if (!Number.isFinite(value) || value < 0) throw new RangeError("Item count must be a non-negative finite number.");
+  const count = Math.floor(value);
+  if (count < 1000) return String(count);
+  const tier = Math.floor(Math.log10(count) / 3);
+  if (tier >= COUNT_SUFFIXES.length) return `1e${tier * 3}`;
+  return `${Math.floor(count / (1000 ** tier))}${COUNT_SUFFIXES[tier]}`;
+}
