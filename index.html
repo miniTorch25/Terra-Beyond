@@ -55,6 +55,30 @@
     </section>
     <footer>Early prototype · Mining and random block respawn only</footer>
   </main>
+
+  <section class="inventory-panel" id="inventory-panel" aria-labelledby="inventory-title" aria-hidden="true" hidden>
+    <div class="inventory-heading">
+      <h2 id="inventory-title">Inventory</h2>
+      <button class="inventory-close" id="inventory-close" type="button" aria-label="Close inventory">×</button>
+    </div>
+    <div class="inventory-tabs" role="tablist" aria-label="Inventory categories">
+      <button class="inventory-tab is-active" type="button" role="tab" aria-selected="true" data-category="item">Item <span aria-hidden="true">✓</span></button>
+      <button class="inventory-tab" type="button" role="tab" aria-selected="false" data-category="tool">Tool</button>
+      <button class="inventory-tab" type="button" role="tab" aria-selected="false" data-category="sword">Sword</button>
+      <button class="inventory-tab" type="button" role="tab" aria-selected="false" data-category="artifact">Artifact</button>
+    </div>
+    <div class="inventory-content" id="inventory-content"></div>
+  </section>
+
+  <nav class="bottom-menu" aria-label="Main menu">
+    <button class="menu-button is-selected" id="inventory-open" type="button" aria-label="Open Inventory" aria-expanded="false">
+      <span class="menu-icon" aria-hidden="true">▦</span><span>Inventory</span>
+    </button>
+    <button class="menu-button" type="button" disabled aria-label="Coming soon: Crafting"><span class="menu-icon" aria-hidden="true">⚒</span><span>Craft</span></button>
+    <button class="menu-button" type="button" disabled aria-label="Coming soon: Equipment"><span class="menu-icon" aria-hidden="true">⚔</span><span>Gear</span></button>
+    <button class="menu-button" type="button" disabled aria-label="Coming soon: Map"><span class="menu-icon" aria-hidden="true">⌖</span><span>Map</span></button>
+    <button class="menu-button" type="button" disabled aria-label="Coming soon: Settings"><span class="menu-icon" aria-hidden="true">⚙</span><span>More</span></button>
+  </nav>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
