@@ -8,6 +8,19 @@ export function getInventoryCount(state, itemId) {
   return Math.max(0, Math.floor(state.counts[itemId] ?? 0));
 }
 
+export function addInventoryItem(state, itemId, amount = 1) {
+  if (!Object.hasOwn(state.counts, itemId)) {
+    throw new RangeError(`Unknown inventory item: ${itemId}`);
+  }
+  if (!Number.isInteger(amount) || amount <= 0) {
+    throw new RangeError("Item amount must be a positive integer.");
+  }
+  return {
+    ...state,
+    counts: { ...state.counts, [itemId]: getInventoryCount(state, itemId) + amount },
+  };
+}
+
 export function isInventoryDropTarget({ overSlot = false, inventoryOpen = false, overInventoryButton = false } = {}) {
   return Boolean(overInventoryButton || (overSlot && inventoryOpen));
 }
