@@ -761,3 +761,43 @@ body[data-biome] .navigation-panel[data-nav-panel="inventory"],
 body[data-biome] .navigation-panel[data-nav-panel="craft"],
 body[data-biome] .navigation-panel[data-nav-panel="gear"],
 body[data-biome] .navigation-panel[data-nav-panel="more"] { color-scheme: dark; }
+
+
+/* Map biome cards, information frames and info toggles share each biome's fixed palette. */
+body[data-biome] .map-biome-row[data-biome-row="plains"] { border-color:#78965f; background:linear-gradient(150deg,#304832,#1e3024); }
+body[data-biome] .map-biome-row[data-biome-row="plains"] .map-biome-heading h3 { color:#e3f2d6; }
+body[data-biome] .map-biome-row[data-biome-row="plains"] .map-biome-info { border-top-color:#58764b; background:#263c2b; }
+body[data-biome] .map-biome-row[data-biome-row="plains"] .map-biome-info p,
+body[data-biome] .map-biome-row[data-biome-row="plains"] .biome-spawn-chances li { color:#c7dfbc; }
+body[data-biome] .map-biome-row[data-biome-row="plains"] .biome-spawn-chances h4,
+body[data-biome] .map-biome-row[data-biome-row="plains"] .biome-spawn-chances li strong { color:#e3f2d6; }
+body[data-biome] .map-biome-row[data-biome-row="plains"] .biome-info-toggle { border-color:#78965f; background:#354e35; color:#e3f2d6; }
+body[data-biome] .map-biome-row[data-biome-row="plains"] .biome-info-toggle.is-open { border-color:#a5c18a; background:#496b49; color:#f1ffe8; }
+
+body[data-biome] .map-biome-row[data-biome-row="tundra"] { border-color:#8ab0c2; background:linear-gradient(150deg,#294b5d,#1c3442); }
+body[data-biome] .map-biome-row[data-biome-row="tundra"] .map-biome-heading h3 { color:#f0f9fc; }
+body[data-biome] .map-biome-row[data-biome-row="tundra"] .map-biome-info { border-top-color:#63899b; background:#203d4d; }
+body[data-biome] .map-biome-row[data-biome-row="tundra"] .map-biome-info p,
+body[data-biome] .map-biome-row[data-biome-row="tundra"] .biome-spawn-chances li { color:#c4dce6; }
+body[data-biome] .map-biome-row[data-biome-row="tundra"] .biome-spawn-chances h4,
+body[data-biome] .map-biome-row[data-biome-row="tundra"] .biome-spawn-chances li strong { color:#f0f9fc; }
+body[data-biome] .map-biome-row[data-biome-row="tundra"] .biome-info-toggle { border-color:#8ab0c2; background:#3d6579; color:#f0f9fc; }
+body[data-biome] .map-biome-row[data-biome-row="tundra"] .biome-info-toggle.is-open { border-color:#b1d2df; background:#527f95; color:#fff; }
+
+body[data-biome] .map-biome-row[data-biome-row="cave"] { border-color:#a9a9a9; background:linear-gradient(150deg,#454545,#292929); }
+body[data-biome] .map-biome-row[data-biome-row="cave"] .map-biome-heading h3 { color:#f7f7f7; }
+body[data-biome] .map-biome-row[data-biome-row="cave"] .map-biome-info { border-top-color:#777; background:#333; }
+body[data-biome] .map-biome-row[data-biome-row="cave"] .map-biome-info p,
+body[data-biome] .map-biome-row[data-biome-row="cave"] .biome-spawn-chances li { color:#d6d6d6; }
+body[data-biome] .map-biome-row[data-biome-row="cave"] .biome-spawn-chances h4,
+body[data-biome] .map-biome-row[data-biome-row="cave"] .biome-spawn-chances li strong { color:#f7f7f7; }
+body[data-biome] .map-biome-row[data-biome-row="cave"] .biome-info-toggle { border-color:#a9a9a9; background:#5e5e5e; color:#f7f7f7; }
+body[data-biome] .map-biome-row[data-biome-row="cave"] .biome-info-toggle.is-open { border-color:#d0d0d0; background:#747474; color:#fff; }
+
+/* Fixed identity colors for the requested bottom navigation buttons. */
+body[data-biome] .menu-button[data-nav-target="inventory"] { border-color:#858585; background:#4b4b4b; color:#f2f2f2; }
+body[data-biome] .menu-button[data-nav-target="inventory"].is-selected { border-color:#b0b0b0; background:#686868; color:#fff; }
+body[data-biome] .menu-button[data-nav-target="craft"] { border-color:#9a7658; background:#5b3d2a; color:#f7e8d8; }
+body[data-biome] .menu-button[data-nav-target="craft"].is-selected { border-color:#c39a73; background:#795238; color:#fff3e7; }
+body[data-biome] .menu-button[data-nav-target="more"] { border-color:#9273a5; background:#49345a; color:#f3e9fa; }
+body[data-biome] .menu-button[data-nav-target="more"].is-selected { border-color:#b99acb; background:#624777; color:#fff4ff; }
