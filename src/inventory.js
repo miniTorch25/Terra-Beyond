@@ -2,9 +2,9 @@ export const INVENTORY_CATEGORIES = Object.freeze([
   Object.freeze({ id: "item", label: "Item" }), Object.freeze({ id: "tool", label: "Tool" }),
   Object.freeze({ id: "sword", label: "Sword" }), Object.freeze({ id: "artifact", label: "Artifact" }),
 ]);
-const item = (id, name, biome) => Object.freeze({ id, name, image: `./sprites/item/${biome}/${id}.png`, count: 0, unique: false });
-const tool = (id, name, biome, abilities = []) => Object.freeze({ id, name, category: "tool", image: `./sprites/tool/${biome}/${id}.png`, count: 0, unique: true, abilities: Object.freeze(abilities) });
-const sword = (id, name, biome) => Object.freeze({ id, name, category: "sword", image: `./sprites/sword/${biome}/${id}.png`, count: 0, unique: true });
+const item = (id, name, biome) => Object.freeze({ id, name, biomeId: biome, image: `./sprites/item/${biome}/${id}.png`, count: 0, unique: false });
+const tool = (id, name, biome, abilities = []) => Object.freeze({ id, name, biomeId: biome, category: "tool", image: `./sprites/tool/${biome}/${id}.png`, count: 0, unique: true, abilities: Object.freeze(abilities) });
+const sword = (id, name, biome) => Object.freeze({ id, name, biomeId: biome, category: "sword", image: `./sprites/sword/${biome}/${id}.png`, count: 0, unique: true });
 const sections = (natural = [], crafted = []) => Object.freeze({ Natural: Object.freeze(natural), Crafted: Object.freeze(crafted) });
 const craftedOnly = (crafted = []) => Object.freeze({ Crafted: Object.freeze(crafted.map((entry) => Object.freeze({ ...entry, unique: true }))) });
 export const PLAINS_INVENTORY = Object.freeze({
@@ -27,8 +27,8 @@ export const CAVE_INVENTORY = Object.freeze({
   artifact: craftedOnly(),
 });
 export const LIQUID_INVENTORY = Object.freeze([
-  Object.freeze({id:"water",name:"Water",image:"./sprites/liquid/water.png",count:0,biome:"Plains",tag:"Liquid",unique:false}),
-  Object.freeze({id:"cold_water",name:"Cold Water",image:"./sprites/liquid/cold_water.png",count:0,biome:"Tundra",tag:"Liquid",unique:false}),
+  Object.freeze({id:"water",name:"Water",biomeId:"plains",image:"./sprites/liquid/water.png",count:0,biome:"Plains",tag:"Liquid",unique:false}),
+  Object.freeze({id:"cold_water",name:"Cold Water",biomeId:"tundra",image:"./sprites/liquid/cold_water.png",count:0,biome:"Tundra",tag:"Liquid",unique:false}),
 ]);
 export const INVENTORY_ITEMS = Object.freeze([
   ...PLAINS_INVENTORY.item.Natural,...PLAINS_INVENTORY.item.Crafted,...PLAINS_INVENTORY.tool.Crafted,...PLAINS_INVENTORY.sword.Crafted,...PLAINS_INVENTORY.artifact.Crafted,
@@ -56,7 +56,8 @@ const ORIGIN_BLOCKS = Object.freeze({
 export function getItemDetails(id, fallbackTag="Natural") {
  const entry=INVENTORY_ITEMS.find(candidate=>candidate.id===id); if(!entry)return null;
  const source=ORIGIN_BLOCKS[id];
- const origin=source?{name:source[1].replaceAll("_"," ").replace(/\b\w/g,letter=>letter.toUpperCase()),image:`./sprites/block/${source[0]}/${source[1]}.png`}:null;
+ const sourceBlock=source?BLOCKS_BY_BIOME[source[0]]?.find(block=>block.id===source[1]):null;
+ const origin=source?{name:source[1].replaceAll("_"," ").replace(/\b\w/g,letter=>letter.toUpperCase()),image:`./sprites/block/${source[0]}/${source[1]}.png`,spawnChance:sourceBlock?.spawnRate??null}:null;
  return {...entry,description:ITEM_DESCRIPTIONS[id]||"A curious item waiting to be discovered.",tag:entry.tag||fallbackTag,origin};
 }
 const COUNT_SUFFIXES=["","k","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"];
