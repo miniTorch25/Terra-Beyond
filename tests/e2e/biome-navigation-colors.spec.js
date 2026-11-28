@@ -45,3 +45,40 @@ test("All five bottom navigation tabs keep the same dark-gray palette in every b
   expect(snapshots[0].background).toBe("rgba(37, 37, 37, 0.95)");
   expect(snapshots[0].buttons[4].background).toBe("rgb(65, 65, 65)");
 });
+
+test("Inventory, Workbench, Gear and More keep their own palettes across biome themes", async ({ page }) => {
+  await page.goto("/");
+  const menus = [
+    { id: "inventory", button: "#inventory-open", expected: "rgb(80, 57, 39)" },
+    { id: "craft", button: "#craft-open", expected: "rgb(87, 56, 93)" },
+    { id: "gear", button: "#gear-open", expected: "rgb(49, 91, 85)" },
+    { id: "more", button: "#more-open", expected: "rgb(59, 61, 66)" },
+  ];
+  for (const menu of menus) {
+    await page.locator(menu.button).click();
+    const panel = page.locator('[data-nav-panel="' + menu.id + '"]');
+    const snapshots = [];
+    for (const theme of ["plains", "tundra", "cave"]) {
+      await page.locator("body").evaluate((body, biome) => { body.dataset.biome = biome; }, theme);
+      snapshots.push(await panel.evaluate((node) => ({
+        background: getComputedStyle(node).backgroundImage,
+        border: getComputedStyle(node).borderBottomColor,
+      })));
+    }
+    expect(snapshots[1]).toEqual(snapshots[0]);
+    expect(snapshots[2]).toEqual(snapshots[0]);
+    expect(await panel.evaluate((node) => getComputedStyle(node).backgroundImage)).toContain(menu.expected);
+    await page.locator(menu.button).click();
+  }
+});
+
+test("Map background still follows the active biome theme", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#map-open").click();
+  const backgrounds = [];
+  for (const theme of ["plains", "tundra", "cave"]) {
+    await page.locator("body").evaluate((body, biome) => { body.dataset.biome = biome; }, theme);
+    backgrounds.push(await page.locator("#map-panel").evaluate((node) => getComputedStyle(node).backgroundImage));
+  }
+  expect(new Set(backgrounds).size).toBe(3);
+});
