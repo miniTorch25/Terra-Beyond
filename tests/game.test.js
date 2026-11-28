@@ -111,8 +111,9 @@ test("other picks do not instantly break Ice Block",()=>{const ice=BLOCKS_BY_BIO
 
 
 test("Grass has a 25 percent chance to spawn a water puddle", () => {
-  assert.equal(createInitialState(() => [0, 0.249][calls++], "plains").waterPuddle, true);
   let calls = 0;
+  assert.equal(createInitialState(() => [0, 0.249][calls++], "plains").waterPuddle, true);
+  calls = 0;
   assert.equal(createInitialState(() => [0, 0.25][calls++], "plains").waterPuddle, false);
 });
 
