@@ -801,3 +801,160 @@ body[data-biome] .menu-button[data-nav-target="craft"] { border-color:#9a7658; b
 body[data-biome] .menu-button[data-nav-target="craft"].is-selected { border-color:#c39a73; background:#795238; color:#fff3e7; }
 body[data-biome] .menu-button[data-nav-target="more"] { border-color:#9273a5; background:#49345a; color:#f3e9fa; }
 body[data-biome] .menu-button[data-nav-target="more"].is-selected { border-color:#b99acb; background:#624777; color:#fff4ff; }
+
+
+/* Navigation panel palettes are paired with their matching bottom-menu buttons.
+   These selectors intentionally outrank biome-wide UI colors; Map remains biome-driven. */
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] {
+  --panel-bg: #292929;
+  --panel-bg-raised: #414141;
+  --panel-bg-soft: #303030;
+  --panel-border: #626262;
+  --panel-accent: #b0b0b0;
+  --panel-text: #f2f2f2;
+  --panel-muted: #c4c4c4;
+  border-color: var(--panel-border);
+  background: linear-gradient(160deg, #484848, var(--panel-bg));
+  color: var(--panel-text);
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-heading h2,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-section h3 { color: #f2f2f2; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-close,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-collapse,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .ui-half-toggle,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .ui-position-toggle {
+  border-color: #858585; background: #4b4b4b; color: #f2f2f2;
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-collapse[aria-pressed="true"],
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .ui-half-toggle[aria-pressed="true"] {
+  border-color: #b0b0b0; background: #686868; color: #fff;
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-tab {
+  border-color: #626262; background: #303030; color: #c4c4c4;
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-tab.is-active {
+  border-color: #b0b0b0; background: #686868; color: #fff;
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .tab-check,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .drawer-arrow { color: #dedede; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .biome-drawer {
+  border-color: #626262; background: #303030;
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .biome-drawer > summary {
+  background: #414141; color: #f2f2f2;
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-section + .inventory-section,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-origin,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-row,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-abilities,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-damage { border-color: #626262; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-section h3,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-label { color: #d0d0d0; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-slot {
+  border-color: #858585; background: linear-gradient(145deg, #4b4b4b, #303030);
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .item-info-button {
+  border-color: #b0b0b0; background: #303030; color: #fff;
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .empty-inventory { color: #b0b0b0; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-item-heading img,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-origin-content img,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-damage li {
+  border-color: #626262; background: #303030;
+}
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-item-description,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-abilities p,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-origin-content,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-row strong,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-damage li strong { color: #ededed; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-damage li span { color: #c4c4c4; }
+
+body[data-biome] .navigation-panel[data-nav-panel="craft"] {
+  --panel-bg: #302116;
+  --panel-bg-raised: #63442f;
+  --panel-bg-soft: #3b291d;
+  --panel-border: #9a7658;
+  --panel-accent: #c39a73;
+  --panel-text: #f7e8d8;
+  --panel-muted: #d7bda5;
+  border-color: var(--panel-border);
+  background: linear-gradient(160deg, #795238, var(--panel-bg));
+  color: var(--panel-text);
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .inventory-heading h2 { color: #fff3e7; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .ui-half-toggle,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .ui-position-toggle {
+  border-color: #9a7658; background: #5b3d2a; color: #f7e8d8;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .ui-half-toggle[aria-pressed="true"] {
+  border-color: #c39a73; background: #795238; color: #fff3e7;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-station {
+  border-color: #9a7658; background: linear-gradient(145deg, #63442f, #3b291d); color: #f7e8d8;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-station.is-unlocked {
+  border-color: #c39a73; background: linear-gradient(145deg, #795238, #503723);
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-station.can-unlock {
+  box-shadow: inset 0 0 0 1px #c39a73;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .station-icon,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .station-status,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-section-heading span { color: #f0cda8; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .station-cost,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-info p,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-flavor { color: #d7bda5; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-crafting { border-color: #806047; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-tab {
+  border-color: #806047; background: #3b291d; color: #d7bda5;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-tab.is-active {
+  border-color: #c39a73; background: #795238; color: #fff3e7;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-card {
+  border-color: #806047; background: #3b291d; color: #f7e8d8;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-info strong,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-title-line { color: #fff3e7; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-line { color: #e3cdb7; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-cost,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-line > b,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-ingredient small { color: #f0cda8; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-icon {
+  border-color: #806047; background: #302116;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-craft-button {
+  border-color: #c39a73; background: #795238; color: #fff3e7;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-craft-button:disabled {
+  border-color: #69513e; background: #403024; color: #aa9785;
+}
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-card:not(:disabled):active {
+  border-color: #d8b28c; background: #503723;
+}
+
+body[data-biome] .navigation-panel[data-nav-panel="more"] {
+  --panel-bg: #281d31;
+  --panel-bg-raised: #49345a;
+  --panel-bg-soft: #352640;
+  --panel-border: #9273a5;
+  --panel-accent: #b99acb;
+  --panel-text: #f3e9fa;
+  --panel-muted: #cdbbd8;
+  border-color: var(--panel-border);
+  background: linear-gradient(160deg, #624777, var(--panel-bg));
+  color: var(--panel-text);
+}
+body[data-biome] .navigation-panel[data-nav-panel="more"] .inventory-heading h2 { color: #fff4ff; }
+body[data-biome] .navigation-panel[data-nav-panel="more"] .ui-half-toggle,
+body[data-biome] .navigation-panel[data-nav-panel="more"] .ui-position-toggle {
+  border-color: #9273a5; background: #49345a; color: #f3e9fa;
+}
+body[data-biome] .navigation-panel[data-nav-panel="more"] .ui-half-toggle[aria-pressed="true"] {
+  border-color: #b99acb; background: #624777; color: #fff4ff;
+}
+body[data-biome] .navigation-panel[data-nav-panel="more"] .panel-placeholder {
+  border-color: #9273a5; background: #352640; color: #d9c9e3;
+}
+
+/* Gear retains its established Tidewater Green palette. */
