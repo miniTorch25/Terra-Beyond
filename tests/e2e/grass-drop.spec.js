@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("breaking a Grass block grants one Grass item in the Inventory UI", async ({ page }) => {
   await page.addInitScript(() => {
-    Math.random = () => 0;
+    Math.random = () => 0.3;
   });
   await page.goto("/");
 
@@ -58,7 +58,7 @@ test("Biome information lists each block spawn chance on its own line", async ({
   await expect(info).toContainText("5%");
 });
 test("Natural item details show the origin block spawn chance", async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
   for (let i = 0; i < 5; i += 1) await page.locator("#mine-button").click();
   await page.locator("#inventory-open").click();
