@@ -5,6 +5,7 @@ import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
 import { getPlayerDamageStats, getBlockDamage, formatDamage } from "./damage.js";
 import { createWorkbenchState, CRAFTING_TABLE_COST, RECIPES, unlockCraftingTable, craftRecipe } from "./workbench.js";
+import { equipItem, getEquippedItem, isEquippableItem } from "./equipment.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -33,6 +34,8 @@ const elements = {
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
   detailDuplicate: document.querySelector("#detail-duplicate-button"),
+  detailEquip: document.querySelector("#detail-equip-button"), playerEquipment: document.querySelector("#player-equipment"),
+  playerBaseDamage: document.querySelector("#player-base-damage"), playerBlockDamage: document.querySelector("#player-block-damage"), playerMobDamage: document.querySelector("#player-mob-damage"),
   currencyCount: document.querySelector("#ic-balance"),
   duplicateOverlay: document.querySelector("#duplicate-confirm-overlay"),
   duplicateImage: document.querySelector("#duplicate-item-image"),
@@ -59,6 +62,7 @@ let catalystBalance = STARTING_IC;
 let pendingDuplicateItemId = null;
 let workbenchState=createWorkbenchState();
 let activeCraftCategory="item";
+let equippedItemId=null;
 let equippedToolId=null;
 const INVENTORY_COMPACT_KEY = "terra-beyond-inventory-half-screen";
 let inventoryCompact = localStorage.getItem(INVENTORY_COMPACT_KEY) === "true";
@@ -111,6 +115,10 @@ function renderInventoryCounts() {
     if (counter) counter.textContent = formatItemCount(count);
     const dropButton = slot.querySelector(".inventory-item-button");
     if (dropButton) dropButton.disabled = count < 1;
+    slot.classList.toggle("is-equipped", slot.dataset.itemId === equippedItemId);
+    let marker = slot.querySelector(".equipped-marker");
+    if (slot.dataset.itemId === equippedItemId && !marker) { marker=document.createElement("span"); marker.className="equipped-marker"; marker.textContent="E"; slot.append(marker); }
+    if (slot.dataset.itemId !== equippedItemId) marker?.remove();
   });
 }
 
@@ -182,11 +190,12 @@ function renderInventory() {
   const renderSections = (sections) => Object.entries(sections).map(([sectionName, items]) => {
     const rows = chunkItems(items, 6).map((row) => {
       const slots = row.map((item) =>
-        '<div class="inventory-slot" data-item-id="' + item.id + '">' +
+        '<div class="inventory-slot' + (item.id === equippedItemId ? ' is-equipped' : '') + '" data-item-id="' + item.id + '">' +
         '<button class="inventory-item-button" type="button" data-item-id="' + item.id +
         '" aria-label="Drop ' + item.name + '" title="Click to drop ' + item.name + '"' +
         (getInventoryCount(inventoryState, item.id) < 1 ? ' disabled' : '') + '>' +
         '<img src="' + item.image + '" alt="" loading="lazy"></button>' +
+        (item.id === equippedItemId ? '<span class="equipped-marker" aria-label="Equipped">E</span>' : '') +
         '<button class="item-info-button" type="button" data-item-info="' + item.id +
         '" data-item-tag="' + sectionName + '" aria-label="View ' + item.name + ' details" title="Item information">?</button>' +
         (item.unique ? '' : '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span>') + '</div>'
@@ -218,10 +227,27 @@ function renderInventory() {
     '<div class="biome-content">' + renderSections(tundraSections) + '</div></details>' + liquidMarkup;
 }
 
-function renderDamageStats(){const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);}
-function renderWorkbench(){const unlocked=workbenchState.unlockedStations.has("crafting_table"),wood=getInventoryCount(inventoryState,"wood_scrap"),rock=getInventoryCount(inventoryState,"cobble_rock");elements.craftingTableStatus.textContent=unlocked?"Unlocked":"Locked";elements.craftingTableCost.textContent=unlocked?"Ready to use":"10 Wood Scrap ("+wood+") · 2 Cobble Rock ("+rock+")";const station=elements.workbenchStations.querySelector('[data-station="crafting_table"]');station.classList.toggle("is-unlocked",unlocked);station.classList.toggle("can-unlock",!unlocked&&wood>=10&&rock>=2);elements.workbenchCrafting.hidden=!unlocked;elements.equippedToolLabel.textContent=equippedToolId?"Equipped: "+(inventoryItems.find(x=>x.id===equippedToolId)?.name||equippedToolId):"No tool equipped";elements.workbenchTabs.forEach(t=>{const a=t.dataset.craftCategory===activeCraftCategory;t.classList.toggle("is-active",a);t.setAttribute("aria-selected",String(a));});if(!unlocked)return;const recipes=RECIPES[activeCraftCategory]||[];if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">No craftable items in this category yet.</p>';return;}elements.workbenchRecipes.innerHTML=recipes.map(r=>{const owned=getInventoryCount(inventoryState,r.itemId),costs=Object.entries(r.cost).map(([id,n])=>{const item=inventoryItems.find(x=>x.id===id),count=getInventoryCount(inventoryState,id);return '<span class="recipe-cost'+(count<n?' is-missing':'')+'">'+(item?.name||id)+' '+count+'/'+n+'</span>';}).join(""),can=Object.entries(r.cost).every(([id,n])=>getInventoryCount(inventoryState,id)>=n)&&(!r.unique||owned<1),label=r.unique&&owned?"Owned":can?"Craft":"Missing materials";return '<article class="recipe-card"><div class="recipe-icon"><img src="'+r.image+'" alt=""></div><div class="recipe-info"><strong>'+r.name+'</strong><p>'+r.description+'</p><div class="recipe-costs">'+costs+'</div></div><button type="button" class="recipe-craft-button" data-recipe="'+r.id+'"'+(can?'':' disabled')+'>'+label+'</button></article>';}).join("");}
+function renderDamageStats(){const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);elements.playerBaseDamage.textContent=formatDamage(s.baseDamage);elements.playerBlockDamage.textContent=formatDamage(s.blockDamage);elements.playerMobDamage.textContent=formatDamage(s.mobDamage);}
+function renderWorkbench(){
+const unlocked=workbenchState.unlockedStations.has("crafting_table"),wood=getInventoryCount(inventoryState,"wood_scrap"),rock=getInventoryCount(inventoryState,"cobble_rock");
+elements.craftingTableStatus.textContent=unlocked?"Unlocked":"Locked";elements.craftingTableCost.textContent=unlocked?"Ready to use":"10 Wood Scrap ("+wood+") · 2 Cobble Rock ("+rock+")";
+const station=elements.workbenchStations.querySelector('[data-station="crafting_table"]');station.classList.toggle("is-unlocked",unlocked);station.classList.toggle("can-unlock",!unlocked&&wood>=10&&rock>=2);elements.workbenchCrafting.hidden=!unlocked;
+const equipped=getEquippedItem(equippedItemId,inventoryItems);elements.equippedToolLabel.textContent=equipped?"Equipped: "+equipped.name:"No equipment equipped";
+elements.workbenchTabs.forEach(t=>{const active=t.dataset.craftCategory===activeCraftCategory;t.classList.toggle("is-active",active);t.setAttribute("aria-selected",String(active));});if(!unlocked)return;
+const recipes=RECIPES[activeCraftCategory]||[];if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">No craftable items in this category yet.</p>';return;}
+const icon=(id,n)=>{const item=inventoryItems.find(x=>x.id===id);return '<span class="recipe-ingredient" title="'+(item?.name||id)+' ×'+n+'"><img src="'+(item?.image||"")+'" alt="'+(item?.name||id)+'"><small>×'+n+'</small></span>';};
+elements.workbenchRecipes.innerHTML=recipes.map(recipe=>{
+const owned=getInventoryCount(inventoryState,recipe.itemId),hasMaterials=Object.entries(recipe.materials).every(([id,n])=>getInventoryCount(inventoryState,id)>=n),hasRequirements=Object.entries(recipe.requirements).every(([id,n])=>getInventoryCount(inventoryState,id)>=n),can=hasMaterials&&hasRequirements&&(!recipe.unique||owned<1);
+const materials=Object.entries(recipe.materials).map(([id,n])=>icon(id,n)).join("")||'<span class="recipe-none">None</span>';const requirements=Object.entries(recipe.requirements).map(([id,n])=>icon(id,n)).join("")||'<span class="recipe-none">None</span>';
+const status=owned?"Already crafted":!hasRequirements?"Missing requirements":!hasMaterials?"Missing materials":"Ready to craft";
+return '<button type="button" class="recipe-card" data-recipe="'+recipe.id+'"'+(can?'':' disabled')+' aria-label="Craft '+recipe.name+'. '+status+'"><span class="recipe-line recipe-title-line"><img class="recipe-line-icon" src="'+recipe.image+'" alt=""><strong>'+recipe.name+'</strong><small>'+(can?"Ready":status)+'</small></span><span class="recipe-line"><b>Mat:</b><span class="recipe-ingredients">'+materials+'</span></span><span class="recipe-line"><b>Req:</b><span class="recipe-ingredients">'+requirements+'</span></span><span class="recipe-line recipe-flavor"><img class="recipe-line-icon" src="'+recipe.image+'" alt=""><span>'+recipe.flavorText+'</span></span></button>';
+}).join("");
+}
 function handleWorkbenchStation(id){if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";}
-function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;if(r.item.category==="tool")equippedToolId=r.itemId;renderWorkbench();renderInventoryCounts();renderDamageStats();elements.helper.textContent="Crafted "+r.item.name+(equippedToolId===r.itemId?" and equipped it.":".");}
+function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
+function handleEquipItem(id){const result=equipItem(equippedItemId,id,inventoryState,inventoryItems);if(!result.success){elements.helper.textContent=result.reason==="not-owned"?"You must own this item before equipping it.":"This item cannot be equipped.";return;}equippedItemId=result.equippedItemId;const item=getEquippedItem(equippedItemId,inventoryItems);equippedToolId=item?.category==="tool"?item.id:null;renderDamageStats();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();renderGear();if(!elements.detailOverlay.hidden)updateDetailEquipButton(id);elements.helper.textContent=item?"Equipped "+item.name+".":"Equipment removed."; }
+function updateDetailEquipButton(id){const item=inventoryItems.find(x=>x.id===id),available=isEquippableItem(item);elements.detailEquip.hidden=!available;elements.detailEquip.disabled=!available||getInventoryCount(inventoryState,id)<1;elements.detailEquip.dataset.itemId=id;elements.detailEquip.textContent=equippedItemId===id?"Unequip":"Equip";}
+function renderGear(){const item=getEquippedItem(equippedItemId,inventoryItems);elements.playerEquipment.innerHTML=item?'<div class="player-equipped-card"><img src="'+item.image+'" alt=""><div><strong>'+item.name+'</strong><span>Equipped</span></div><button type="button" id="unequip-player-item">Unequip</button></div>':'<p class="player-no-equipment">No equipment equipped yet.</p>';const button=elements.playerEquipment.querySelector("#unequip-player-item");if(button)button.addEventListener("click",()=>handleEquipItem(equippedItemId));}
 
 function renderMap() {
   elements.biomeList.innerHTML = BIOMES.map((biome) => {
@@ -256,6 +282,7 @@ function openItemDetails(id, fallbackTag) {
   elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
   elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);
   elements.detailDuplicate.dataset.itemId = item.id;
+  updateDetailEquipButton(item.id);
   if (item.tag === "Natural" && item.origin) {
     elements.detailOrigin.hidden = false;
     elements.detailOrigin.querySelector("img").src = item.origin.image;
@@ -342,6 +369,7 @@ function setActivePanel(panelName) {
 
   if (activePanel === "inventory") { applyInventorySize(); renderInventory(); }
   if (activePanel === "map") renderMap();
+  if (activePanel === "gear") renderGear();
   if (activePanel === "craft") renderWorkbench();
 }
 
@@ -389,6 +417,7 @@ elements.inventoryTabs.forEach((tab) => {
   });
 });
 elements.detailDuplicate.addEventListener("click", () => openDuplicateConfirmation(elements.detailDuplicate.dataset.itemId));
+elements.detailEquip.addEventListener("click",()=>handleEquipItem(elements.detailEquip.dataset.itemId));
 elements.duplicateConfirm.addEventListener("click", confirmDuplicate);
 elements.duplicateCancel.addEventListener("click", closeDuplicateConfirmation);
 elements.duplicateOverlay.addEventListener("click", (event) => {
@@ -400,9 +429,11 @@ elements.inventoryContent.addEventListener("click", (event) => {
     openItemDetails(infoButton.dataset.itemInfo, infoButton.dataset.itemTag);
     return;
   }
-  const dropButton = event.target.closest(".inventory-item-button");
-  if (dropButton && !dropButton.disabled) {
-    ejectInventoryItem(dropButton.dataset.itemId, dropButton.closest(".inventory-slot"));
+  const itemButton = event.target.closest(".inventory-item-button");
+  if (itemButton && !itemButton.disabled) {
+    const item = inventoryItems.find(entry=>entry.id===itemButton.dataset.itemId);
+    if(isEquippableItem(item)){handleEquipItem(item.id);return;}
+    ejectInventoryItem(itemButton.dataset.itemId, itemButton.closest(".inventory-slot"));
   }
 });
 elements.inventoryCollapse.addEventListener("click", () => {
