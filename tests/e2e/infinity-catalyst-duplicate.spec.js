@@ -8,11 +8,14 @@ async function openGrassDetails(page, withPrototype = true) {
   await page.locator('[data-item-info="item_grass"]').click();
 }
 
-test("IC balance appears in the upper-right corner with 100 million", async ({ page }) => {
+test("IC balance stays above the bottom navigation and clear of panel header controls", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#ic-balance")).toHaveText("100M");
   await expect(page.locator(".ic-balance")).toBeVisible();
   await expect(page.locator(".ic-balance")).toHaveCSS("position", "fixed");
+  const balance = await page.locator(".ic-balance").boundingBox();
+  const nav = await page.locator(".bottom-menu").boundingBox();
+  expect(balance.y + balance.height).toBeLessThanOrEqual(nav.y);
 });
 
 test("duplicate confirmation charges 1 IC and grants 500 copies", async ({ page }) => {
@@ -45,4 +48,16 @@ test("Duplicate is hidden for Tool and Sword item details", async ({ page }) => 
   await page.locator('[data-category="sword"]').click();
   await page.locator('[data-item-info="stone_dagger"]').click();
   await expect(page.locator("#detail-duplicate-button")).toBeHidden();
+});
+
+test("IC balance does not overlap full-screen panel close or move controls", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#inventory-open").click();
+  const balance = await page.locator(".ic-balance").boundingBox();
+  const controls = await page.locator("#inventory-panel .inventory-heading-actions").boundingBox();
+  const overlaps = balance.x < controls.x + controls.width &&
+    balance.x + balance.width > controls.x &&
+    balance.y < controls.y + controls.height &&
+    balance.y + balance.height > controls.y;
+  expect(overlaps).toBe(false);
 });
