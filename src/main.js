@@ -2,6 +2,7 @@ import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, INVENTORY_ITEMS, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
 import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
+import { STARTING_IC, DUPLICATE_COST, DUPLICATE_AMOUNT, duplicateItem } from "./economy.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -29,6 +30,14 @@ const elements = {
   detailOrigin: document.querySelector("#item-detail-origin"),
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
+  detailDuplicate: document.querySelector("#detail-duplicate-button"),
+  currencyCount: document.querySelector("#ic-balance"),
+  duplicateOverlay: document.querySelector("#duplicate-confirm-overlay"),
+  duplicateImage: document.querySelector("#duplicate-item-image"),
+  duplicateName: document.querySelector("#duplicate-item-name"),
+  duplicateMessage: document.querySelector("#duplicate-message"),
+  duplicateConfirm: document.querySelector("#duplicate-confirm-button"),
+  duplicateCancel: document.querySelector("#duplicate-cancel-button"),
   map: document.querySelector("#map-panel"),
   biomeList: document.querySelector("#biome-list"),
   navButtons: [...document.querySelectorAll(".menu-button[data-nav-target]")],
@@ -43,9 +52,16 @@ const expandedBiomeInfo = new Set();
 const unlockedBiomeIds = new Set(BIOMES.filter((biome) => biome.unlocked).map((biome) => biome.id));
 const inventoryItems = INVENTORY_ITEMS;
 let inventoryState = createInventoryState(inventoryItems);
+let catalystBalance = STARTING_IC;
+let pendingDuplicateItemId = null;
 const INVENTORY_COMPACT_KEY = "terra-beyond-inventory-half-screen";
 let inventoryCompact = localStorage.getItem(INVENTORY_COMPACT_KEY) === "true";
 let activeWorldDrag = null;
+
+function renderCurrency() {
+  elements.currencyCount.textContent = formatItemCount(catalystBalance);
+  elements.currencyCount.title = catalystBalance.toLocaleString("en-US") + " Infinity Catalyst";
+}
 
 function applyInventorySize() {
   elements.inventory.classList.toggle("is-half", inventoryCompact);
@@ -227,6 +243,7 @@ function openItemDetails(id, fallbackTag) {
   elements.detailTag.textContent = item.tag;
   elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
   elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);
+  elements.detailDuplicate.dataset.itemId = item.id;
   if (item.tag === "Natural" && item.origin) {
     elements.detailOrigin.hidden = false;
     elements.detailOrigin.querySelector("img").src = item.origin.image;
@@ -238,6 +255,53 @@ function openItemDetails(id, fallbackTag) {
   elements.detailOverlay.hidden = false;
   elements.detailOverlay.setAttribute("aria-hidden", "false");
   elements.detailCard.focus();
+}
+
+function openDuplicateConfirmation(itemId) {
+  const item = inventoryItems.find((entry) => entry.id === itemId);
+  if (!item) return;
+  pendingDuplicateItemId = itemId;
+  elements.duplicateImage.src = item.image;
+  elements.duplicateImage.alt = item.name;
+  elements.duplicateName.textContent = item.name;
+  const owned = getInventoryCount(inventoryState, itemId);
+  const canDuplicate = owned >= 1 && catalystBalance >= DUPLICATE_COST;
+  elements.duplicateMessage.textContent = owned < 1
+    ? "You must own at least 1 copy of this item before duplicating it."
+    : catalystBalance < DUPLICATE_COST
+      ? "Not enough Infinity Catalyst."
+      : "Spend 1 IC to receive 500 additional " + item.name + "?";
+  elements.duplicateConfirm.disabled = !canDuplicate;
+  elements.duplicateOverlay.hidden = false;
+  elements.duplicateOverlay.setAttribute("aria-hidden", "false");
+  elements.duplicateConfirm.focus();
+}
+
+function closeDuplicateConfirmation() {
+  elements.duplicateOverlay.hidden = true;
+  elements.duplicateOverlay.setAttribute("aria-hidden", "true");
+  pendingDuplicateItemId = null;
+}
+
+function confirmDuplicate() {
+  if (!pendingDuplicateItemId) return;
+  const result = duplicateItem(catalystBalance, inventoryState, pendingDuplicateItemId);
+  if (!result.success) {
+    elements.duplicateMessage.textContent = result.reason === "missing-prototype"
+      ? "You must own at least 1 copy of this item before duplicating it."
+      : "Not enough Infinity Catalyst.";
+    elements.duplicateConfirm.disabled = true;
+    return;
+  }
+  catalystBalance = result.balance;
+  inventoryState = result.inventoryState;
+  renderCurrency();
+  renderInventoryCounts();
+  if (!elements.inventory.hidden) renderInventory();
+  elements.detailCount.textContent = String(getInventoryCount(inventoryState, pendingDuplicateItemId));
+  elements.detailCount.closest(".detail-row").hidden = false;
+  closeDuplicateConfirmation();
+  elements.helper.textContent = "Duplicated " + inventoryItems.find((item) => item.id === pendingDuplicateItemId)?.name + " ×500.";
 }
 
 function closeItemDetails() {
@@ -295,7 +359,8 @@ elements.button.addEventListener("click", () => {
   elements.helper.textContent = result.broken
     ? (dropMessage ? dropMessage + " · " : "") + result.state.block.name + " appeared. Keep mining!"
     : "-" + PLAYER_DAMAGE + " HP · " + result.state.hp + " HP remaining";
-  render();
+  renderCurrency();
+render();
 });
 
 elements.navButtons.forEach((button) => {
@@ -307,6 +372,12 @@ elements.inventoryTabs.forEach((tab) => {
     activeCategory = INVENTORY_CATEGORIES.find((category) => category.id === tab.dataset.category)?.id ?? "item";
     renderInventory();
   });
+});
+elements.detailDuplicate.addEventListener("click", () => openDuplicateConfirmation(elements.detailDuplicate.dataset.itemId));
+elements.duplicateConfirm.addEventListener("click", confirmDuplicate);
+elements.duplicateCancel.addEventListener("click", closeDuplicateConfirmation);
+elements.duplicateOverlay.addEventListener("click", (event) => {
+  if (event.target === elements.duplicateOverlay) closeDuplicateConfirmation();
 });
 elements.inventoryContent.addEventListener("click", (event) => {
   const infoButton = event.target.closest(".item-info-button");
@@ -386,7 +457,8 @@ elements.biomeList.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !elements.detailOverlay.hidden) closeItemDetails();
+  if (event.key === "Escape" && !elements.duplicateOverlay.hidden) closeDuplicateConfirmation();
+  else if (event.key === "Escape" && !elements.detailOverlay.hidden) closeItemDetails();
   else if (event.key === "Escape" && activePanel !== null) closeActivePanel();
 });
 
