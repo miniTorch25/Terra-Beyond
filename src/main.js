@@ -8,7 +8,7 @@ import { createWorkbenchState, CRAFTING_TABLE_COST, FURNACE_COST, RECIPES, unloc
 import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
 import { renderEquipmentSlots, renderAbilityLog } from "./equipment-ui.js";
-import { pushToast, removeToast, TOAST_DURATION } from "./toast-state.js";
+import { pushToast, removeToast, TOAST_DURATION, getCraftFailureAdvice } from "./toast-state.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -373,7 +373,7 @@ if(id==="furnace"){
 if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;
 const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";showToast("warning","Not enough materials to unlock the Crafting Table.");return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";
 }
-function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";const advice=r.reason==="already-owned"?"You already own this unique item.":"Gather the required resources before crafting this item.";showToast("warning",advice);return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
+function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";showToast("warning",getCraftFailureAdvice(r.reason));return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
 function handleEquipItem(id, slotIndex = 0) {
   const result = equipItem(equipmentState, id, inventoryState, inventoryItems, slotIndex);
   if (!result.success) {
