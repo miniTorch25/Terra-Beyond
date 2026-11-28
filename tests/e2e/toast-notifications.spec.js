@@ -48,6 +48,7 @@ test("locked biome attempts show a red insufficient-cost notification", async ({
 test("attempting an unavailable craft shows yellow resource advice", async ({ page }) => {
   await page.goto("/");
   await page.locator("#craft-open").click();
+  await page.locator("#workbench-crafting").evaluate((panel) => { panel.hidden = false; });
   await page.locator("#workbench-recipes").evaluate((container) => {
     const button = document.createElement("button");
     button.type = "button";
