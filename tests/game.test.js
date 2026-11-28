@@ -108,3 +108,24 @@ test("Cave block HP is at least three times the corresponding Tundra progression
 
 test("Ice Pick instantly breaks Ice Block regardless of remaining HP",()=>{const ice=BLOCKS_BY_BIOME.tundra.find(block=>block.id==="ice_block");const result=mineBlock({block:ice,hp:ice.maxHp},5,()=>0,"tundra","ice_pick");assert.equal(result.broken,true);assert.deepEqual(result.drops,[{itemId:"ice_shard",amount:1}]);assert.equal(result.state.hp,15);});
 test("other picks do not instantly break Ice Block",()=>{const ice=BLOCKS_BY_BIOME.tundra.find(block=>block.id==="ice_block");const result=mineBlock({block:ice,hp:ice.maxHp},8,()=>0,"tundra","sapphire_pick");assert.equal(result.broken,false);assert.equal(result.state.hp,ice.maxHp-8);});
+
+
+test("Grass has a 25 percent chance to spawn a water puddle", () => {
+  assert.equal(createInitialState(() => [0, 0.249][calls++], "plains").waterPuddle, true);
+  let calls = 0;
+  assert.equal(createInitialState(() => [0, 0.25][calls++], "plains").waterPuddle, false);
+});
+
+test("non-Grass blocks never spawn water puddles", () => {
+  const state = createInitialState(() => 0.4, "plains");
+  assert.equal(state.block.id, "oak_log");
+  assert.equal(state.waterPuddle, false);
+});
+
+test("breaking a block rolls the puddle chance for the newly spawned Grass block", () => {
+  const rolls = [0, 0.1];
+  let index = 0;
+  const result = mineBlock({ block: BLOCKS[1], hp: 1 }, 1, () => rolls[index++], "plains");
+  assert.equal(result.state.block.id, "grass");
+  assert.equal(result.state.waterPuddle, true);
+});
