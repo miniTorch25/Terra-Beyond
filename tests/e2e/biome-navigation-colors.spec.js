@@ -94,7 +94,8 @@ test("Map biome information frames and ! buttons use their biome colors across w
     const biomeStates = [];
     for (const biome of ["plains", "tundra", "cave"]) {
       const row = page.locator('[data-biome-row="' + biome + '"]');
-      await row.locator(".biome-info-toggle").click();
+      const infoToggle = row.locator(".biome-info-toggle");
+      if (await infoToggle.getAttribute("aria-expanded") !== "true") await infoToggle.click();
       biomeStates.push(await row.evaluate((node) => ({
         frameBorder: getComputedStyle(node).borderTopColor,
         infoBackground: getComputedStyle(node.querySelector(".map-biome-info")).backgroundColor,
