@@ -655,9 +655,11 @@ elements.button.addEventListener("click", () => {
     const item = inventoryItems.find((entry) => entry.id === drop.itemId);
     return (item?.name || drop.itemId) + " +" + drop.amount;
   }).join(", ");
-  elements.helper.textContent = result.broken
-    ? (dropMessage ? dropMessage + " · " : "") + result.state.block.name + " appeared. Keep mining!"
-    : "-" + formatDamage(damage) + " HP · " + formatDamage(result.state.hp) + " HP remaining";
+  if (gameSettings.showMiningFeedback) {
+    elements.helper.textContent = result.broken
+      ? (dropMessage ? dropMessage + " · " : "") + result.state.block.name + " appeared. Keep mining!"
+      : "-" + formatDamage(damage) + " HP · " + formatDamage(result.state.hp) + " HP remaining";
+  }
   render();
 });
 
