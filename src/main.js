@@ -21,7 +21,6 @@ const elements = {
   inventory: document.querySelector("#inventory-panel"),
   inventoryButton: document.querySelector("#inventory-open"),
   inventoryClose: document.querySelector("#inventory-close"),
-  inventoryCollapse: document.querySelector("#inventory-collapse"),
   worldItems: document.querySelector("#world-items"),
   inventoryContent: document.querySelector("#inventory-content"),
   inventoryTabs: [...document.querySelectorAll(".inventory-tab")],
@@ -52,7 +51,7 @@ const elements = {
 
 let state = createInitialState(Math.random, "plains");
 let activeCategory = "item";
-let activePanel = null;
+let activePanels = new Set();
 let currentBiomeId = "plains";
 const expandedBiomeInfo = new Set();
 const unlockedBiomeIds = new Set(BIOMES.filter((biome) => biome.unlocked).map((biome) => biome.id));
@@ -64,20 +63,52 @@ let workbenchState=createWorkbenchState();
 let activeCraftCategory="item";
 let equipmentState=createEquipmentState();
 let equippedToolId=null;
-const INVENTORY_COMPACT_KEY = "terra-beyond-inventory-half-screen";
-let inventoryCompact = localStorage.getItem(INVENTORY_COMPACT_KEY) === "true";
+const PANEL_LAYOUT_KEY = "terra-beyond-panel-layouts";
+const defaultPanelLayout = { inventory: { half: localStorage.getItem("terra-beyond-inventory-half-screen") === "true", position: "bottom" }, craft: { half: false, position: "bottom" }, gear: { half: false, position: "bottom" }, more: { half: false, position: "bottom" } };
+let panelLayouts = (() => { try { return { ...defaultPanelLayout, ...JSON.parse(localStorage.getItem(PANEL_LAYOUT_KEY) || "{}") }; } catch { return defaultPanelLayout; } })();
 let activeWorldDrag = null;
+let equipmentDrag = null;
+let suppressEquipClickItemId = null;
 
 function renderCurrency() {
   elements.currencyCount.textContent = formatItemCount(catalystBalance);
   elements.currencyCount.title = catalystBalance.toLocaleString("en-US") + " Infinity Catalyst";
 }
 
-function applyInventorySize() {
-  elements.inventory.classList.toggle("is-half", inventoryCompact);
-  elements.inventoryCollapse.setAttribute("aria-pressed", String(inventoryCompact));
-  elements.inventoryCollapse.setAttribute("aria-label", inventoryCompact ? "Expand inventory" : "Shrink inventory to half screen");
-  elements.inventoryCollapse.textContent = inventoryCompact ? "⌃" : "⌄";
+function applyPanelLayout(panelName) {
+  const panel = document.querySelector('[data-nav-panel="' + panelName + '"]');
+  const layout = panelLayouts[panelName];
+  if (!panel || !layout || panelName === "map") return;
+  panel.classList.toggle("is-half", Boolean(layout.half));
+  panel.classList.toggle("is-top", layout.half && layout.position === "top");
+  panel.classList.toggle("is-bottom", layout.half && layout.position !== "top");
+  panel.querySelectorAll("[data-ui-half]").forEach(button => {
+    button.setAttribute("aria-pressed", String(Boolean(layout.half)));
+    button.setAttribute("aria-label", layout.half ? "Expand panel" : "Split panel to half screen");
+    button.textContent = layout.half ? "⤢" : "↕";
+  });
+  panel.querySelectorAll("[data-ui-position]").forEach(button => {
+    button.disabled = !layout.half;
+    button.setAttribute("aria-label", layout.position === "top" ? "Move panel to bottom half" : "Move panel to top half");
+    button.textContent = layout.position === "top" ? "↓" : "↑";
+  });
+}
+function savePanelLayouts() { localStorage.setItem(PANEL_LAYOUT_KEY, JSON.stringify(panelLayouts)); }
+function applyAllPanelLayouts() { ["inventory", "craft", "gear", "more"].forEach(applyPanelLayout); }
+function setPanelHalf(panelName) {
+  const layout = panelLayouts[panelName];
+  if (!layout) return;
+  layout.half = !layout.half;
+  savePanelLayouts();
+  applyPanelLayout(panelName);
+}
+function swapPanelHalf(panelName) {
+  const layout = panelLayouts[panelName];
+  if (!layout) return;
+  layout.half = true;
+  layout.position = layout.position === "top" ? "bottom" : "top";
+  savePanelLayouts();
+  applyPanelLayout(panelName);
 }
 
 function renderWorldItem(entry, x, y) {
@@ -115,7 +146,8 @@ function renderInventoryCounts() {
     if (counter) counter.textContent = formatItemCount(count);
     const dropButton = slot.querySelector(".inventory-item-button");
     if (dropButton) dropButton.disabled = count < 1;
-    const equipped = equipmentState[getEquipmentSlot(inventoryItems.find(item=>item.id===slot.dataset.itemId))] === slot.dataset.itemId;
+    const equippedSlots = equipmentState[getEquipmentSlot(inventoryItems.find(item=>item.id===slot.dataset.itemId))] || [];
+    const equipped = equippedSlots.includes(slot.dataset.itemId);
     slot.classList.toggle("is-equipped", equipped);
     let marker = slot.querySelector(".equipped-marker");
     if (equipped && !marker) { marker=document.createElement("span"); marker.className="equipped-marker"; marker.textContent="E"; slot.append(marker); }
@@ -191,12 +223,12 @@ function renderInventory() {
   const renderSections = (sections) => Object.entries(sections).map(([sectionName, items]) => {
     const rows = chunkItems(items, 6).map((row) => {
       const slots = row.map((item) =>
-        '<div class="inventory-slot' + (equipmentState[getEquipmentSlot(item)] === item.id ? ' is-equipped' : '') + '" data-item-id="' + item.id + '">' +
+        '<div class="inventory-slot' + ((equipmentState[getEquipmentSlot(item)] || []).includes(item.id) ? ' is-equipped' : '') + '" data-item-id="' + item.id + '">' +
         '<button class="inventory-item-button" type="button" data-item-id="' + item.id +
         '" aria-label="Drop ' + item.name + '" title="Click to drop ' + item.name + '"' +
         (getInventoryCount(inventoryState, item.id) < 1 ? ' disabled' : '') + '>' +
         '<img src="' + item.image + '" alt="" loading="lazy"></button>' +
-        (equipmentState[getEquipmentSlot(item)] === item.id ? '<span class="equipped-marker" aria-label="Equipped">E</span>' : '') +
+        ((equipmentState[getEquipmentSlot(item)] || []).includes(item.id) ? '<span class="equipped-marker" aria-label="Equipped">E</span>' : '') +
         '<button class="item-info-button" type="button" data-item-info="' + item.id +
         '" data-item-tag="' + sectionName + '" aria-label="View ' + item.name + ' details" title="Item information">?</button>' +
         (item.unique ? '' : '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span>') + '</div>'
@@ -228,12 +260,12 @@ function renderInventory() {
     '<div class="biome-content">' + renderSections(tundraSections) + '</div></details>' + liquidMarkup;
 }
 
-function renderDamageStats(){equippedToolId=equipmentState.tool;const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);elements.playerBaseDamage.textContent=formatDamage(s.baseDamage);elements.playerBlockDamage.textContent=formatDamage(s.blockDamage);elements.playerMobDamage.textContent=formatDamage(s.mobDamage);}
+function renderDamageStats(){equippedToolId=equipmentState.tool[0];const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);elements.playerBaseDamage.textContent=formatDamage(s.baseDamage);elements.playerBlockDamage.textContent=formatDamage(s.blockDamage);elements.playerMobDamage.textContent=formatDamage(s.mobDamage);}
 function renderWorkbench(){
 const unlocked=workbenchState.unlockedStations.has("crafting_table"),wood=getInventoryCount(inventoryState,"wood_scrap"),rock=getInventoryCount(inventoryState,"cobble_rock");
 elements.craftingTableStatus.textContent=unlocked?"Unlocked":"Locked";elements.craftingTableCost.textContent=unlocked?"Ready to use":"10 Wood Scrap ("+wood+") · 2 Cobble Rock ("+rock+")";
 const station=elements.workbenchStations.querySelector('[data-station="crafting_table"]');station.classList.toggle("is-unlocked",unlocked);station.classList.toggle("can-unlock",!unlocked&&wood>=10&&rock>=2);elements.workbenchCrafting.hidden=!unlocked;
-const equippedTool=getEquippedItem(equipmentState.tool,inventoryItems),equippedSword=getEquippedItem(equipmentState.sword,inventoryItems);elements.equippedToolLabel.textContent="Tool: "+(equippedTool?.name||"None")+" · Sword: "+(equippedSword?.name||"None");
+const equippedTool=getEquippedItem(equipmentState.tool[0],inventoryItems),equippedSword=getEquippedItem(equipmentState.sword[0],inventoryItems);elements.equippedToolLabel.textContent="Tool: "+(equippedTool?.name||"None")+" · Sword: "+(equippedSword?.name||"None");
 elements.workbenchTabs.forEach(t=>{const active=t.dataset.craftCategory===activeCraftCategory;t.classList.toggle("is-active",active);t.setAttribute("aria-selected",String(active));});if(!unlocked)return;
 const recipes=RECIPES[activeCraftCategory]||[];if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">No craftable items in this category yet.</p>';return;}
 const icon=(id,n)=>{const item=inventoryItems.find(x=>x.id===id);return '<span class="recipe-ingredient" title="'+(item?.name||id)+' ×'+n+'"><img src="'+(item?.image||"")+'" alt="'+(item?.name||id)+'"><small>×'+n+'</small></span>';};
@@ -246,9 +278,40 @@ const firstMaterial=Object.keys(recipe.materials)[0],firstRequirement=Object.key
 }
 function handleWorkbenchStation(id){if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";}
 function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
-function handleEquipItem(id){const result=equipItem(equipmentState,id,inventoryState,inventoryItems);if(!result.success){elements.helper.textContent=result.reason==="not-owned"?"You must own this item before equipping it.":"This item cannot be equipped.";return;}equipmentState=result.equipmentState;const item=getEquippedItem(id,inventoryItems);renderDamageStats();renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();renderGear();if(!elements.detailOverlay.hidden)updateDetailEquipButton(id);elements.helper.textContent=equipmentState[result.slot]?"Equipped "+item.name+" in the "+result.slot+" slot.": "Unequipped "+item.name+"."; }
-function updateDetailEquipButton(id){const item=inventoryItems.find(x=>x.id===id),slot=getEquipmentSlot(item),available=Boolean(slot);elements.detailEquip.hidden=!available;elements.detailEquip.disabled=!available||getInventoryCount(inventoryState,id)<1;elements.detailEquip.dataset.itemId=id;elements.detailEquip.textContent=slot?(equipmentState[slot]===id?"Unequip "+(slot==="tool"?"Tool":"Sword"):"Equip "+(slot==="tool"?"Tool":"Sword")):"Equip";}
-function renderGear(){const slotCard=(slot,label)=>{const item=getEquippedItem(equipmentState[slot],inventoryItems);return '<article class="equipment-slot-card equipment-'+slot+'"><div class="equipment-slot-heading"><h4>'+label+' Slot</h4><span>'+(item?"Equipped":"Empty")+'</span></div>'+(item?'<div class="equipment-slot-item"><img src="'+item.image+'" alt=""><div><strong>'+item.name+'</strong><small>'+label+'</small></div><button type="button" data-unequip-slot="'+slot+'">Unequip</button></div>':'<p class="equipment-slot-empty">No '+label.toLowerCase()+' equipped</p>')+'</article>';};elements.playerEquipment.innerHTML=slotCard("tool","Tool")+slotCard("sword","Sword");elements.playerEquipment.querySelectorAll("[data-unequip-slot]").forEach(button=>button.addEventListener("click",()=>handleEquipItem(equipmentState[button.dataset.unequipSlot])));}
+function handleEquipItem(id, slotIndex = 0) {
+  const result = equipItem(equipmentState, id, inventoryState, inventoryItems, slotIndex);
+  if (!result.success) {
+    elements.helper.textContent = result.reason === "not-owned" ? "You must own this item before equipping it." : result.reason === "locked-slot" ? "This equipment slot is locked." : result.reason === "already-equipped" ? "This item is already equipped in another slot." : "This item cannot be equipped.";
+    return;
+  }
+  equipmentState = result.equipmentState;
+  const item = getEquippedItem(id, inventoryItems);
+  renderDamageStats(); renderWorkbench(); renderInventoryCounts();
+  if (!elements.inventory.hidden) renderInventory();
+  renderGear();
+  if (!elements.detailOverlay.hidden) updateDetailEquipButton(id);
+  elements.helper.textContent = equipmentState[result.slot][slotIndex] ? "Equipped " + item.name + " in " + result.slot + " slot " + (slotIndex + 1) + "." : "Unequipped " + item.name + ".";
+}
+function updateDetailEquipButton(id) {
+  const item = inventoryItems.find(x => x.id === id), slot = getEquipmentSlot(item), available = Boolean(slot);
+  elements.detailEquip.hidden = !available;
+  elements.detailEquip.disabled = !available || getInventoryCount(inventoryState, id) < 1;
+  elements.detailEquip.dataset.itemId = id;
+  elements.detailEquip.textContent = slot ? ((equipmentState[slot] || []).includes(id) ? "Unequip" : "Equip") + " " + slot[0].toUpperCase() + slot.slice(1) : "Equip";
+}
+function renderGear() {
+  const slotCard = (type, index) => {
+    const locked = (type === "tool" || type === "sword") && index > 0;
+    const item = getEquippedItem(equipmentState[type][index], inventoryItems);
+    const label = type[0].toUpperCase() + type.slice(1);
+    return '<article class="equipment-slot-card equipment-' + type + (locked ? ' is-locked' : '') + '" data-equipment-slot="' + type + '" data-slot-index="' + index + '">' +
+      '<div class="equipment-slot-heading"><h4>' + label + ' ' + (index + 1) + '</h4><span>' + (locked ? 'Locked' : item ? 'Equipped' : 'Empty') + '</span></div>' +
+      (locked ? '<p class="equipment-slot-empty">Locked</p>' : item ? '<div class="equipment-slot-item"><img src="' + item.image + '" alt=""><div><strong>' + item.name + '</strong><small>' + label + '</small></div><button type="button" data-unequip-slot="' + type + '" data-slot-index="' + index + '">Unequip</button></div>' : '<p class="equipment-slot-empty">Drop ' + label + ' here</p>') +
+      '</article>';
+  };
+  elements.playerEquipment.innerHTML = ["tool", "sword", "artifact"].map(type => '<section class="equipment-group equipment-group-' + type + '"><h4>' + type.toUpperCase() + '</h4><div class="equipment-slot-grid">' + Array.from({length: type === "artifact" ? 6 : 3}, (_, index) => slotCard(type, index)).join("") + '</div></section>').join("");
+  elements.playerEquipment.querySelectorAll("[data-unequip-slot]").forEach(button => button.addEventListener("click", () => handleEquipItem(equipmentState[button.dataset.unequipSlot][Number(button.dataset.slotIndex)], Number(button.dataset.slotIndex))));
+}
 
 function renderMap() {
   elements.biomeList.innerHTML = BIOMES.map((biome) => {
@@ -283,6 +346,7 @@ function openItemDetails(id, fallbackTag) {
   elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
   elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);
   elements.detailDuplicate.dataset.itemId = item.id;
+  elements.detailDuplicate.hidden = ["tool", "sword", "artifact"].includes(item.category);
   updateDetailEquipButton(item.id);
   if (item.tag === "Natural" && item.origin) {
     elements.detailOrigin.hidden = false;
@@ -299,7 +363,7 @@ function openItemDetails(id, fallbackTag) {
 
 function openDuplicateConfirmation(itemId) {
   const item = inventoryItems.find((entry) => entry.id === itemId);
-  if (!item) return;
+  if (!item || ["tool", "sword", "artifact"].includes(item.category)) return;
   pendingDuplicateItemId = itemId;
   elements.duplicateImage.src = item.image;
   elements.duplicateImage.alt = item.name;
@@ -351,41 +415,45 @@ function closeItemDetails() {
 }
 
 function setActivePanel(panelName) {
-  const nextPanel = activePanel === panelName ? null : panelName;
-  if (activePanel === "map" && nextPanel !== "map") expandedBiomeInfo.clear();
-  if (activePanel === "inventory" && nextPanel !== "inventory") closeItemDetails();
-  if (nextPanel !== "inventory") closeItemDetails();
-  activePanel = nextPanel;
-
-  elements.navPanels.forEach((panel) => {
-    const isOpen = panel.dataset.navPanel === activePanel;
+  const wasOpen = activePanels.has(panelName);
+  if (panelName === "map") {
+    if (wasOpen) activePanels.clear();
+    else { activePanels.clear(); activePanels.add("map"); }
+    expandedBiomeInfo.clear();
+  } else if (wasOpen) {
+    activePanels.delete(panelName);
+  } else if ((panelName === "inventory" && activePanels.has("gear")) || (panelName === "gear" && activePanels.has("inventory"))) {
+    activePanels.add(panelName);
+    for (const name of ["inventory", "gear"]) { panelLayouts[name].half = true; panelLayouts[name].position = name === "inventory" ? "top" : "bottom"; }
+    savePanelLayouts();
+  } else {
+    activePanels.clear();
+    activePanels.add(panelName);
+  }
+  if (!activePanels.has("inventory")) closeItemDetails();
+  elements.navPanels.forEach(panel => {
+    const isOpen = activePanels.has(panel.dataset.navPanel);
     panel.hidden = !isOpen;
     panel.setAttribute("aria-hidden", String(!isOpen));
   });
-  elements.navButtons.forEach((button) => {
-    const isOpen = button.dataset.navTarget === activePanel;
+  elements.navButtons.forEach(button => {
+    const isOpen = activePanels.has(button.dataset.navTarget);
     button.classList.toggle("is-selected", isOpen);
     button.setAttribute("aria-expanded", String(isOpen));
   });
-
-  if (activePanel === "inventory") { applyInventorySize(); renderInventory(); }
-  if (activePanel === "map") renderMap();
-  if (activePanel === "gear") renderGear();
-  if (activePanel === "craft") renderWorkbench();
+  applyAllPanelLayouts();
+  if (activePanels.has("inventory")) renderInventory();
+  if (activePanels.has("map")) renderMap();
+  if (activePanels.has("gear")) renderGear();
+  if (activePanels.has("craft")) renderWorkbench();
 }
 
 function closeActivePanel() {
-  if (activePanel === "map") expandedBiomeInfo.clear();
+  if (activePanels.has("map")) expandedBiomeInfo.clear();
   closeItemDetails();
-  activePanel = null;
-  elements.navPanels.forEach((panel) => {
-    panel.hidden = true;
-    panel.setAttribute("aria-hidden", "true");
-  });
-  elements.navButtons.forEach((button) => {
-    button.classList.remove("is-selected");
-    button.setAttribute("aria-expanded", "false");
-  });
+  activePanels.clear();
+  elements.navPanels.forEach(panel => { panel.hidden = true; panel.setAttribute("aria-hidden", "true"); });
+  elements.navButtons.forEach(button => { button.classList.remove("is-selected"); button.setAttribute("aria-expanded", "false"); });
 }
 
 elements.button.addEventListener("click", () => {
@@ -433,22 +501,52 @@ elements.inventoryContent.addEventListener("click", (event) => {
   const itemButton = event.target.closest(".inventory-item-button");
   if (itemButton && !itemButton.disabled) {
     const item = inventoryItems.find(entry=>entry.id===itemButton.dataset.itemId);
+    if (suppressEquipClickItemId === item?.id) { suppressEquipClickItemId = null; return; }
     if(isEquippableItem(item)){handleEquipItem(item.id);return;}
     ejectInventoryItem(itemButton.dataset.itemId, itemButton.closest(".inventory-slot"));
   }
 });
-elements.inventoryCollapse.addEventListener("click", () => {
-  inventoryCompact = !inventoryCompact;
-  localStorage.setItem(INVENTORY_COMPACT_KEY, String(inventoryCompact));
-  applyInventorySize();
+document.addEventListener("click", event => {
+  const halfButton = event.target.closest("[data-ui-half]");
+  const positionButton = event.target.closest("[data-ui-position]");
+  if (halfButton) setPanelHalf(halfButton.dataset.uiHalf);
+  if (positionButton) swapPanelHalf(positionButton.dataset.uiPosition);
+});
+elements.inventoryContent.addEventListener("pointerdown", event => {
+  if (!activePanels.has("inventory") || !activePanels.has("gear")) return;
+  const button = event.target.closest(".inventory-item-button");
+  if (!button || button.disabled) return;
+  const item = inventoryItems.find(entry => entry.id === button.dataset.itemId);
+  if (!isEquippableItem(item)) return;
+  const ghost = document.createElement("div");
+  ghost.className = "equipment-drag-ghost";
+  ghost.innerHTML = '<img src="' + item.image + '" alt="">';
+  ghost.style.left = event.clientX + "px"; ghost.style.top = event.clientY + "px";
+  document.body.append(ghost);
+  equipmentDrag = { itemId: item.id, pointerId: event.pointerId, ghost };
+  event.preventDefault();
 });
 document.addEventListener("pointermove", (event) => {
+  if (equipmentDrag && equipmentDrag.pointerId === event.pointerId) {
+    equipmentDrag.ghost.style.left = event.clientX + "px";
+    equipmentDrag.ghost.style.top = event.clientY + "px";
+  }
   if (activeWorldDrag && activeWorldDrag.pointerId === event.pointerId) {
     activeWorldDrag.node.style.left = event.clientX + "px";
     activeWorldDrag.node.style.top = event.clientY + "px";
   }
 });
 document.addEventListener("pointerup", (event) => {
+  if (equipmentDrag && equipmentDrag.pointerId === event.pointerId) {
+    const drag = equipmentDrag;
+    drag.ghost.remove();
+    equipmentDrag = null;
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.("[data-equipment-slot]");
+    if (target && !target.classList.contains("is-locked") && target.dataset.equipmentSlot === getEquipmentSlot(inventoryItems.find(item => item.id === drag.itemId))) {
+      handleEquipItem(drag.itemId, Number(target.dataset.slotIndex));
+      suppressEquipClickItemId = drag.itemId;
+    }
+  }
   if (activeWorldDrag && activeWorldDrag.pointerId === event.pointerId) {
     const drag = activeWorldDrag;
     drag.node.classList.remove("is-dragging");
@@ -506,8 +604,9 @@ elements.biomeList.addEventListener("click", (event) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !elements.duplicateOverlay.hidden) closeDuplicateConfirmation();
   else if (event.key === "Escape" && !elements.detailOverlay.hidden) closeItemDetails();
-  else if (event.key === "Escape" && activePanel !== null) closeActivePanel();
+  else if (event.key === "Escape" && activePanels.size > 0) closeActivePanel();
 });
 
+applyAllPanelLayouts();
 renderCurrency();
 render();
