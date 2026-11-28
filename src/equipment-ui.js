@@ -16,16 +16,16 @@ function renderSlot(type, index, equipmentState, inventoryItems) {
 }
 
 export function renderEquipmentSlots(equipmentState, inventoryItems) {
-  const primary = ["tool", "sword"].map(type => Array.from({ length: 3 }, (_, index) =>
+  const primary = ["tool", "sword"].map(type => '<div class="equipment-group-' + type + '>' + Array.from({ length: 3 }, (_, index) =>
     renderSlot(type, index, equipmentState, inventoryItems)
-  ).join("")).join("");
+  ).join("") + "</div>").join("");
   const artifacts = Array.from({ length: 6 }, (_, index) =>
     renderSlot("artifact", index, equipmentState, inventoryItems)
   ).join("");
   return '<section class="equipment-group equipment-group-primary">' +
-    '<div class="equipment-primary-headings"><h4>Tool</h4><h4>Sword</h4></div>' +
+    '<div class="equipment-primary-headings"><h4>TOOL</h4><h4>SWORD</h4></div>' +
     '<div class="equipment-slot-grid equipment-primary-grid">' + primary + '</div></section>' +
-    '<section class="equipment-group equipment-group-artifact"><h4>Artifact</h4>' +
+    '<section class="equipment-group equipment-group-artifact"><h4>ARTIFACT</h4>' +
     '<div class="equipment-slot-grid equipment-artifact-grid">' + artifacts + '</div></section>';
 }
 
