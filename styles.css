@@ -293,10 +293,10 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 
 
 /* Shared half-screen layout for Inventory, Workbench, Gear and More (Map excluded). */
-.navigation-panel.is-half { height: calc(50vh - env(safe-area-inset-bottom)); bottom: calc(72px + env(safe-area-inset-bottom)); transition: top .18s ease, height .18s ease; }
-.navigation-panel.is-half.is-top { top: 0; bottom: auto; }
-.navigation-panel.is-half.is-bottom { top: 50vh; bottom: calc(72px + env(safe-area-inset-bottom)); }
-.navigation-panel:not(.is-half) { top: 0; bottom: calc(72px + env(safe-area-inset-bottom)); }
+body[data-biome] .navigation-panel.is-half { height: calc(50vh - env(safe-area-inset-bottom)); bottom: calc(72px + env(safe-area-inset-bottom)); transition: top .18s ease, height .18s ease; }
+body[data-biome] .navigation-panel.is-half.is-top { top: 0; bottom: auto; }
+body[data-biome] .navigation-panel.is-half.is-bottom { top: 50vh; bottom: calc(72px + env(safe-area-inset-bottom)); }
+body[data-biome] .navigation-panel:not(.is-half) { top: 0; bottom: calc(72px + env(safe-area-inset-bottom)); }
 .ui-half-toggle, .ui-position-toggle {
   display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #526b53;
   border-radius: 9px; background: #2a3e2d; color: #eff7e9; font-size: 19px; line-height: 1; cursor: pointer;
@@ -594,7 +594,7 @@ body[data-biome] .menu-button.is-selected { background:#414141; color:#f2f2f2; }
 
 /* Navigation panels have independent palettes and do not inherit biome themes.
    Map is intentionally excluded so its background continues to follow the active biome. */
-.navigation-panel[data-nav-panel="inventory"] {
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] {
   --panel-bg: #302219;
   --panel-bg-raised: #493326;
   --panel-bg-soft: #3b2a20;
@@ -606,41 +606,41 @@ body[data-biome] .menu-button.is-selected { background:#414141; color:#f2f2f2; }
   background: linear-gradient(160deg, #503927, var(--panel-bg));
   color: var(--panel-text);
 }
-.navigation-panel[data-nav-panel="inventory"] .inventory-heading h2,
-.navigation-panel[data-nav-panel="inventory"] .inventory-section h3 { color: #f1dfcd; }
-.navigation-panel[data-nav-panel="inventory"] .inventory-close,
-.navigation-panel[data-nav-panel="inventory"] .ui-half-toggle,
-.navigation-panel[data-nav-panel="inventory"] .ui-position-toggle {
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-heading h2,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-section h3 { color: #f1dfcd; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-close,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .ui-half-toggle,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .ui-position-toggle {
   border-color: #9a7658; background: #5a4030; color: #fff0df;
 }
-.navigation-panel[data-nav-panel="inventory"] .inventory-tab {
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-tab {
   border-color: #70513a; background: #39291f; color: #d8c0a8;
 }
-.navigation-panel[data-nav-panel="inventory"] .inventory-tab.is-active {
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-tab.is-active {
   border-color: #c29a70; background: #725039; color: #fff0df;
 }
-.navigation-panel[data-nav-panel="inventory"] .tab-check,
-.navigation-panel[data-nav-panel="inventory"] .drawer-arrow { color: #e4bd91; }
-.navigation-panel[data-nav-panel="inventory"] .biome-drawer {
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .tab-check,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .drawer-arrow { color: #e4bd91; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .biome-drawer {
   border-color: #76553d; background: #35271e;
 }
-.navigation-panel[data-nav-panel="inventory"] .biome-drawer > summary {
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .biome-drawer > summary {
   background: #60432f; color: #f5e6d6;
 }
-.navigation-panel[data-nav-panel="inventory"] .inventory-section + .inventory-section,
-.navigation-panel[data-nav-panel="inventory"] .detail-origin,
-.navigation-panel[data-nav-panel="inventory"] .detail-row { border-color: #614733; }
-.navigation-panel[data-nav-panel="inventory"] .inventory-section h3,
-.navigation-panel[data-nav-panel="inventory"] .detail-label { color: #d9b998; }
-.navigation-panel[data-nav-panel="inventory"] .inventory-slot {
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-section + .inventory-section,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-origin,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-row { border-color: #614733; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-section h3,
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .detail-label { color: #d9b998; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .inventory-slot {
   border-color: #806047; background: linear-gradient(145deg, #5a4030, #39291f);
 }
-.navigation-panel[data-nav-panel="inventory"] .item-info-button {
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .item-info-button {
   border-color: #c29a70; background: #39291f; color: #fff0df;
 }
-.navigation-panel[data-nav-panel="inventory"] .empty-inventory { color: #b99b80; }
+body[data-biome] .navigation-panel[data-nav-panel="inventory"] .empty-inventory { color: #b99b80; }
 
-.navigation-panel[data-nav-panel="craft"] {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] {
   --panel-bg: #281b2b;
   --panel-bg-raised: #472d4b;
   --panel-bg-soft: #35233a;
@@ -652,48 +652,48 @@ body[data-biome] .menu-button.is-selected { background:#414141; color:#f2f2f2; }
   background: linear-gradient(160deg, #57385d, var(--panel-bg));
   color: var(--panel-text);
 }
-.navigation-panel[data-nav-panel="craft"] .inventory-heading h2 { color: #f8eafa; }
-.navigation-panel[data-nav-panel="craft"] .ui-half-toggle,
-.navigation-panel[data-nav-panel="craft"] .ui-position-toggle {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .inventory-heading h2 { color: #f8eafa; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .ui-half-toggle,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .ui-position-toggle {
   border-color: #a477ad; background: #54375a; color: #fff0ff;
 }
-.navigation-panel[data-nav-panel="craft"] .workbench-station {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-station {
   border-color: #8d6395; background: linear-gradient(145deg, #55385a, #35233a); color: #f8eafa;
 }
-.navigation-panel[data-nav-panel="craft"] .workbench-station.is-unlocked {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-station.is-unlocked {
   border-color: #d0a0d7; background: linear-gradient(145deg, #704c77, #49304e);
 }
-.navigation-panel[data-nav-panel="craft"] .station-icon,
-.navigation-panel[data-nav-panel="craft"] .station-status,
-.navigation-panel[data-nav-panel="craft"] .workbench-section-heading span { color: #e4b8eb; }
-.navigation-panel[data-nav-panel="craft"] .station-cost,
-.navigation-panel[data-nav-panel="craft"] .recipe-info p,
-.navigation-panel[data-nav-panel="craft"] .recipe-flavor { color: #d2b9d8; }
-.navigation-panel[data-nav-panel="craft"] .workbench-crafting { border-color: #76527d; }
-.navigation-panel[data-nav-panel="craft"] .workbench-tab {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .station-icon,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .station-status,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-section-heading span { color: #e4b8eb; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .station-cost,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-info p,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-flavor { color: #d2b9d8; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-crafting { border-color: #76527d; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-tab {
   border-color: #805887; background: #35233a; color: #d8c1df;
 }
-.navigation-panel[data-nav-panel="craft"] .workbench-tab.is-active {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .workbench-tab.is-active {
   border-color: #d0a0d7; background: #704c77; color: #fff3ff;
 }
-.navigation-panel[data-nav-panel="craft"] .recipe-card {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-card {
   border-color: #76527d; background: #35233a; color: #f5eafa;
 }
-.navigation-panel[data-nav-panel="craft"] .recipe-info strong,
-.navigation-panel[data-nav-panel="craft"] .recipe-title-line { color: #fff0ff; }
-.navigation-panel[data-nav-panel="craft"] .recipe-line { color: #dfcbe5; }
-.navigation-panel[data-nav-panel="craft"] .recipe-cost,
-.navigation-panel[data-nav-panel="craft"] .recipe-line > b,
-.navigation-panel[data-nav-panel="craft"] .recipe-ingredient small { color: #e9c4ef; }
-.navigation-panel[data-nav-panel="craft"] .recipe-icon { border-color: #805887; background: #281b2b; }
-.navigation-panel[data-nav-panel="craft"] .recipe-craft-button {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-info strong,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-title-line { color: #fff0ff; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-line { color: #dfcbe5; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-cost,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-line > b,
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-ingredient small { color: #e9c4ef; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-icon { border-color: #805887; background: #281b2b; }
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-craft-button {
   border-color: #bd8bc5; background: #704c77; color: #fff3ff;
 }
-.navigation-panel[data-nav-panel="craft"] .recipe-card:not(:disabled):active {
+body[data-biome] .navigation-panel[data-nav-panel="craft"] .recipe-card:not(:disabled):active {
   border-color: #e2b9e8; background: #49304e;
 }
 
-.navigation-panel[data-nav-panel="gear"] {
+body[data-biome] .navigation-panel[data-nav-panel="gear"] {
   --panel-bg: #172d2b;
   --panel-bg-raised: #294744;
   --panel-bg-soft: #203936;
@@ -705,37 +705,37 @@ body[data-biome] .menu-button.is-selected { background:#414141; color:#f2f2f2; }
   background: linear-gradient(160deg, #315b55, var(--panel-bg));
   color: var(--panel-text);
 }
-.navigation-panel[data-nav-panel="gear"] .inventory-heading h2,
-.navigation-panel[data-nav-panel="gear"] .player-info-panel h3 { color: #effaf6; }
-.navigation-panel[data-nav-panel="gear"] .ui-half-toggle,
-.navigation-panel[data-nav-panel="gear"] .ui-position-toggle {
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .inventory-heading h2,
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .player-info-panel h3 { color: #effaf6; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .ui-half-toggle,
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .ui-position-toggle {
   border-color: #709c92; background: #315b55; color: #effaf6;
 }
-.navigation-panel[data-nav-panel="gear"] .player-info-panel {
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .player-info-panel {
   border-color: #527d77; background: linear-gradient(150deg, #315b55, #203936); color: #e8f5f1;
 }
-.navigation-panel[data-nav-panel="gear"] .player-info-hint { color: #b6d1c9; }
-.navigation-panel[data-nav-panel="gear"] .equipment-group > h4,
-.navigation-panel[data-nav-panel="gear"] .equipment-primary-headings h4,
-.navigation-panel[data-nav-panel="gear"] .equipment-group-artifact > h4,
-.navigation-panel[data-nav-panel="gear"] .ability-log-panel h4 { color: #a9d2c6; }
-.navigation-panel[data-nav-panel="gear"] .equipment-slot-card {
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .player-info-hint { color: #b6d1c9; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .equipment-group > h4,
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .equipment-primary-headings h4,
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .equipment-group-artifact > h4,
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .ability-log-panel h4 { color: #a9d2c6; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .equipment-slot-card {
   border-color: #527d77; background: #1d3834; color: #c5ded6;
 }
-.navigation-panel[data-nav-panel="gear"] .equipment-slot-card.is-locked,
-.navigation-panel[data-nav-panel="gear"] .equipment-slot-card:disabled {
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .equipment-slot-card.is-locked,
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .equipment-slot-card:disabled {
   border-color: #49645f; background: #263a37; color: #9db5ae;
 }
-.navigation-panel[data-nav-panel="gear"] .equipment-slot-card:not(:disabled):hover { border-color: #a9d2c6; }
-.navigation-panel[data-nav-panel="gear"] .ability-log-panel,
-.navigation-panel[data-nav-panel="gear"] .player-info-damage div { border-color: #527d77; }
-.navigation-panel[data-nav-panel="gear"] .ability-log-list { color: #d7ebe4; }
-.navigation-panel[data-nav-panel="gear"] .ability-log-list li::marker { color: #a9d2c6; }
-.navigation-panel[data-nav-panel="gear"] .player-info-damage div { background: #203936; }
-.navigation-panel[data-nav-panel="gear"] .player-info-damage span { color: #b0cec5; }
-.navigation-panel[data-nav-panel="gear"] .player-info-damage strong { color: #effaf6; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .equipment-slot-card:not(:disabled):hover { border-color: #a9d2c6; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .ability-log-panel,
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .player-info-damage div { border-color: #527d77; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .ability-log-list { color: #d7ebe4; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .ability-log-list li::marker { color: #a9d2c6; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .player-info-damage div { background: #203936; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .player-info-damage span { color: #b0cec5; }
+body[data-biome] .navigation-panel[data-nav-panel="gear"] .player-info-damage strong { color: #effaf6; }
 
-.navigation-panel[data-nav-panel="more"] {
+body[data-biome] .navigation-panel[data-nav-panel="more"] {
   --panel-bg: #202124;
   --panel-bg-raised: #383a3e;
   --panel-bg-soft: #2c2e32;
@@ -747,12 +747,12 @@ body[data-biome] .menu-button.is-selected { background:#414141; color:#f2f2f2; }
   background: linear-gradient(160deg, #3b3d42, var(--panel-bg));
   color: var(--panel-text);
 }
-.navigation-panel[data-nav-panel="more"] .inventory-heading h2 { color: #f3f3f4; }
-.navigation-panel[data-nav-panel="more"] .ui-half-toggle,
-.navigation-panel[data-nav-panel="more"] .ui-position-toggle {
+body[data-biome] .navigation-panel[data-nav-panel="more"] .inventory-heading h2 { color: #f3f3f4; }
+body[data-biome] .navigation-panel[data-nav-panel="more"] .ui-half-toggle,
+body[data-biome] .navigation-panel[data-nav-panel="more"] .ui-position-toggle {
   border-color: #666970; background: #414349; color: #f0f0f1;
 }
-.navigation-panel[data-nav-panel="more"] .panel-placeholder {
+body[data-biome] .navigation-panel[data-nav-panel="more"] .panel-placeholder {
   border-color: #55585e; background: #2c2e32; color: #c6c7cb;
 }
 
