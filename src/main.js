@@ -236,7 +236,10 @@ function returnWorldItem(instanceId, node) {
 
 function ejectInventoryItem(itemId, slot) {
   const result = takeInventoryItem(inventoryState, itemId);
-  if (!result.detachedItem) return;
+  if (!result.detachedItem) {
+    showToast("warning", "The ground is full. Pick up dropped items before dropping more.");
+    return;
+  }
   inventoryState = result.state;
 
   const rect = slot.getBoundingClientRect();
@@ -370,7 +373,7 @@ if(id==="furnace"){
 if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;
 const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";showToast("warning","Not enough materials to unlock the Crafting Table.");return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";
 }
-function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";showToast("warning","Cannot craft this recipe: "+r.reason+".");return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
+function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";const advice=r.reason==="already-owned"?"You already own this unique item.":"Gather the required resources before crafting this item.";showToast("warning",advice);return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
 function handleEquipItem(id, slotIndex = 0) {
   const result = equipItem(equipmentState, id, inventoryState, inventoryItems, slotIndex);
   if (!result.success) {
@@ -420,7 +423,7 @@ function renderMap() {
       '<div class="map-biome-heading"><h3>' + biome.name + '</h3>' +
       '<div class="map-biome-actions">' +
       '<button class="biome-info-toggle' + (infoOpen ? ' is-open' : '') + '" type="button" data-biome-info="' + biome.id + '" aria-expanded="' + String(infoOpen) + '" aria-label="' + (infoOpen ? 'Hide' : 'Show') + ' ' + biome.name + ' information">!</button>' +
-      '<button class="biome-visit-button' + (isCurrent ? ' is-current' : isLocked ? ' is-locked' : '') + '" type="button" data-biome-visit="' + biome.id + '"' + (isCurrent || isLocked || (!unlocked && cost && !canAfford) ? ' disabled' : '') + '>' + buttonContent + '</button>' +
+      '<button class="biome-visit-button' + (isCurrent ? ' is-current' : isLocked ? ' is-locked' : '') + '" type="button" data-biome-visit="' + biome.id + '"' + (isCurrent || isLocked ? ' disabled' : '') + '>' + buttonContent + '</button>' +
       '</div></div>' +
       '<div class="map-biome-info"' + (infoOpen ? '' : ' hidden') + '><p>' + biome.description + '</p></div>' +
       '</article>';
@@ -714,11 +717,15 @@ elements.biomeList.addEventListener("click", (event) => {
     const biome = getBiomeById(visitButton.dataset.biomeVisit);
     if (biome && !unlockedBiomeIds.has(biome.id) && biome.unlockCost && typeof biome.unlockCost === "object") {
       const { itemId, amount } = biome.unlockCost;
-      if (getInventoryCount(inventoryState, itemId) >= amount) {
-        inventoryState = { ...inventoryState, counts: { ...inventoryState.counts, [itemId]: getInventoryCount(inventoryState, itemId) - amount } };
+      const owned = getInventoryCount(inventoryState, itemId);
+      if (owned >= amount) {
+        inventoryState = { ...inventoryState, counts: { ...inventoryState.counts, [itemId]: owned - amount } };
         unlockedBiomeIds.add(biome.id);
         renderInventoryCounts();
         renderMap();
+      } else {
+        const itemName = inventoryItems.find(item => item.id === itemId)?.name || itemId;
+        showToast("danger", "Not enough " + itemName + " to unlock " + biome.name + ". Need " + amount + ".");
       }
       return;
     }
