@@ -178,7 +178,7 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 
 /* Map and exclusive navigation panels */
 .map-panel, .simple-panel {
-  position: fixed; z-index: 20; inset: 0 0 calc(72px + env(safe-area-inset-bottom));
+  position: fixed; z-index: 20; inset: 0 0 var(--bottom-menu-height);
   overflow-y: auto; overscroll-behavior: contain;
   padding: 18px max(16px, calc((100vw - 620px) / 2)) 24px;
   border-bottom: 1px solid #405844;
