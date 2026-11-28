@@ -9,3 +9,16 @@ test("Wood Pick requires Sharp Stone without consuming it",()=>{const r=craftRec
 test("Rock Pick and Emerald Pick preserve their prerequisite items",()=>{let r=craftRecipe(unlocked(),invWith({wood_scrap:4,cobble_rock:6,item_grass:3,oak_pick:1}),"rock_pick");assert.equal(r.success,true);assert.equal(r.inventoryState.counts.oak_pick,1);r=craftRecipe(unlocked(),invWith({wood_scrap:4,emerald:6,item_grass:5,rock_pick:1}),"emerald_pick");assert.equal(r.success,true);assert.equal(r.inventoryState.counts.rock_pick,1);});
 test("Emerald Pick consumes exactly its materials",()=>{const r=craftRecipe(unlocked(),invWith({wood_scrap:4,emerald:6,item_grass:5,rock_pick:1}),"emerald_pick");for(const id of ["wood_scrap","emerald","item_grass"])assert.equal(r.inventoryState.counts[id],0);});
 test("Recipes require unlocked table and prevent duplicate unique crafts",()=>{assert.equal(craftRecipe(createWorkbenchState(),invWith({cobble_rock:2}),"sharp_stone").reason,"station-locked");assert.equal(craftRecipe(unlocked(),invWith({cobble_rock:2,sharp_stone:1}),"sharp_stone").reason,"already-owned");});
+
+test("Crafting recipe preview uses one large result image for all four information rows",async()=>{
+  const {renderRecipeCard}=await import("../src/workbench-ui.js");
+  const recipe={id:"test_recipe",name:"Test Item",image:"./sprites/test-result.png",flavorText:"A sample result.",materials:{wood_scrap:2},requirements:{sharp_stone:1}};
+  const html=renderRecipeCard(recipe,[],{can:true,status:"Ready to craft",materials:"<span>Material</span>",requirements:"<span>Requirement</span>"});
+  expect(html.match(/class="recipe-result-image"/g)).toHaveLength(1);
+  expect(html).toContain('src="./sprites/test-result.png"');
+  expect(html).toContain('class="recipe-details"');
+  expect(html).toContain("Mat:");
+  expect(html).toContain("Req:");
+  expect(html).toContain("A sample result.");
+  expect(html).not.toContain("recipe-line-icon");
+});
