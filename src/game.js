@@ -29,18 +29,18 @@ export const BLOCKS_BY_BIOME = Object.freeze({
     Object.freeze({ id: "emerald_ore", name: "Emerald Ore", maxHp: 15, spawnRate: 5, image: "./sprites/block/plains/emerald_ore.png" }),
   ]),
   tundra: Object.freeze([
-    Object.freeze({ id: "berry_bush", name: "Berry Bush", maxHp: 10, spawnRate: 40, image: "./sprites/block/tundra/berry_bush.png" }),
-    Object.freeze({ id: "snow", name: "Snow", maxHp: 14, spawnRate: 25, image: "./sprites/block/tundra/snow.png" }),
-    Object.freeze({ id: "ice_block", name: "Ice Block", maxHp: 20, spawnRate: 20, image: "./sprites/block/tundra/ice_block.png" }),
-    Object.freeze({ id: "spruce_log", name: "Spruce Log", maxHp: 24, spawnRate: 10, image: "./sprites/block/tundra/spruce_log.png" }),
-    Object.freeze({ id: "sapphire_ore", name: "Sapphire Ore", maxHp: 30, spawnRate: 5, image: "./sprites/block/tundra/sapphire_ore.png" }),
+    Object.freeze({ id: "berry_bush", name: "Berry Bush", maxHp: 15, spawnRate: 40, image: "./sprites/block/tundra/berry_bush.png" }),
+    Object.freeze({ id: "snow", name: "Snow", maxHp: 21, spawnRate: 25, image: "./sprites/block/tundra/snow.png" }),
+    Object.freeze({ id: "ice_block", name: "Ice Block", maxHp: 30, spawnRate: 20, image: "./sprites/block/tundra/ice_block.png" }),
+    Object.freeze({ id: "spruce_log", name: "Spruce Log", maxHp: 36, spawnRate: 10, image: "./sprites/block/tundra/spruce_log.png" }),
+    Object.freeze({ id: "sapphire_ore", name: "Sapphire Ore", maxHp: 45, spawnRate: 5, image: "./sprites/block/tundra/sapphire_ore.png" }),
   ]),
   cave: Object.freeze([
-    Object.freeze({ id: "stone_block", name: "Stone", maxHp: 20, spawnRate: 40, image: "./sprites/block/cave/stone_block.png" }),
-    Object.freeze({ id: "coal_ore", name: "Coal Ore", maxHp: 25, spawnRate: 25, image: "./sprites/block/cave/coal_ore.png" }),
-    Object.freeze({ id: "copper_ore", name: "Copper Ore", maxHp: 30, spawnRate: 18, image: "./sprites/block/cave/copper_ore.png" }),
-    Object.freeze({ id: "iron_ore", name: "Iron Ore", maxHp: 35, spawnRate: 12, image: "./sprites/block/cave/iron_ore.png" }),
-    Object.freeze({ id: "lead_ore", name: "Lead Ore", maxHp: 45, spawnRate: 5, image: "./sprites/block/cave/lead_ore.png" }),
+    Object.freeze({ id: "stone_block", name: "Stone", maxHp: 45, spawnRate: 40, image: "./sprites/block/cave/stone_block.png" }),
+    Object.freeze({ id: "coal_ore", name: "Coal Ore", maxHp: 63, spawnRate: 25, image: "./sprites/block/cave/coal_ore.png" }),
+    Object.freeze({ id: "copper_ore", name: "Copper Ore", maxHp: 90, spawnRate: 18, image: "./sprites/block/cave/copper_ore.png" }),
+    Object.freeze({ id: "iron_ore", name: "Iron Ore", maxHp: 108, spawnRate: 12, image: "./sprites/block/cave/iron_ore.png" }),
+    Object.freeze({ id: "lead_ore", name: "Lead Ore", maxHp: 135, spawnRate: 5, image: "./sprites/block/cave/lead_ore.png" }),
   ]),
 });
 
