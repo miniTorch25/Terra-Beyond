@@ -52,9 +52,9 @@ test("equipping same item toggles off only its own slot", () => {
 });
 test("natural resources cannot be equipped", () => assert.equal(equipItem(createEquipmentState(), "wood_scrap", owned("wood_scrap"), INVENTORY_ITEMS).reason, "not-equippable"));
 
-test("the same item cannot occupy multiple slots in one equipment category", () => {
-  const inventory = owned("sharp_stone");
-  const equipped = equipItem(createEquipmentState(), "sharp_stone", inventory, INVENTORY_ITEMS);
-  assert.equal(equipItem(equipped.equipmentState, "sharp_stone", inventory, INVENTORY_ITEMS, 0).success, true);
-  assert.equal(equipItem(equipped.equipmentState, "sharp_stone", inventory, INVENTORY_ITEMS, 1).reason, "locked-slot");
+test("the same Artifact cannot occupy multiple unlocked Artifact slots", () => {
+  const artifact = { id: "test_artifact", category: "artifact" };
+  const inventory = { counts: { test_artifact: 1 } };
+  const equipped = equipItem(createEquipmentState(), artifact.id, inventory, [artifact], 0);
+  assert.equal(equipItem(equipped.equipmentState, artifact.id, inventory, [artifact], 1).reason, "already-equipped");
 });
