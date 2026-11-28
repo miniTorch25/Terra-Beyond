@@ -4,7 +4,7 @@ import { createInventoryState, getInventoryCount, addInventoryItem, takeInventor
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
 import { getPlayerDamageStats, getBlockDamage, formatDamage, getNonZeroDamageStats } from "./damage.js";
-import { createWorkbenchState, CRAFTING_TABLE_COST, FURNACE_COST, RECIPES, unlockCraftingTable, unlockFurnace, craftRecipe } from "./workbench.js";
+import { createWorkbenchState, CRAFTING_TABLE_COST, FURNACE_COST, RECIPES, getUncraftedToolRecipes, unlockCraftingTable, unlockFurnace, craftRecipe } from "./workbench.js";
 import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
 import { renderEquipmentSlots, renderAbilityLog } from "./equipment-ui.js";
@@ -353,7 +353,7 @@ elements.furnaceCost.textContent=furnaceUnlocked?"Ready to use":currentBiomeId!=
 const furnace=elements.workbenchStations.querySelector('[data-station="furnace"]');furnace.disabled=furnaceUnlocked||!canUnlockFurnace;furnace.classList.toggle("is-unlocked",furnaceUnlocked);furnace.classList.toggle("can-unlock",!furnaceUnlocked&&canUnlockFurnace);
 const equippedTool=getEquippedItem(equipmentState.tool[0],inventoryItems),equippedSword=getEquippedItem(equipmentState.sword[0],inventoryItems);elements.equippedToolLabel.textContent="Tool: "+(equippedTool?.name||"None")+" · Sword: "+(equippedSword?.name||"None");
 elements.workbenchTabs.forEach(t=>{const active=t.dataset.craftCategory===activeCraftCategory;t.classList.toggle("is-active",active);t.setAttribute("aria-selected",String(active));});if(!unlocked)return;
-const recipes=RECIPES[activeCraftCategory]||[];if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">No craftable items in this category yet.</p>';return;}
+const recipes=activeCraftCategory==="tool"?getUncraftedToolRecipes(workbenchState):(RECIPES[activeCraftCategory]||[]);if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">'+(activeCraftCategory==="tool"?"All tools have been crafted.":"No craftable items in this category yet.")+'</p>';return;}
 const icon=(id,n)=>{const item=inventoryItems.find(x=>x.id===id);return '<span class="recipe-ingredient" title="'+(item?.name||id)+' ×'+n+'"><img src="'+(item?.image||"")+'" alt="'+(item?.name||id)+'"><small>×'+n+'</small></span>';};
 elements.workbenchRecipes.innerHTML=recipes.map(recipe=>{
 const owned=getInventoryCount(inventoryState,recipe.itemId),hasMaterials=Object.entries(recipe.materials).every(([id,n])=>getInventoryCount(inventoryState,id)>=n),hasRequirements=Object.entries(recipe.requirements).every(([id,n])=>getInventoryCount(inventoryState,id)>=n),can=hasMaterials&&hasRequirements&&(!recipe.unique||owned<1);
