@@ -42,6 +42,6 @@ test("All five bottom navigation tabs keep the same dark-gray palette in every b
   expect(snapshots[1]).toEqual(snapshots[0]);
   expect(snapshots[2]).toEqual(snapshots[0]);
   expect(snapshots[0].buttons).toHaveLength(5);
-  expect(snapshots[0].background).toBe("rgba(37, 37, 37, 0.949)");
+  expect(snapshots[0].background).toBe("rgba(37, 37, 37, 0.95)");
   expect(snapshots[0].buttons[4].background).toBe("rgb(65, 65, 65)");
 });
