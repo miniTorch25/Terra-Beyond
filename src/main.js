@@ -5,7 +5,7 @@ import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
 import { getPlayerDamageStats, getBlockDamage, formatDamage } from "./damage.js";
 import { createWorkbenchState, CRAFTING_TABLE_COST, RECIPES, unlockCraftingTable, craftRecipe } from "./workbench.js";
-import { equipItem, getEquippedItem, isEquippableItem } from "./equipment.js";
+import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -62,7 +62,7 @@ let catalystBalance = STARTING_IC;
 let pendingDuplicateItemId = null;
 let workbenchState=createWorkbenchState();
 let activeCraftCategory="item";
-let equippedItemId=null;
+let equipmentState=createEquipmentState();
 let equippedToolId=null;
 const INVENTORY_COMPACT_KEY = "terra-beyond-inventory-half-screen";
 let inventoryCompact = localStorage.getItem(INVENTORY_COMPACT_KEY) === "true";
@@ -115,10 +115,11 @@ function renderInventoryCounts() {
     if (counter) counter.textContent = formatItemCount(count);
     const dropButton = slot.querySelector(".inventory-item-button");
     if (dropButton) dropButton.disabled = count < 1;
-    slot.classList.toggle("is-equipped", slot.dataset.itemId === equippedItemId);
+    const equipped = equipmentState[getEquipmentSlot(inventoryItems.find(item=>item.id===slot.dataset.itemId))] === slot.dataset.itemId;
+    slot.classList.toggle("is-equipped", equipped);
     let marker = slot.querySelector(".equipped-marker");
-    if (slot.dataset.itemId === equippedItemId && !marker) { marker=document.createElement("span"); marker.className="equipped-marker"; marker.textContent="E"; slot.append(marker); }
-    if (slot.dataset.itemId !== equippedItemId) marker?.remove();
+    if (equipped && !marker) { marker=document.createElement("span"); marker.className="equipped-marker"; marker.textContent="E"; slot.append(marker); }
+    if (!equipped) marker?.remove();
   });
 }
 
@@ -190,12 +191,12 @@ function renderInventory() {
   const renderSections = (sections) => Object.entries(sections).map(([sectionName, items]) => {
     const rows = chunkItems(items, 6).map((row) => {
       const slots = row.map((item) =>
-        '<div class="inventory-slot' + (item.id === equippedItemId ? ' is-equipped' : '') + '" data-item-id="' + item.id + '">' +
+        '<div class="inventory-slot' + (equipmentState[getEquipmentSlot(item)] === item.id ? ' is-equipped' : '') + '" data-item-id="' + item.id + '">' +
         '<button class="inventory-item-button" type="button" data-item-id="' + item.id +
         '" aria-label="Drop ' + item.name + '" title="Click to drop ' + item.name + '"' +
         (getInventoryCount(inventoryState, item.id) < 1 ? ' disabled' : '') + '>' +
         '<img src="' + item.image + '" alt="" loading="lazy"></button>' +
-        (item.id === equippedItemId ? '<span class="equipped-marker" aria-label="Equipped">E</span>' : '') +
+        (equipmentState[getEquipmentSlot(item)] === item.id ? '<span class="equipped-marker" aria-label="Equipped">E</span>' : '') +
         '<button class="item-info-button" type="button" data-item-info="' + item.id +
         '" data-item-tag="' + sectionName + '" aria-label="View ' + item.name + ' details" title="Item information">?</button>' +
         (item.unique ? '' : '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span>') + '</div>'
@@ -227,12 +228,12 @@ function renderInventory() {
     '<div class="biome-content">' + renderSections(tundraSections) + '</div></details>' + liquidMarkup;
 }
 
-function renderDamageStats(){const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);elements.playerBaseDamage.textContent=formatDamage(s.baseDamage);elements.playerBlockDamage.textContent=formatDamage(s.blockDamage);elements.playerMobDamage.textContent=formatDamage(s.mobDamage);}
+function renderDamageStats(){equippedToolId=equipmentState.tool;const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);elements.playerBaseDamage.textContent=formatDamage(s.baseDamage);elements.playerBlockDamage.textContent=formatDamage(s.blockDamage);elements.playerMobDamage.textContent=formatDamage(s.mobDamage);}
 function renderWorkbench(){
 const unlocked=workbenchState.unlockedStations.has("crafting_table"),wood=getInventoryCount(inventoryState,"wood_scrap"),rock=getInventoryCount(inventoryState,"cobble_rock");
 elements.craftingTableStatus.textContent=unlocked?"Unlocked":"Locked";elements.craftingTableCost.textContent=unlocked?"Ready to use":"10 Wood Scrap ("+wood+") · 2 Cobble Rock ("+rock+")";
 const station=elements.workbenchStations.querySelector('[data-station="crafting_table"]');station.classList.toggle("is-unlocked",unlocked);station.classList.toggle("can-unlock",!unlocked&&wood>=10&&rock>=2);elements.workbenchCrafting.hidden=!unlocked;
-const equipped=getEquippedItem(equippedItemId,inventoryItems);elements.equippedToolLabel.textContent=equipped?"Equipped: "+equipped.name:"No equipment equipped";
+const equippedTool=getEquippedItem(equipmentState.tool,inventoryItems),equippedSword=getEquippedItem(equipmentState.sword,inventoryItems);elements.equippedToolLabel.textContent="Tool: "+(equippedTool?.name||"None")+" · Sword: "+(equippedSword?.name||"None");
 elements.workbenchTabs.forEach(t=>{const active=t.dataset.craftCategory===activeCraftCategory;t.classList.toggle("is-active",active);t.setAttribute("aria-selected",String(active));});if(!unlocked)return;
 const recipes=RECIPES[activeCraftCategory]||[];if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">No craftable items in this category yet.</p>';return;}
 const icon=(id,n)=>{const item=inventoryItems.find(x=>x.id===id);return '<span class="recipe-ingredient" title="'+(item?.name||id)+' ×'+n+'"><img src="'+(item?.image||"")+'" alt="'+(item?.name||id)+'"><small>×'+n+'</small></span>';};
@@ -245,9 +246,9 @@ const firstMaterial=Object.keys(recipe.materials)[0],firstRequirement=Object.key
 }
 function handleWorkbenchStation(id){if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";}
 function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
-function handleEquipItem(id){const result=equipItem(equippedItemId,id,inventoryState,inventoryItems);if(!result.success){elements.helper.textContent=result.reason==="not-owned"?"You must own this item before equipping it.":"This item cannot be equipped.";return;}equippedItemId=result.equippedItemId;const item=getEquippedItem(equippedItemId,inventoryItems);equippedToolId=item?.category==="tool"?item.id:null;renderDamageStats();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();renderGear();if(!elements.detailOverlay.hidden)updateDetailEquipButton(id);elements.helper.textContent=item?"Equipped "+item.name+".":"Equipment removed."; }
-function updateDetailEquipButton(id){const item=inventoryItems.find(x=>x.id===id),available=isEquippableItem(item);elements.detailEquip.hidden=!available;elements.detailEquip.disabled=!available||getInventoryCount(inventoryState,id)<1;elements.detailEquip.dataset.itemId=id;elements.detailEquip.textContent=equippedItemId===id?"Unequip":"Equip";}
-function renderGear(){const item=getEquippedItem(equippedItemId,inventoryItems);elements.playerEquipment.innerHTML=item?'<div class="player-equipped-card"><img src="'+item.image+'" alt=""><div><strong>'+item.name+'</strong><span>Equipped</span></div><button type="button" id="unequip-player-item">Unequip</button></div>':'<p class="player-no-equipment">No equipment equipped yet.</p>';const button=elements.playerEquipment.querySelector("#unequip-player-item");if(button)button.addEventListener("click",()=>handleEquipItem(equippedItemId));}
+function handleEquipItem(id){const result=equipItem(equipmentState,id,inventoryState,inventoryItems);if(!result.success){elements.helper.textContent=result.reason==="not-owned"?"You must own this item before equipping it.":"This item cannot be equipped.";return;}equipmentState=result.equipmentState;const item=getEquippedItem(id,inventoryItems);renderDamageStats();renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();renderGear();if(!elements.detailOverlay.hidden)updateDetailEquipButton(id);elements.helper.textContent=equipmentState[result.slot]?"Equipped "+item.name+" in the "+result.slot+" slot.": "Unequipped "+item.name+"."; }
+function updateDetailEquipButton(id){const item=inventoryItems.find(x=>x.id===id),slot=getEquipmentSlot(item),available=Boolean(slot);elements.detailEquip.hidden=!available;elements.detailEquip.disabled=!available||getInventoryCount(inventoryState,id)<1;elements.detailEquip.dataset.itemId=id;elements.detailEquip.textContent=slot?(equipmentState[slot]===id?"Unequip "+(slot==="tool"?"Tool":"Sword"):"Equip "+(slot==="tool"?"Tool":"Sword")):"Equip";}
+function renderGear(){const slotCard=(slot,label)=>{const item=getEquippedItem(equipmentState[slot],inventoryItems);return '<article class="equipment-slot-card equipment-'+slot+'"><div class="equipment-slot-heading"><h4>'+label+' Slot</h4><span>'+(item?"Equipped":"Empty")+'</span></div>'+(item?'<div class="equipment-slot-item"><img src="'+item.image+'" alt=""><div><strong>'+item.name+'</strong><small>'+label+'</small></div><button type="button" data-unequip-slot="'+slot+'">Unequip</button></div>':'<p class="equipment-slot-empty">No '+label.toLowerCase()+' equipped</p>')+'</article>';};elements.playerEquipment.innerHTML=slotCard("tool","Tool")+slotCard("sword","Sword");elements.playerEquipment.querySelectorAll("[data-unequip-slot]").forEach(button=>button.addEventListener("click",()=>handleEquipItem(equipmentState[button.dataset.unequipSlot])));}
 
 function renderMap() {
   elements.biomeList.innerHTML = BIOMES.map((biome) => {
