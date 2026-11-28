@@ -431,7 +431,7 @@ function renderMap() {
       '<div class="map-biome-heading"><h3>' + biome.name + '</h3>' +
       '<div class="map-biome-actions">' +
       '<button class="biome-info-toggle' + (infoOpen ? ' is-open' : '') + '" type="button" data-biome-info="' + biome.id + '" aria-expanded="' + String(infoOpen) + '" aria-label="' + (infoOpen ? 'Hide' : 'Show') + ' ' + biome.name + ' information">!</button>' +
-      '<button class="biome-visit-button' + (isCurrent ? ' is-current' : isLocked ? ' is-locked' : '') + '" type="button" data-biome-visit="' + biome.id + '"' + (isCurrent || isLocked ? ' disabled' : '') + '>' + buttonContent + '</button>' +
+      '<button class="biome-visit-button' + (isCurrent ? ' is-current' : isLocked ? ' is-locked' : '') + '" type="button" data-biome-visit="' + biome.id + '" data-biome-color="' + biome.id + '"' + (isCurrent || isLocked ? ' disabled' : '') + '>' + buttonContent + '</button>' +
       '</div></div>' +
       '<div class="map-biome-info"' + (infoOpen ? '' : ' hidden') + '><p>' + biome.description + '</p>' + (spawnRows ? '<div class="biome-spawn-chances"><h4>Block Spawn Chance</h4><ul>' + spawnRows + '</ul></div>' : '') + '</div>' +
       '</article>';
