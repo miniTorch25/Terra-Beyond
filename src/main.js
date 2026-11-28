@@ -55,6 +55,9 @@ const elements = {
   navButtons: [...document.querySelectorAll(".menu-button[data-nav-target]")],
   navPanels: [...document.querySelectorAll(".navigation-panel")],
   baseDamage:document.querySelector("#base-damage"),blockDamage:document.querySelector("#block-damage"),mobDamage:document.querySelector("#mob-damage"),workbenchStations:document.querySelector("#workbench-stations"),craftingTableStatus:document.querySelector("#crafting-table-status"),craftingTableCost:document.querySelector("#crafting-table-cost"),furnaceStatus:document.querySelector("#furnace-status"),furnaceCost:document.querySelector("#furnace-cost"),workbenchCrafting:document.querySelector("#workbench-crafting"),workbenchRecipes:document.querySelector("#workbench-recipes"),workbenchTabs:[...document.querySelectorAll(".workbench-tab")],equippedToolLabel:document.querySelector("#equipped-tool-label"),
+  resetDataOverlay: document.querySelector("#reset-data-overlay"),
+  resetDataCancel: document.querySelector("#reset-data-cancel"),
+  resetDataConfirm: document.querySelector("#reset-data-confirm"),
 };
 
 let state = createInitialState(Math.random, "plains");
