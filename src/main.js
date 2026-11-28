@@ -44,9 +44,7 @@ const inventoryItems = [...PLAINS_INVENTORY.item.Natural, ...PLAINS_INVENTORY.to
 let inventoryState = createInventoryState(inventoryItems);
 const INVENTORY_COMPACT_KEY = "terra-beyond-inventory-half-screen";
 let inventoryCompact = localStorage.getItem(INVENTORY_COMPACT_KEY) === "true";
-let pendingInventoryDrag = null;
 let activeWorldDrag = null;
-let suppressInventoryClick = false;
 
 function applyInventorySize() {
   elements.inventory.classList.toggle("is-half", inventoryCompact);
@@ -88,6 +86,8 @@ function renderInventoryCounts() {
     const count = getInventoryCount(inventoryState, slot.dataset.itemId);
     const counter = slot.querySelector(".item-count");
     if (counter) counter.textContent = formatItemCount(count);
+    const dropButton = slot.querySelector(".inventory-item-button");
+    if (dropButton) dropButton.disabled = count < 1;
   });
 }
 
@@ -96,6 +96,24 @@ function returnWorldItem(instanceId, node) {
   node?.remove();
   renderInventoryCounts();
   if (!elements.inventory.hidden) renderInventory();
+}
+
+function ejectInventoryItem(itemId, slot) {
+  const result = takeInventoryItem(inventoryState, itemId);
+  if (!result.detachedItem) return;
+  inventoryState = result.state;
+
+  const rect = slot.getBoundingClientRect();
+  const angle = Math.random() * Math.PI * 2;
+  const distance = 80 + Math.random() * 90;
+  const margin = 30;
+  const x = Math.min(window.innerWidth - margin, Math.max(margin,
+    rect.left + rect.width / 2 + Math.cos(angle) * distance));
+  const y = Math.min(window.innerHeight - 100, Math.max(70,
+    rect.top + rect.height / 2 + Math.sin(angle) * distance));
+
+  renderWorldItem(result.detachedItem, x, y);
+  renderInventoryCounts();
 }
 
 function render() {
@@ -137,11 +155,14 @@ function renderInventory() {
   const renderSections = (sections) => Object.entries(sections).map(([sectionName, items]) => {
     const rows = chunkItems(items, 6).map((row) => {
       const slots = row.map((item) =>
-        '<button class="inventory-slot" type="button" data-item-id="' + item.id +
-        '" data-item-tag="' + sectionName + '" title="' + item.name +
-        '" aria-label="View ' + item.name + ' details">' +
-        '<img src="' + item.image + '" alt="" loading="lazy">' +
-        '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span></button>'
+        '<div class="inventory-slot" data-item-id="' + item.id + '">' +
+        '<button class="inventory-item-button" type="button" data-item-id="' + item.id +
+        '" aria-label="Drop ' + item.name + '" title="Click to drop ' + item.name + '"' +
+        (getInventoryCount(inventoryState, item.id) < 1 ? ' disabled' : '') + '>' +
+        '<img src="' + item.image + '" alt="" loading="lazy"></button>' +
+        '<button class="item-info-button" type="button" data-item-info="' + item.id +
+        '" data-item-tag="' + sectionName + '" aria-label="View ' + item.name + ' details" title="Item information">?</button>' +
+        '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span></div>'
       ).join("");
       return '<div class="item-row">' + slots + '</div>';
     }).join("");
@@ -152,10 +173,14 @@ function renderInventory() {
   const liquidMarkup = activeCategory === "item"
     ? '<section class="inventory-section liquid-inventory"><h3>Liquid</h3><div class="item-row">' +
       LIQUID_INVENTORY.map((item) =>
-        '<button class="inventory-slot" type="button" data-item-id="' + item.id +
-        '" data-item-tag="Liquid" title="' + item.name + '" aria-label="View ' + item.name + ' details">' +
-        '<img src="' + item.image + '" alt="" loading="lazy">' +
-        '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span></button>'
+        '<div class="inventory-slot" data-item-id="' + item.id + '">' +
+        '<button class="inventory-item-button" type="button" data-item-id="' + item.id +
+        '" aria-label="Drop ' + item.name + '" title="Click to drop ' + item.name + '"' +
+        (getInventoryCount(inventoryState, item.id) < 1 ? ' disabled' : '') + '>' +
+        '<img src="' + item.image + '" alt="" loading="lazy"></button>' +
+        '<button class="item-info-button" type="button" data-item-info="' + item.id +
+        '" data-item-tag="Liquid" aria-label="View ' + item.name + ' details" title="Item information">?</button>' +
+        '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span></div>'
       ).join("") + '</div></section>'
     : "";
 
@@ -275,46 +300,28 @@ elements.inventoryTabs.forEach((tab) => {
   });
 });
 elements.inventoryContent.addEventListener("click", (event) => {
-  const slot = event.target.closest(".inventory-slot");
-  if (suppressInventoryClick) { suppressInventoryClick = false; return; }
-  if (slot) openItemDetails(slot.dataset.itemId, slot.dataset.itemTag);
+  const infoButton = event.target.closest(".item-info-button");
+  if (infoButton) {
+    openItemDetails(infoButton.dataset.itemInfo, infoButton.dataset.itemTag);
+    return;
+  }
+  const dropButton = event.target.closest(".inventory-item-button");
+  if (dropButton && !dropButton.disabled) {
+    ejectInventoryItem(dropButton.dataset.itemId, dropButton.closest(".inventory-slot"));
+  }
 });
 elements.inventoryCollapse.addEventListener("click", () => {
   inventoryCompact = !inventoryCompact;
   localStorage.setItem(INVENTORY_COMPACT_KEY, String(inventoryCompact));
   applyInventorySize();
 });
-elements.inventoryContent.addEventListener("pointerdown", (event) => {
-  const slot = event.target.closest(".inventory-slot");
-  if (!slot || event.button !== 0 || getInventoryCount(inventoryState, slot.dataset.itemId) < 1) return;
-  pendingInventoryDrag = { itemId: slot.dataset.itemId, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, dragging: false };
-});
 document.addEventListener("pointermove", (event) => {
-  if (pendingInventoryDrag && pendingInventoryDrag.pointerId === event.pointerId) {
-    const drag = pendingInventoryDrag;
-    if (!drag.dragging && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 8 && !elements.inventory.contains(document.elementFromPoint(event.clientX, event.clientY))) {
-      const result = takeInventoryItem(inventoryState, drag.itemId);
-      if (result.detachedItem) {
-        inventoryState = result.state;
-        const node = renderWorldItem(result.detachedItem, event.clientX, event.clientY);
-        activeWorldDrag = { instanceId: result.detachedItem.instanceId, node, pointerId: event.pointerId };
-        node?.classList.add("is-dragging");
-        drag.dragging = true;
-        suppressInventoryClick = true;
-        renderInventoryCounts();
-      }
-    }
-  }
   if (activeWorldDrag && activeWorldDrag.pointerId === event.pointerId) {
     activeWorldDrag.node.style.left = event.clientX + "px";
     activeWorldDrag.node.style.top = event.clientY + "px";
   }
 });
 document.addEventListener("pointerup", (event) => {
-  if (pendingInventoryDrag && pendingInventoryDrag.pointerId === event.pointerId) {
-    if (!pendingInventoryDrag.dragging) pendingInventoryDrag = null;
-    else pendingInventoryDrag = null;
-  }
   if (activeWorldDrag && activeWorldDrag.pointerId === event.pointerId) {
     const drag = activeWorldDrag;
     drag.node.classList.remove("is-dragging");
@@ -330,7 +337,6 @@ document.addEventListener("pointerup", (event) => {
     })) returnWorldItem(drag.instanceId, drag.node);
     activeWorldDrag = null;
   }
-  window.setTimeout(() => { suppressInventoryClick = false; }, 0);
 });
 elements.detailOverlay.addEventListener("click", (event) => {
   if (event.target === elements.detailOverlay) closeItemDetails();
