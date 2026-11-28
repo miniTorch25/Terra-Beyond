@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("dropped items show a 90-second countdown and matching drops stack", async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
   const mine = page.locator("#mine-button");
   for (let i = 0; i < 10; i += 1) await mine.click();
