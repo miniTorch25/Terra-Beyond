@@ -34,5 +34,5 @@ test("Map displays the Tundra unlock price with an Emerald icon", async ({ page 
   const unlock = page.locator('[data-biome-visit="tundra"]');
   await expect(unlock).toContainText("75");
   await expect(unlock.locator("img")).toHaveAttribute("src", "./sprites/item/plains/emerald.png");
-  await expect(unlock).toBeDisabled();
+  await expect(unlock).toBeEnabled();
 });

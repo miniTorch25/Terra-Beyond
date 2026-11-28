@@ -561,3 +561,7 @@ body[data-biome="cave"] .world-item-timer,body[data-biome="cave"] .world-item-st
   .toast-drop-entry { min-height: 34px; padding: 3px 7px; }
   .toast-drop-entry img { width: 23px; height: 23px; }
 }
+
+
+.recipe-card[aria-disabled="true"] { opacity: .62; }
+.recipe-card[aria-disabled="true"]:focus-visible { opacity: 1; outline: 2px solid var(--accent, #e0bd59); outline-offset: 2px; }
