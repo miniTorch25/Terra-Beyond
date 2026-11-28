@@ -59,7 +59,7 @@
   <section class="inventory-panel navigation-panel" id="inventory-panel" data-nav-panel="inventory" aria-labelledby="inventory-title" aria-hidden="true" hidden>
     <div class="inventory-heading">
       <h2 id="inventory-title">Inventory</h2>
-      <button class="inventory-close" id="inventory-close" type="button" aria-label="Close inventory">×</button>
+      <div class="inventory-heading-actions"><button class="inventory-collapse" id="inventory-collapse" type="button" aria-label="Shrink inventory to half screen" aria-pressed="false">⌄</button><button class="inventory-close" id="inventory-close" type="button" aria-label="Close inventory">×</button></div>
     </div>
     <div class="inventory-tabs" role="tablist" aria-label="Inventory categories">
       <button class="inventory-tab is-active" type="button" role="tab" aria-selected="true" data-category="item">Item <span class="tab-check" aria-hidden="true">✓</span></button>
@@ -91,6 +91,7 @@
     <p class="panel-placeholder">More options will be available later.</p>
   </section>
 
+  <div class="world-items" id="world-items" aria-label="Items placed in the world"></div>
   <section class="item-detail-overlay" id="item-detail-overlay" aria-hidden="true" hidden>
     <article class="item-detail-card" id="item-detail-card" role="dialog" aria-modal="true" aria-labelledby="detail-item-name" tabindex="-1">
       <div class="detail-item-heading"><img id="detail-item-image" src="" alt=""><h2 id="detail-item-name"></h2></div>

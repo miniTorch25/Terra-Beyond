@@ -197,3 +197,24 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 .map-biome-info[hidden] { display: none; }
 .map-biome-info p { margin: 10px 0 0; color: #b8cbb5; font-size: 12px; line-height: 1.6; }
 .simple-panel .panel-placeholder { margin: 0; padding: 14px; border: 1px solid #405744; border-radius: 10px; background: #1a2a20; color: #9fb39b; font-size: 13px; line-height: 1.5; }
+
+/* Inventory half-height toggle */
+.inventory-heading-actions { display: flex; align-items: center; gap: 7px; }
+.inventory-collapse {
+  display: grid; place-items: center; width: 36px; height: 36px;
+  border: 1px solid #526b53; border-radius: 9px; background: #2a3e2d;
+  color: #eff7e9; font-size: 22px; line-height: 1; cursor: pointer;
+}
+.inventory-collapse[aria-pressed="true"] { border-color: #a3c47c; background: #354e35; }
+.inventory-panel { transition: top .18s ease; }
+.inventory-panel.is-half { top: 50vh; }
+.world-items { position: fixed; z-index: 24; inset: 0; pointer-events: none; overflow: hidden; }
+.world-item {
+  position: fixed; display: grid; place-items: center; width: 52px; height: 52px;
+  padding: 6px; border: 1px solid #78965f; border-radius: 10px;
+  background: #243729ed; box-shadow: 0 5px 16px #0009; pointer-events: auto;
+  touch-action: none; cursor: grab; transform: translate(-50%, -50%);
+}
+.world-item img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; pointer-events: none; }
+.world-item.is-dragging { z-index: 26; cursor: grabbing; transform: translate(-50%, -50%) scale(1.08); }
+.inventory-panel.is-half .inventory-content { padding-bottom: 12px; }
