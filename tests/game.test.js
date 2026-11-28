@@ -82,10 +82,11 @@ test("every non-Grass block has a matching resource drop", () => {
 });
 
 test("Emerald Pick grants one bonus Emerald when Emerald Ore breaks",()=>{const ore=BLOCKS.find(block=>block.id==="emerald_ore");const r=mineBlock({block:ore,hp:1},1,()=>0,"plains","emerald_pick");assert.deepEqual(r.drops,[{itemId:"emerald",amount:2}])});test("fractional mining damage preserves decimal HP",()=>{const r=mineBlock({block:BLOCKS[0],hp:5},1.5,()=>0.99);assert.equal(r.broken,false);assert.equal(r.state.hp,3.5)});
-test("Tundra block HP is twice the corresponding Plains progression",()=>{
+test("Tundra block HP is at least three times the corresponding Plains progression",()=>{
  const plains=BLOCKS,tundra=BLOCKS_BY_BIOME.tundra;
- assert.deepEqual(tundra.map(block=>block.maxHp),[10,14,20,24,30]);
- assert.deepEqual([tundra[0].maxHp,tundra[1].maxHp,tundra[2].maxHp,tundra[4].maxHp],plains.map(block=>block.maxHp*2));
+ assert.deepEqual(tundra.map(block=>block.maxHp),[15,21,30,36,45]);
+ assert.deepEqual([tundra[0].maxHp,tundra[1].maxHp,tundra[2].maxHp,tundra[4].maxHp],plains.map(block=>block.maxHp*3));
+ assert.ok(tundra[3].maxHp >= plains[2].maxHp*3);
 });
 test("Cave blocks follow Stone to Lead rarity order and descending spawn rates",()=>{
  const cave=BLOCKS_BY_BIOME.cave;
@@ -96,4 +97,10 @@ test("Cave blocks follow Stone to Lead rarity order and descending spawn rates",
 test("every Cave block drops its matching natural resource",()=>{
  const expected={stone_block:"stone_item",coal_ore:"coal",copper_ore:"raw_copper",iron_ore:"raw_iron",lead_ore:"raw_lead"};
  for(const block of BLOCKS_BY_BIOME.cave)assert.deepEqual(getBlockDrops(block),[{itemId:expected[block.id],amount:1}]);
+});
+
+test("Cave block HP is at least three times the corresponding Tundra progression",()=>{
+ const tundra=BLOCKS_BY_BIOME.tundra,cave=BLOCKS_BY_BIOME.cave;
+ assert.deepEqual(cave.map(block=>block.maxHp),[45,63,90,108,135]);
+ assert.deepEqual(cave.map((block,index)=>block.maxHp >= tundra[index].maxHp*3),[true,true,true,true,true]);
 });
