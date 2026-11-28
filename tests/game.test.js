@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BLOCKS, BLOCKS_BY_BIOME, PLAYER_DAMAGE, createInitialState, mineBlock, randomBlock } from "../src/game.js";
+import { BLOCKS, BLOCKS_BY_BIOME, PLAYER_DAMAGE, createInitialState, getBlockDrops, mineBlock, randomBlock } from "../src/game.js";
 
 test("Plains blocks use the requested spawn rates", () => {
   assert.deepEqual(BLOCKS.map(({ name, spawnRate }) => [name, spawnRate]), [
@@ -64,4 +64,17 @@ test("unknown biome and invalid random sources are rejected", () => {
 
 test("invalid damage is rejected", () => {
   assert.throws(() => mineBlock({ block: BLOCKS[0], hp: 5 }, 0), RangeError);
+});
+
+test("breaking Grass drops one Grass inventory item", () => {
+  const result = mineBlock({ block: BLOCKS[0], hp: 1 }, PLAYER_DAMAGE, () => 0.99, "plains");
+  assert.equal(result.broken, true);
+  assert.deepEqual(result.drops, [{ itemId: "item_grass", amount: 1 }]);
+  assert.equal(getBlockDrops(BLOCKS[0])[0].itemId, "item_grass");
+});
+
+test("other blocks do not drop items until their drop rules are added", () => {
+  const result = mineBlock({ block: BLOCKS[1], hp: 1 }, PLAYER_DAMAGE, () => 0.99, "plains");
+  assert.equal(result.broken, true);
+  assert.deepEqual(result.drops, []);
 });
