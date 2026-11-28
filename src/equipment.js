@@ -18,6 +18,9 @@ export function equipItem(equipmentState, itemId, inventoryState, inventoryItems
   if (!isEquipmentSlotUnlocked(slot, slotIndex)) return { success: false, reason: "locked-slot", equipmentState };
   const current = equipmentState?.[slot]?.[slotIndex] ?? null;
   const slots = Array.isArray(equipmentState?.[slot]) ? equipmentState[slot] : createEquipmentState()[slot];
+  if (current !== itemId && slots.some((equippedId, index) => index !== slotIndex && equippedId === itemId)) {
+    return { success: false, reason: "already-equipped", equipmentState };
+  }
   const nextSlots = [...slots];
   nextSlots[slotIndex] = current === itemId ? null : itemId;
   return { success: true, slot, slotIndex, equipmentState: { ...createEquipmentState(), ...equipmentState, [slot]: nextSlots } };
