@@ -1,4 +1,4 @@
-import test from"node:test";import assert from"node:assert/strict";import{createWorkbenchState,CRAFTING_TABLE_COST,RECIPES,unlockCraftingTable,craftRecipe}from"../src/workbench.js";import{createInventoryState,addInventoryItem}from"../src/inventory-state.js";import{INVENTORY_ITEMS}from"../src/inventory.js";
+import test from"node:test";import assert from"node:assert/strict";import{createWorkbenchState,CRAFTING_TABLE_COST,FURNACE_COST,RECIPES,unlockCraftingTable,unlockFurnace,craftRecipe}from"../src/workbench.js";import{createInventoryState,addInventoryItem}from"../src/inventory-state.js";import{INVENTORY_ITEMS}from"../src/inventory.js";
 const unlocked=()=>{const w=createWorkbenchState();w.unlockedStations.add("crafting_table");return w;};const invWith=o=>{let s=createInventoryState(INVENTORY_ITEMS);for(const[k,n]of Object.entries(o))s=addInventoryItem(s,k,n);return s;};
 test("Crafting Table costs 10 Wood Scrap and 2 Cobble Rock",()=>{assert.deepEqual(CRAFTING_TABLE_COST,{wood_scrap:10,cobble_rock:2});const r=unlockCraftingTable(createWorkbenchState(),invWith({wood_scrap:10,cobble_rock:2}));assert.equal(r.success,true);assert.equal(r.inventoryState.counts.wood_scrap,0);assert.equal(r.inventoryState.counts.cobble_rock,0);});
 test("Furnace remains locked pending Cave Biome",()=>assert.equal(createWorkbenchState().unlockedStations.has("furnace"),false));
@@ -21,4 +21,16 @@ test("Crafting recipe preview uses one large result image for all four informati
   assert.ok(html.includes("Req:"));
   assert.ok(html.includes("A sample result."));
   assert.ok(!html.includes("recipe-line-icon"));
+});
+
+test("Furnace costs 10 Stone and 1 Coal and consumes both resources",()=>{
+ assert.deepEqual(FURNACE_COST,{stone_item:10,coal:1});
+ const r=unlockFurnace(createWorkbenchState(),invWith({stone_item:10,coal:1}));
+ assert.equal(r.success,true);assert.equal(r.workbenchState.unlockedStations.has("furnace"),true);
+ assert.equal(r.inventoryState.counts.stone_item,0);assert.equal(r.inventoryState.counts.coal,0);
+});
+test("Furnace cannot unlock without the required Cave resources",()=>{
+ const r=unlockFurnace(createWorkbenchState(),invWith({stone_item:9,coal:1}));
+ assert.equal(r.success,false);assert.equal(r.reason,"missing-materials");
+ assert.equal(r.inventoryState.counts.stone_item,9);assert.equal(r.inventoryState.counts.coal,1);
 });
