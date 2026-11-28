@@ -128,7 +128,10 @@ function render() {
   elements.fill.style.width = String((hp / block.maxHp) * 100) + "%";
   elements.progress.setAttribute("aria-valuemax", String(block.maxHp));
   elements.progress.setAttribute("aria-valuenow", String(hp));
-  elements.damage.src = "./sprites/environment/destroy_stage_" + stage + ".png";
+  elements.damage.hidden = hp === block.maxHp;
+  if (!elements.damage.hidden) {
+    elements.damage.src = "./sprites/environment/destroy_stage_" + stage + ".png";
+  }
   elements.button.setAttribute("aria-label", "Mine " + block.name + ". " + hp + " of " + block.maxHp + " HP remaining.");
   const currentBiome = getBiomeById(currentBiomeId);
   elements.currentBiomeLabel.textContent = (currentBiome?.name || "Unknown").toUpperCase() + " BIOME";
