@@ -14,11 +14,11 @@ test("Crafting recipe preview uses one large result image for all four informati
   const {renderRecipeCard}=await import("../src/workbench-ui.js");
   const recipe={id:"test_recipe",name:"Test Item",image:"./sprites/test-result.png",flavorText:"A sample result.",materials:{wood_scrap:2},requirements:{sharp_stone:1}};
   const html=renderRecipeCard(recipe,[],{can:true,status:"Ready to craft",materials:"<span>Material</span>",requirements:"<span>Requirement</span>"});
-  expect(html.match(/class="recipe-result-image"/g)).toHaveLength(1);
-  expect(html).toContain('src="./sprites/test-result.png"');
-  expect(html).toContain('class="recipe-details"');
-  expect(html).toContain("Mat:");
-  expect(html).toContain("Req:");
-  expect(html).toContain("A sample result.");
-  expect(html).not.toContain("recipe-line-icon");
+  assert.equal((html.match(/class="recipe-result-image"/g)||[]).length,1);
+  assert.ok(html.includes('src="./sprites/test-result.png"'));
+  assert.ok(html.includes('class="recipe-details"'));
+  assert.ok(html.includes("Mat:"));
+  assert.ok(html.includes("Req:"));
+  assert.ok(html.includes("A sample result."));
+  assert.ok(!html.includes("recipe-line-icon"));
 });
