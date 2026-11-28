@@ -1,3 +1,5 @@
+import { BLOCKS_BY_BIOME } from "./game.js";
+
 export const INVENTORY_CATEGORIES = Object.freeze([
   Object.freeze({ id: "item", label: "Item" }), Object.freeze({ id: "tool", label: "Tool" }),
   Object.freeze({ id: "sword", label: "Sword" }), Object.freeze({ id: "artifact", label: "Artifact" }),
