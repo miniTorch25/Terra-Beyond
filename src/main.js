@@ -10,6 +10,7 @@ import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isE
 import { renderEquipmentSlots, renderAbilityLog } from "./equipment-ui.js";
 import { pushToast, removeToast, TOAST_DURATION, getCraftFailureAdvice } from "./toast-state.js";
 import { loadSettings, saveSettings } from "./settings.js";
+import { loadGameProgress, saveGameProgress } from "./save.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -77,8 +78,24 @@ let workbenchState=createWorkbenchState();
 let activeCraftCategory="item";
 let equipmentState=createEquipmentState();
 let equippedToolId=null;
+const restoredGameProgress = loadGameProgress(localStorage, inventoryItems);
+if (restoredGameProgress) {
+  state = restoredGameProgress.state;
+  currentBiomeId = restoredGameProgress.currentBiomeId;
+  unlockedBiomeIds.clear();
+  restoredGameProgress.unlockedBiomeIds.forEach(id => unlockedBiomeIds.add(id));
+  inventoryState = restoredGameProgress.inventoryState;
+  catalystBalance = restoredGameProgress.catalystBalance;
+  workbenchState = restoredGameProgress.workbenchState;
+  equipmentState = restoredGameProgress.equipmentState;
+}
 let gameSettings = loadSettings(localStorage);
 const PANEL_LAYOUT_KEY = "terra-beyond-panel-layouts";
+function persistGameProgress() {
+  return saveGameProgress(localStorage, {
+    state, currentBiomeId, unlockedBiomeIds, inventoryState, catalystBalance, workbenchState, equipmentState,
+  });
+}
 const legacyInventoryHalf = localStorage.getItem("terra-beyond-inventory-half-screen");
 const defaultPanelLayout = {
   inventory: { half: legacyInventoryHalf === null ? true : legacyInventoryHalf === "true", position: "bottom" },
@@ -246,6 +263,7 @@ function renderInventoryCounts() {
     if (equipped && !marker) { marker=document.createElement("span"); marker.className="equipped-marker"; marker.textContent="E"; slot.append(marker); }
     if (!equipped) marker?.remove();
   });
+  persistGameProgress();
 }
 
 function returnWorldItem(instanceId, node) {
@@ -300,6 +318,7 @@ function render() {
   elements.currentBiomeLabel.textContent = (currentBiome?.name || "Unknown").toUpperCase() + " BIOME";
   renderDamageStats();
   if (activePanels.has("craft")) renderWorkbench();
+  persistGameProgress();
 }
 
 function renderInventory() {
@@ -748,6 +767,7 @@ function finishWorldDrag(event, cancelled = false) {
     if (merged.mergedItem) {
       inventoryState = merged.state; drag.node.remove();
       updateWorldItemBadges(worldTarget, merged.mergedItem);
+      persistGameProgress();
       return;
     }
   }
@@ -849,6 +869,14 @@ document.addEventListener("keydown", (event) => {
   else if (event.key === "Escape" && !elements.duplicateOverlay.hidden) closeDuplicateConfirmation();
   else if (event.key === "Escape" && !elements.detailOverlay.hidden) closeItemDetails();
   else if (event.key === "Escape" && activePanels.size > 0) closeActivePanel();
+});
+
+for (const [index, entry] of inventoryState.detached.entries()) {
+  renderWorldItem(entry, 72 + (index % 6) * 54, 120 + Math.floor(index / 6) * 54);
+}
+window.addEventListener("pagehide", persistGameProgress);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) persistGameProgress();
 });
 
 applyAllPanelLayouts();
