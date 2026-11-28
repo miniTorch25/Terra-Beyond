@@ -25,7 +25,7 @@ const elements = {
   detailCard: document.querySelector("#item-detail-card"),
   detailImage: document.querySelector("#detail-item-image"),
   detailName: document.querySelector("#detail-item-name"),
-  detailDescription: document.querySelector("#detail-item-description"),
+  detailDescription: document.querySelector("#detail-item-description"),\n  detailOrigin: document.querySelector("#item-detail-origin"),
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
   map: document.querySelector("#map-panel"),
@@ -225,7 +225,7 @@ function openItemDetails(id, fallbackTag) {
   elements.detailDescription.textContent = item.description;
   elements.detailTag.textContent = item.tag;
   elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
-  elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);
+  elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);\n  if (item.tag === "Natural" && item.origin) {\n    elements.detailOrigin.hidden = false;\n    elements.detailOrigin.querySelector("img").src = item.origin.image;\n    elements.detailOrigin.querySelector("img").alt = item.origin.name;\n    elements.detailOrigin.querySelector(".origin-name").textContent = item.origin.name;\n  } else {\n    elements.detailOrigin.hidden = true;\n  }
   elements.detailOverlay.hidden = false;
   elements.detailOverlay.setAttribute("aria-hidden", "false");
   elements.detailCard.focus();
