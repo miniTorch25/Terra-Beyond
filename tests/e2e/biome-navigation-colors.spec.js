@@ -82,3 +82,55 @@ test("Map background still follows the active biome theme", async ({ page }) => 
   }
   expect(new Set(backgrounds).size).toBe(3);
 });
+
+
+test("Map biome information frames and ! buttons use their biome colors across world themes", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#map-open").click();
+
+  const snapshots = [];
+  for (const theme of ["plains", "tundra", "cave"]) {
+    await page.locator("body").evaluate((body, biome) => { body.dataset.biome = biome; }, theme);
+    const biomeStates = [];
+    for (const biome of ["plains", "tundra", "cave"]) {
+      const row = page.locator('[data-biome-row="' + biome + '"]');
+      await row.locator(".biome-info-toggle").click();
+      biomeStates.push(await row.evaluate((node) => ({
+        frameBorder: getComputedStyle(node).borderTopColor,
+        infoBackground: getComputedStyle(node.querySelector(".map-biome-info")).backgroundColor,
+        infoBorder: getComputedStyle(node.querySelector(".map-biome-info")).borderTopColor,
+        infoButtonBackground: getComputedStyle(node.querySelector(".biome-info-toggle")).backgroundColor,
+      })));
+    }
+    snapshots.push(biomeStates);
+  }
+
+  expect(snapshots[1]).toEqual(snapshots[0]);
+  expect(snapshots[2]).toEqual(snapshots[0]);
+  expect(new Set(snapshots[0].map((state) => state.frameBorder)).size).toBe(3);
+  expect(new Set(snapshots[0].map((state) => state.infoButtonBackground)).size).toBe(3);
+});
+
+test("Inventory, Workbench and More navigation buttons use gray, brown and purple palettes", async ({ page }) => {
+  await page.goto("/");
+  const targets = [
+    { id: "inventory", expected: "rgb(104, 104, 104)" },
+    { id: "craft", expected: "rgb(121, 82, 56)" },
+    { id: "more", expected: "rgb(98, 71, 119)" },
+  ];
+  const snapshots = [];
+  for (const theme of ["plains", "tundra", "cave"]) {
+    await page.locator("body").evaluate((body, biome) => { body.dataset.biome = biome; }, theme);
+    const colors = [];
+    for (const target of targets) {
+      const button = page.locator('.menu-button[data-nav-target="' + target.id + '"]');
+      await button.click();
+      colors.push(await button.evaluate((node) => getComputedStyle(node).backgroundColor));
+      await button.click();
+    }
+    snapshots.push(colors);
+  }
+  expect(snapshots[1]).toEqual(snapshots[0]);
+  expect(snapshots[2]).toEqual(snapshots[0]);
+  expect(snapshots[0]).toEqual(targets.map((target) => target.expected));
+});
