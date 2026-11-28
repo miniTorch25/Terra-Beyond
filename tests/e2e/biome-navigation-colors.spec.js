@@ -50,9 +50,9 @@ test("Inventory, Workbench, Gear and More keep their own palettes across biome t
   await page.goto("/");
   const menus = [
     { id: "inventory", button: "#inventory-open", expected: "rgb(72, 72, 72)" },
-    { id: "craft", button: "#craft-open", expected: "rgb(87, 56, 93)" },
+    { id: "craft", button: "#craft-open", expected: "rgb(121, 82, 56)" },
     { id: "gear", button: "#gear-open", expected: "rgb(49, 91, 85)" },
-    { id: "more", button: "#more-open", expected: "rgb(59, 61, 66)" },
+    { id: "more", button: "#more-open", expected: "rgb(98, 71, 119)" },
   ];
   for (const menu of menus) {
     await page.locator(menu.button).click();
@@ -194,5 +194,50 @@ test("Navigation panel surfaces and controls match their button palettes in ever
       expect(snapshots[0][key]).toContain(value);
     }
     await page.locator(menu.button).click();
+  }
+});
+
+
+test("Gear navigation button matches the Tidewater Green UI palette in every biome", async ({ page }) => {
+  await page.goto("/");
+  const button = page.locator("#gear-open");
+  const snapshots = [];
+  for (const biome of ["plains", "tundra", "cave"]) {
+    await page.locator("body").evaluate((body, id) => { body.dataset.biome = id; }, biome);
+    await button.click();
+    snapshots.push(await button.evaluate((node) => ({
+      background: getComputedStyle(node).backgroundColor,
+      border: getComputedStyle(node).borderTopColor,
+      color: getComputedStyle(node).color,
+    })));
+    await button.click();
+  }
+  expect(snapshots).toEqual([
+    { background: "rgb(63, 113, 105)", border: "rgb(169, 210, 198)", color: "rgb(255, 255, 255)" },
+    { background: "rgb(63, 113, 105)", border: "rgb(169, 210, 198)", color: "rgb(255, 255, 255)" },
+    { background: "rgb(63, 113, 105)", border: "rgb(169, 210, 198)", color: "rgb(255, 255, 255)" },
+  ]);
+  await page.locator("#gear-open").click();
+  const panelBackground = await page.locator("#gear-panel").evaluate((node) => getComputedStyle(node).backgroundImage);
+  expect(panelBackground).toContain("rgb(49, 91, 85)");
+});
+
+test("Map navigation button follows the player's current biome palette", async ({ page }) => {
+  await page.goto("/");
+  const button = page.locator("#map-open");
+  const expected = {
+    plains: { background: "rgb(37, 61, 43)", border: "rgb(163, 196, 124)" },
+    tundra: { background: "rgb(41, 73, 92)", border: "rgb(177, 210, 223)" },
+    cave: { background: "rgb(68, 68, 68)", border: "rgb(208, 208, 208)" },
+  };
+  for (const biome of ["plains", "tundra", "cave"]) {
+    await page.locator("body").evaluate((body, id) => { body.dataset.biome = id; }, biome);
+    await button.click();
+    const actual = await button.evaluate((node) => ({
+      background: getComputedStyle(node).backgroundColor,
+      border: getComputedStyle(node).borderTopColor,
+    }));
+    expect(actual).toEqual(expected[biome]);
+    await button.click();
   }
 });
