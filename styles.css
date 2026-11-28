@@ -296,10 +296,10 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 
 
 /* Shared half-screen layout for Inventory, Workbench, Gear and More (Map excluded). */
-body[data-biome] .navigation-panel.is-half { height: auto; bottom: var(--bottom-menu-height); transition: top .18s ease, height .18s ease; }
-body[data-biome] .navigation-panel.is-half.is-top { top: 0; bottom: auto; height: 50vh; }
-body[data-biome] .navigation-panel.is-half.is-bottom { top: 50vh; bottom: var(--bottom-menu-height); }
-body[data-biome] .navigation-panel:not(.is-half) { top: 0; bottom: var(--bottom-menu-height); }
+ .navigation-panel.is-half { height: auto; bottom: var(--bottom-menu-height); transition: top .18s ease, height .18s ease; }
+.navigation-panel.is-half.is-top { top: 0; bottom: auto; height: 50vh; }
+.navigation-panel.is-half.is-bottom { top: 50vh; bottom: var(--bottom-menu-height); }
+.navigation-panel:not(.is-half) { top: 0; bottom: var(--bottom-menu-height); }
 .ui-half-toggle, .ui-position-toggle {
   display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #526b53;
   border-radius: 9px; background: #2a3e2d; color: #eff7e9; font-size: 19px; line-height: 1; cursor: pointer;
