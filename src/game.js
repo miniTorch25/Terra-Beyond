@@ -1,5 +1,13 @@
 export const PLAYER_DAMAGE = 1;
 
+export const BLOCK_DROPS = Object.freeze({
+  grass: Object.freeze([{ itemId: "item_grass", amount: 1 }]),
+});
+
+export function getBlockDrops(block) {
+  return (BLOCK_DROPS[block?.id] || []).map((drop) => ({ ...drop }));
+}
+
 export const BLOCKS_BY_BIOME = Object.freeze({
   plains: Object.freeze([
     Object.freeze({ id: "grass", name: "Grass", maxHp: 5, spawnRate: 40, image: "./sprites/block/plains/grass.png" }),
@@ -46,9 +54,9 @@ export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, b
 
   const remainingHp = Math.max(0, state.hp - damage);
   if (remainingHp > 0) {
-    return { state: { block: state.block, hp: remainingHp }, broken: false };
+    return { state: { block: state.block, hp: remainingHp }, broken: false, drops: [] };
   }
 
   const nextBlock = randomBlock(random, biomeId);
-  return { state: { block: nextBlock, hp: nextBlock.maxHp }, broken: true };
+  return { state: { block: nextBlock, hp: nextBlock.maxHp }, broken: true, drops: getBlockDrops(state.block) };
 }
