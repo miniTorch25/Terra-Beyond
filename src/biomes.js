@@ -20,7 +20,7 @@ export function getBiomeAction(biome, currentBiomeId) {
   if (biome.id === currentBiomeId) return "Current";
   if (biome.unlocked) return "Visit";
   if (biome.unlockCost === null || biome.unlockCost === undefined || biome.unlockCost === "") return "Lock";
-  return String(biome.unlockCost);
+  return typeof biome.unlockCost === "string" ? biome.unlockCost : "Unlock";
 }
 
 export function getBiomeById(id) {
