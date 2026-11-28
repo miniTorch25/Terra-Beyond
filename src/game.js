@@ -21,6 +21,8 @@ export function getBlockDrops(block) {
   return (BLOCK_DROPS[block?.id] || []).map((drop) => ({ ...drop }));
 }
 
+export const WATER_PUDDLE_CHANCE = 0.25;
+
 export const BLOCKS_BY_BIOME = Object.freeze({
   plains: Object.freeze([
     Object.freeze({ id: "grass", name: "Grass", maxHp: 5, spawnRate: 40, image: "./sprites/block/plains/grass.png" }),
@@ -59,9 +61,14 @@ export function randomBlock(random = Math.random, biomeId = "plains") {
   return blocks[blocks.length - 1];
 }
 
+function createBlockState(block, random) {
+  const waterPuddle = block.id === "grass" && random() < WATER_PUDDLE_CHANCE;
+  return { block, hp: block.maxHp, waterPuddle };
+}
+
 export function createInitialState(random = Math.random, biomeId = "plains") {
   const block = randomBlock(random, biomeId);
-  return { block, hp: block.maxHp };
+  return createBlockState(block, random);
 }
 
 export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, biomeId = "plains", equippedToolId = null) {
@@ -75,11 +82,12 @@ export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, b
   const instantIceBreak = equippedToolId === "ice_pick" && state.block.id === "ice_block";
   const remainingHp = instantIceBreak ? 0 : Math.max(0, state.hp - damage);
   if (remainingHp > 0) {
-    return { state: { block: state.block, hp: remainingHp }, broken: false, drops: [] };
+    return { state: { ...state, hp: remainingHp }, broken: false, drops: [] };
   }
 
   const nextBlock = randomBlock(random, biomeId);
+  const nextState = createBlockState(nextBlock, random);
   const drops = getBlockDrops(state.block);
   if (equippedToolId === "emerald_pick" && state.block.id === "emerald_ore") { const emerald=drops.find(drop=>drop.itemId==="emerald"); if(emerald)emerald.amount+=1; else drops.push({itemId:"emerald",amount:1}); }
-  return { state: { block: nextBlock, hp: nextBlock.maxHp }, broken: true, drops };
+  return { state: nextState, broken: true, drops };
 }
