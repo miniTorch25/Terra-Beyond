@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#18251f">
   <title>Terra Beyond — Block Mining Prototype</title>
-  <link rel="stylesheet" href="./styles.css?v=nav-safe-area-shortcuts-20261128">
+  <link rel="stylesheet" href="./styles.css?v=more-settings-reset-20261128">
 <link rel="stylesheet" href="./workbench.css?v=20261128-result-preview">
 </head>
 <body>
@@ -90,7 +90,30 @@
   </section>
   <section class="simple-panel navigation-panel" id="more-panel" data-nav-panel="more" aria-labelledby="more-title" aria-hidden="true" hidden>
     <div class="inventory-heading"><h2 id="more-title">More</h2><div class="inventory-heading-actions"><button class="ui-half-toggle" type="button" data-ui-half="more" aria-label="Split More to half screen" aria-pressed="false">↕</button><button class="ui-position-toggle" type="button" data-ui-position="more" aria-label="Move More to top half" disabled>↑</button></div></div>
-    <p class="panel-placeholder">More options will be available later.</p>
+    <p class="panel-placeholder">Adjust gameplay options and manage your current run.</p>
+    <section class="more-section" aria-labelledby="settings-title">
+      <div class="more-section-heading"><span class="more-section-icon" aria-hidden="true">⚙</span><div><h3 id="settings-title">Settings</h3><p>Adjust gameplay feedback and visual effects.</p></div></div>
+      <label class="setting-row" for="setting-mining-feedback"><span><strong>Mining Feedback</strong><small>Show damage and mining messages below the block.</small></span><input id="setting-mining-feedback" type="checkbox" data-game-setting="showMiningFeedback" checked></label>
+      <label class="setting-row" for="setting-drop-notifications"><span><strong>Drop Notifications</strong><small>Show an item notification when a block is mined.</small></span><input id="setting-drop-notifications" type="checkbox" data-game-setting="showDropNotifications" checked></label>
+      <label class="setting-row" for="setting-damage-overlay"><span><strong>Block Damage Overlay</strong><small>Show cracks on a block as its HP decreases.</small></span><input id="setting-damage-overlay" type="checkbox" data-game-setting="showDamageOverlay" checked></label>
+      <button class="more-secondary-button" id="reset-panel-layouts" type="button">Restore Default Panel Layouts</button>
+    </section>
+    <section class="more-section more-danger-section" aria-labelledby="data-title">
+      <div class="more-section-heading"><span class="more-section-icon" aria-hidden="true">⌫</span><div><h3 id="data-title">Game Data</h3><p>Start a new run by resetting your current gameplay progress.</p></div></div>
+      <p class="more-warning">This resets your current session's inventory, equipment, currency, biome unlocks and mining progress. Your settings and panel layout preferences will remain unchanged.</p>
+      <button class="more-danger-button" id="delete-game-data" type="button">Reset Game Progress</button>
+    </section>
+  </section>
+
+  <section class="reset-data-overlay" id="reset-data-overlay" aria-hidden="true" hidden>
+    <article class="reset-data-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-data-title" aria-describedby="reset-data-description">
+      <h2 id="reset-data-title">Reset Game Progress?</h2>
+      <p id="reset-data-description">All current gameplay progress will be reset. This action cannot be undone.</p>
+      <div class="reset-data-actions">
+        <button id="reset-data-cancel" type="button">Cancel</button>
+        <button id="reset-data-confirm" type="button">Reset Progress</button>
+      </div>
+    </article>
   </section>
 
   <div class="world-items" id="world-items" aria-label="Items placed in the world"></div>
@@ -130,6 +153,6 @@
     <button class="menu-button" id="more-open" type="button" data-nav-target="more" aria-label="Open More" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⚙</span><span>More</span></button>
     <button class="menu-button" id="map-open" type="button" data-nav-target="map" aria-label="Open Map" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⌖</span><span>Map</span></button>
   </nav>
-  <script type="module" src="./src/main.js?v=default-navigation-panel-layouts-20261128"></script>
+  <script type="module" src="./src/main.js?v=more-settings-reset-20261128"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
 import { renderEquipmentSlots, renderAbilityLog } from "./equipment-ui.js";
 import { pushToast, removeToast, TOAST_DURATION, getCraftFailureAdvice } from "./toast-state.js";
+import { loadSettings, saveSettings } from "./settings.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -54,6 +55,9 @@ const elements = {
   navButtons: [...document.querySelectorAll(".menu-button[data-nav-target]")],
   navPanels: [...document.querySelectorAll(".navigation-panel")],
   baseDamage:document.querySelector("#base-damage"),blockDamage:document.querySelector("#block-damage"),mobDamage:document.querySelector("#mob-damage"),workbenchStations:document.querySelector("#workbench-stations"),craftingTableStatus:document.querySelector("#crafting-table-status"),craftingTableCost:document.querySelector("#crafting-table-cost"),furnaceStatus:document.querySelector("#furnace-status"),furnaceCost:document.querySelector("#furnace-cost"),workbenchCrafting:document.querySelector("#workbench-crafting"),workbenchRecipes:document.querySelector("#workbench-recipes"),workbenchTabs:[...document.querySelectorAll(".workbench-tab")],equippedToolLabel:document.querySelector("#equipped-tool-label"),
+  resetDataOverlay: document.querySelector("#reset-data-overlay"),
+  resetDataCancel: document.querySelector("#reset-data-cancel"),
+  resetDataConfirm: document.querySelector("#reset-data-confirm"),
 };
 
 let state = createInitialState(Math.random, "plains");
@@ -73,6 +77,7 @@ let workbenchState=createWorkbenchState();
 let activeCraftCategory="item";
 let equipmentState=createEquipmentState();
 let equippedToolId=null;
+let gameSettings = loadSettings(localStorage);
 const PANEL_LAYOUT_KEY = "terra-beyond-panel-layouts";
 const legacyInventoryHalf = localStorage.getItem("terra-beyond-inventory-half-screen");
 const defaultPanelLayout = {
@@ -286,7 +291,7 @@ function render() {
   elements.fill.style.width = String((hp / block.maxHp) * 100) + "%";
   elements.progress.setAttribute("aria-valuemax", String(block.maxHp));
   elements.progress.setAttribute("aria-valuenow", String(hp));
-  elements.damage.hidden = hp === block.maxHp;
+  elements.damage.hidden = hp === block.maxHp || !gameSettings.showDamageOverlay;
   if (!elements.damage.hidden) {
     elements.damage.src = "./sprites/environment/destroy_stage_" + stage + ".png";
   }
@@ -540,6 +545,64 @@ function closeItemDetails() {
   elements.detailOverlay.setAttribute("aria-hidden", "true");
 }
 
+function renderGameSettings() {
+  document.querySelectorAll("[data-game-setting]").forEach(input => {
+    input.checked = Boolean(gameSettings[input.dataset.gameSetting]);
+  });
+}
+
+function openResetDataConfirmation() {
+  elements.resetDataOverlay.hidden = false;
+  elements.resetDataOverlay.setAttribute("aria-hidden", "false");
+  elements.resetDataConfirm.focus();
+}
+
+function closeResetDataConfirmation() {
+  elements.resetDataOverlay.hidden = true;
+  elements.resetDataOverlay.setAttribute("aria-hidden", "true");
+  document.querySelector("#delete-game-data")?.focus();
+}
+
+function resetGameProgress() {
+  state = createInitialState(Math.random, "plains");
+  currentBiomeId = "plains";
+  unlockedBiomeIds.clear();
+  BIOMES.filter(biome => biome.unlocked).forEach(biome => unlockedBiomeIds.add(biome.id));
+  inventoryState = createInventoryState(inventoryItems);
+  catalystBalance = STARTING_IC;
+  workbenchState = createWorkbenchState();
+  equipmentState = createEquipmentState();
+  equippedToolId = null;
+  activeCategory = "item";
+  activeCraftCategory = "item";
+  expandedBiomeInfo.clear();
+  pendingDuplicateItemId = null;
+  elements.worldItems.replaceChildren();
+  closeResetDataConfirmation();
+  closeDuplicateConfirmation();
+  closeActivePanel();
+  for (const timer of toastTimers.values()) clearTimeout(timer);
+  toastTimers.clear();
+  toastQueues.notice = [];
+  toastQueues.drops = [];
+  renderToastQueue("notice");
+  renderToastQueue("drops");
+  renderCurrency();
+  renderInventoryCounts();
+  render();
+  renderMap();
+  renderWorkbench();
+  renderGear();
+  elements.helper.textContent = "A new adventure begins. Start mining!";
+}
+
+function restoreDefaultPanelLayouts() {
+  panelLayouts = Object.fromEntries(Object.entries(defaultPanelLayout).map(([name, layout]) => [name, { ...layout }]));
+  localStorage.removeItem("terra-beyond-inventory-half-screen");
+  savePanelLayouts();
+  applyAllPanelLayouts();
+}
+
 function setActivePanel(panelName) {
   const wasOpen = activePanels.has(panelName);
   if (panelName === "map") {
@@ -588,16 +651,18 @@ elements.button.addEventListener("click", () => {
   state = result.state;
   for (const drop of result.drops) {
     inventoryState = addInventoryItem(inventoryState, drop.itemId, drop.amount);
-    if (result.broken) showDropLog(drop);
+    if (result.broken && gameSettings.showDropNotifications) showDropLog(drop);
   }
   if (result.drops.length > 0) renderInventoryCounts();
   const dropMessage = result.drops.map((drop) => {
     const item = inventoryItems.find((entry) => entry.id === drop.itemId);
     return (item?.name || drop.itemId) + " +" + drop.amount;
   }).join(", ");
-  elements.helper.textContent = result.broken
-    ? (dropMessage ? dropMessage + " · " : "") + result.state.block.name + " appeared. Keep mining!"
-    : "-" + formatDamage(damage) + " HP · " + formatDamage(result.state.hp) + " HP remaining";
+  if (gameSettings.showMiningFeedback) {
+    elements.helper.textContent = result.broken
+      ? (dropMessage ? dropMessage + " · " : "") + result.state.block.name + " appeared. Keep mining!"
+      : "-" + formatDamage(damage) + " HP · " + formatDamage(result.state.hp) + " HP remaining";
+  }
   render();
 });
 
@@ -606,6 +671,20 @@ elements.navButtons.forEach((button) => {
   button.addEventListener("click", () => setActivePanel(button.dataset.navTarget));
 });
 elements.inventoryClose.addEventListener("click", closeActivePanel);
+document.querySelectorAll("[data-game-setting]").forEach(input => {
+  input.addEventListener("change", () => {
+    gameSettings = saveSettings(localStorage, { ...gameSettings, [input.dataset.gameSetting]: input.checked });
+    renderGameSettings();
+    render();
+  });
+});
+document.querySelector("#reset-panel-layouts").addEventListener("click", restoreDefaultPanelLayouts);
+document.querySelector("#delete-game-data").addEventListener("click", openResetDataConfirmation);
+elements.resetDataCancel.addEventListener("click", closeResetDataConfirmation);
+elements.resetDataConfirm.addEventListener("click", resetGameProgress);
+elements.resetDataOverlay.addEventListener("click", event => {
+  if (event.target === elements.resetDataOverlay) closeResetDataConfirmation();
+});
 elements.inventoryTabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     activeCategory = INVENTORY_CATEGORIES.find((category) => category.id === tab.dataset.category)?.id ?? "item";
@@ -766,11 +845,13 @@ elements.biomeList.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !elements.duplicateOverlay.hidden) closeDuplicateConfirmation();
+  if (event.key === "Escape" && !elements.resetDataOverlay.hidden) closeResetDataConfirmation();
+  else if (event.key === "Escape" && !elements.duplicateOverlay.hidden) closeDuplicateConfirmation();
   else if (event.key === "Escape" && !elements.detailOverlay.hidden) closeItemDetails();
   else if (event.key === "Escape" && activePanels.size > 0) closeActivePanel();
 });
 
 applyAllPanelLayouts();
+renderGameSettings();
 renderCurrency();
 render();
