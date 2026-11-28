@@ -8,11 +8,14 @@ async function openGrassDetails(page, withPrototype = true) {
   await page.locator('[data-item-info="item_grass"]').click();
 }
 
-test("IC balance appears in the upper-right corner with 100 million", async ({ page }) => {
+test("IC balance stays above the bottom navigation and clear of panel header controls", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#ic-balance")).toHaveText("100M");
   await expect(page.locator(".ic-balance")).toBeVisible();
   await expect(page.locator(".ic-balance")).toHaveCSS("position", "fixed");
+  const balance = await page.locator(".ic-balance").boundingBox();
+  const nav = await page.locator(".bottom-nav").boundingBox();
+  expect(balance.y + balance.height).toBeLessThanOrEqual(nav.y);
 });
 
 test("duplicate confirmation charges 1 IC and grants 500 copies", async ({ page }) => {
