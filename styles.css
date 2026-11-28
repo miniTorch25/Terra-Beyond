@@ -433,3 +433,79 @@ body[data-biome="tundra"] .recipe-cost, body[data-biome="tundra"] .recipe-line>b
 body[data-biome="tundra"] .recipe-icon { border-color:#638397; background:#142a37; }
 body[data-biome="tundra"] .recipe-craft-button { border-color:#8ab0c2; background:#416b80; color:#f0f9fc; }
 body[data-biome="tundra"] .recipe-card:not(:disabled):active { border-color:#b8d9e8; background:#29485a; }
+
+
+/* Cave biome theme: grayscale palette across all UI surfaces. */
+body[data-biome="cave"] { background:radial-gradient(ellipse at 50% 18%,#434343 0,#2c2c2c 44%,#1b1b1b 100%); color:#f1f1f1; }
+body[data-biome="cave"] .brand-mark { border-color:#959595; background:#505050; color:#efefef; }
+body[data-biome="cave"] .eyebrow, body[data-biome="cave"] footer { color:#bfbfbf; }
+body[data-biome="cave"] .mine-panel, body[data-biome="cave"] .rules-panel { border-color:#6f6f6f; background:linear-gradient(155deg,#3f3f3f,#2d2d2d); }
+body[data-biome="cave"] .status-pill { border-color:#8b8b8b; color:#e3e3e3; }
+body[data-biome="cave"] .status-dot { background:#d0d0d0; box-shadow:0 0 10px #d0d0d080; }
+body[data-biome="cave"] .block-stage { border-color:#737373; background:repeating-linear-gradient(45deg,#404040 0 12px,#484848 12px 24px); }
+body[data-biome="cave"] .block-target { color:#ececec; }
+body[data-biome="cave"] .block-target:focus-visible { outline-color:#dcdcdc; }
+body[data-biome="cave"] .tap-hint, body[data-biome="cave"] .hp-readout, body[data-biome="cave"] .helper-text { color:#cccccc; }
+body[data-biome="cave"] .hp-readout strong, body[data-biome="cave"] .hp-readout small { color:#f1f1f1; }
+body[data-biome="cave"] .hp-track { background:#1f1f1f; }
+body[data-biome="cave"] .hp-fill { background:linear-gradient(90deg,#acacac,#e1e1e1); }
+body[data-biome="cave"] .rule-item { color:#d4d4d4; }
+body[data-biome="cave"] .rule-item strong { color:#f7f7f7; }
+body[data-biome="cave"] .rule-icon { color:#d9d9d9; }
+body[data-biome="cave"] .bottom-menu { border-color:#737373; background:#282828f2; }
+body[data-biome="cave"] .menu-button { color:#bdbdbd; }
+body[data-biome="cave"] .menu-button.is-selected { background:#505050; color:#efefef; }
+body[data-biome="cave"] .inventory-panel, body[data-biome="cave"] .map-panel, body[data-biome="cave"] .simple-panel { border-color:#737373; background:linear-gradient(160deg,#363636,#222222); }
+body[data-biome="cave"] .inventory-close, body[data-biome="cave"] .inventory-collapse, body[data-biome="cave"] .ui-half-toggle, body[data-biome="cave"] .ui-position-toggle { border-color:#8d8d8d; background:#505050; color:#f2f2f2; }
+body[data-biome="cave"] .inventory-tab { border-color:#737373; background:#313131; color:#cfcfcf; }
+body[data-biome="cave"] .inventory-tab.is-active { border-color:#cecece; background:#5e5e5e; color:#f7f7f7; }
+body[data-biome="cave"] .tab-check, body[data-biome="cave"] .drawer-arrow { color:#e3e3e3; }
+body[data-biome="cave"] .biome-drawer, body[data-biome="cave"] .map-biome-row { border-color:#737373; background:#303030; }
+body[data-biome="cave"] .biome-drawer > summary { background:#505050; color:#f1f1f1; }
+body[data-biome="cave"] .inventory-section + .inventory-section, body[data-biome="cave"] .detail-origin, body[data-biome="cave"] .detail-row, body[data-biome="cave"] .ability-log-panel { border-color:#656565; }
+body[data-biome="cave"] .inventory-section h3, body[data-biome="cave"] .detail-label, body[data-biome="cave"] .equipment-group > h4, body[data-biome="cave"] .equipment-primary-headings h4, body[data-biome="cave"] .equipment-group-artifact > h4, body[data-biome="cave"] .ability-log-panel h4 { color:#d3d3d3; }
+body[data-biome="cave"] .inventory-slot { border-color:#7e7e7e; background:linear-gradient(145deg,#535353,#3a3a3a); }
+body[data-biome="cave"] .item-info-button { border-color:#bfbfbf; background:#303030; color:#f6f6f6; }
+body[data-biome="cave"] .item-info-button:focus-visible, body[data-biome="cave"] .inventory-item-button:focus-visible { outline-color:#e4e4e4; }
+body[data-biome="cave"] .item-detail-card, body[data-biome="cave"] .duplicate-confirm-card { border-color:#8e8e8e; background:linear-gradient(155deg,#505050,#292929); }
+body[data-biome="cave"] .detail-item-heading img, body[data-biome="cave"] .detail-origin-content img { border-color:#7e7e7e; background:#313131; }
+body[data-biome="cave"] .detail-item-description, body[data-biome="cave"] .detail-abilities p, body[data-biome="cave"] .detail-origin-content, body[data-biome="cave"] .detail-row strong { color:#ececec; }
+body[data-biome="cave"] .detail-abilities { padding:12px 0; border-bottom:1px solid #656565; }
+body[data-biome="cave"] .map-biome-heading h3 { color:#f1f1f1; }
+body[data-biome="cave"] .biome-info-toggle { border-color:#8e8e8e; background:#505050; color:#efefef; }
+body[data-biome="cave"] .biome-info-toggle.is-open { border-color:#d3d3d3; background:#646464; }
+body[data-biome="cave"] .biome-visit-button { border-color:#a9a9a9; background:#5e5e5e; color:#f7f7f7; }
+body[data-biome="cave"] .biome-visit-button.is-current { border-color:#909090; background:#444444; color:#e0e0e0; }
+body[data-biome="cave"] .biome-visit-button.is-locked { border-color:#616161; background:#363636; color:#b0b0b0; }
+body[data-biome="cave"] .map-biome-info, body[data-biome="cave"] .workbench-crafting { border-color:#656565; }
+body[data-biome="cave"] .map-biome-info p, body[data-biome="cave"] .map-intro, body[data-biome="cave"] .player-info-hint { color:#cfcfcf; }
+body[data-biome="cave"] .simple-panel .panel-placeholder, body[data-biome="cave"] .player-info-panel { border-color:#737373; background:linear-gradient(150deg,#434343,#2d2d2d); color:#ececec; }
+body[data-biome="cave"] .player-info-panel h3 { color:#f5f5f5; }
+body[data-biome="cave"] .equipment-slot-card { border-color:#7e7e7e; background:#2c2c2c; color:#cfcfcf; }
+body[data-biome="cave"] .equipment-slot-card.is-locked, body[data-biome="cave"] .equipment-slot-card:disabled { border-color:#676767; background:#343434; color:#b2b2b2; }
+body[data-biome="cave"] .equipment-slot-card:not(:disabled):hover { border-color:#d3d3d3; }
+body[data-biome="cave"] .ability-log-list { color:#e4e4e4; }
+body[data-biome="cave"] .ability-log-list li::marker { color:#d3d3d3; }
+body[data-biome="cave"] .player-info-damage div { border-color:#656565; background:#303030; }
+body[data-biome="cave"] .player-info-damage span { color:#cbcbcb; }
+body[data-biome="cave"] .player-info-damage strong { color:#f5f5f5; }
+body[data-biome="cave"] .ic-balance { border-color:#adadad; background:#282828ee; color:#f7f7f7; }
+body[data-biome="cave"] .ic-symbol, body[data-biome="cave"] .ic-balance small { color:#e0e0e0; }
+body[data-biome="cave"] .duplicate-button, body[data-biome="cave"] .equip-item-button { border-color:#a9a9a9; background:linear-gradient(135deg,#777777,#505050); color:#f7f7f7; }
+body[data-biome="cave"] .duplicate-actions button { border-color:#8e8e8e; background:#434343; color:#f5f5f5; }
+body[data-biome="cave"] .duplicate-actions button:last-child { background:#777777; }
+body[data-biome="cave"] .world-item { border-color:#a9a9a9; background:#383838ee; }
+body[data-biome="cave"] .workbench-station { border-color:#8e8e8e; background:linear-gradient(145deg,#505050,#313131); color:#f5f5f5; }
+body[data-biome="cave"] .workbench-station.is-unlocked { border-color:#d3d3d3; background:linear-gradient(145deg,#646464,#434343); }
+body[data-biome="cave"] .station-icon, body[data-biome="cave"] .station-status, body[data-biome="cave"] .workbench-section-heading span { color:#e3e3e3; }
+body[data-biome="cave"] .station-cost, body[data-biome="cave"] .recipe-info p, body[data-biome="cave"] .recipe-flavor { color:#cfcfcf; }
+body[data-biome="cave"] .workbench-tab { border-color:#7e7e7e; background:#303030; color:#cfcfcf; }
+body[data-biome="cave"] .workbench-tab.is-active { border-color:#d3d3d3; background:#646464; color:#f7f7f7; }
+body[data-biome="cave"] .recipe-card { border-color:#656565; background:#303030; color:#f5f5f5; }
+body[data-biome="cave"] .recipe-info strong, body[data-biome="cave"] .recipe-title-line { color:#f5f5f5; }
+body[data-biome="cave"] .recipe-line { color:#d8d8d8; }
+body[data-biome="cave"] .recipe-cost, body[data-biome="cave"] .recipe-line>b, body[data-biome="cave"] .recipe-ingredient small { color:#e3e3e3; }
+body[data-biome="cave"] .recipe-icon { border-color:#7e7e7e; background:#262626; }
+body[data-biome="cave"] .recipe-craft-button { border-color:#a9a9a9; background:#646464; color:#f7f7f7; }
+body[data-biome="cave"] .recipe-card:not(:disabled):active { border-color:#d3d3d3; background:#434343; }
+
