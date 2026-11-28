@@ -11,7 +11,7 @@ export const BIOMES = Object.freeze([
     name: "Tundra",
     description: "A cold northern biome covered in snow and ice. Spruce trees, frozen water, berries, and sapphire deposits are found here.",
     unlocked: false,
-    unlockCost: null,
+    unlockCost: Object.freeze({ itemId: "emerald", amount: 75 }),
   }),
 ]);
 
