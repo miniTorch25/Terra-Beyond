@@ -297,6 +297,7 @@ test("Half-screen navigation panels leave the bottom shortcut bar unobstructed",
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => localStorage.clear());
   await page.goto("/");
+  await page.locator("body").evaluate((body) => { body.dataset.biome = "plains"; });
   await page.locator("#inventory-open").click();
   await page.locator('[data-ui-half="inventory"]').click();
 
