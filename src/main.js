@@ -313,6 +313,7 @@ document.addEventListener("pointerup", (event) => {
     if (target && !elements.inventory.hidden) returnWorldItem(drag.instanceId, drag.node);
     activeWorldDrag = null;
   }
+  window.setTimeout(() => { suppressInventoryClick = false; }, 0);
 });
 elements.detailOverlay.addEventListener("click", (event) => {
   if (event.target === elements.detailOverlay) closeItemDetails();
