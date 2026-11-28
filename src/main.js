@@ -842,7 +842,8 @@ elements.biomeList.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !elements.resetDataOverlay.hidden) closeResetDataConfirmation();\n  else if (event.key === "Escape" && !elements.duplicateOverlay.hidden) closeDuplicateConfirmation();
+  if (event.key === "Escape" && !elements.resetDataOverlay.hidden) closeResetDataConfirmation();
+  else if (event.key === "Escape" && !elements.duplicateOverlay.hidden) closeDuplicateConfirmation();
   else if (event.key === "Escape" && !elements.detailOverlay.hidden) closeItemDetails();
   else if (event.key === "Escape" && activePanels.size > 0) closeActivePanel();
 });
