@@ -49,7 +49,7 @@ test("All five bottom navigation tabs keep the same dark-gray palette in every b
 test("Inventory, Workbench, Gear and More keep their own palettes across biome themes", async ({ page }) => {
   await page.goto("/");
   const menus = [
-    { id: "inventory", button: "#inventory-open", expected: "rgb(80, 57, 39)" },
+    { id: "inventory", button: "#inventory-open", expected: "rgb(72, 72, 72)" },
     { id: "craft", button: "#craft-open", expected: "rgb(87, 56, 93)" },
     { id: "gear", button: "#gear-open", expected: "rgb(49, 91, 85)" },
     { id: "more", button: "#more-open", expected: "rgb(59, 61, 66)" },
@@ -134,4 +134,65 @@ test("Inventory, Workbench and More navigation buttons use gray, brown and purpl
   expect(snapshots[1]).toEqual(snapshots[0]);
   expect(snapshots[2]).toEqual(snapshots[0]);
   expect(snapshots[0]).toEqual(targets.map((target) => target.expected));
+});
+
+
+test("Navigation panel surfaces and controls match their button palettes in every biome", async ({ page }) => {
+  await page.goto("/");
+  const cases = [
+    {
+      id: "inventory",
+      button: "#inventory-open",
+      inspect: (panel) => ({
+        panel: getComputedStyle(panel).backgroundImage,
+        border: getComputedStyle(panel).borderBottomColor,
+        tab: getComputedStyle(panel.querySelector(".inventory-tab.is-active")).backgroundColor,
+      }),
+      expected: { panel: "rgb(72, 72, 72)", border: "rgb(98, 98, 98)", tab: "rgb(104, 104, 104)" },
+    },
+    {
+      id: "craft",
+      button: "#craft-open",
+      inspect: (panel) => ({
+        panel: getComputedStyle(panel).backgroundImage,
+        station: getComputedStyle(panel.querySelector(".workbench-station")).backgroundImage,
+        tab: getComputedStyle(panel.querySelector(".workbench-tab.is-active")).backgroundColor,
+      }),
+      expected: { panel: "rgb(121, 82, 56)", station: "rgb(99, 68, 47)", tab: "rgb(121, 82, 56)" },
+    },
+    {
+      id: "gear",
+      button: "#gear-open",
+      inspect: (panel) => ({
+        panel: getComputedStyle(panel).backgroundImage,
+        playerInfo: getComputedStyle(panel.querySelector(".player-info-panel")).backgroundImage,
+      }),
+      expected: { panel: "rgb(49, 91, 85)", playerInfo: "rgb(49, 91, 85)" },
+    },
+    {
+      id: "more",
+      button: "#more-open",
+      inspect: (panel) => ({
+        panel: getComputedStyle(panel).backgroundImage,
+        placeholder: getComputedStyle(panel.querySelector(".panel-placeholder")).backgroundColor,
+      }),
+      expected: { panel: "rgb(98, 71, 119)", placeholder: "rgb(53, 38, 64)" },
+    },
+  ];
+
+  for (const menu of cases) {
+    await page.locator(menu.button).click();
+    const panel = page.locator('[data-nav-panel="' + menu.id + '"]');
+    const snapshots = [];
+    for (const theme of ["plains", "tundra", "cave"]) {
+      await page.locator("body").evaluate((body, biome) => { body.dataset.biome = biome; }, theme);
+      snapshots.push(await panel.evaluate(menu.inspect));
+    }
+    expect(snapshots[1]).toEqual(snapshots[0]);
+    expect(snapshots[2]).toEqual(snapshots[0]);
+    for (const [key, value] of Object.entries(menu.expected)) {
+      expect(snapshots[0][key]).toContain(value);
+    }
+    await page.locator(menu.button).click();
+  }
 });
