@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <aside class="ic-balance" aria-label="Infinity Catalyst balance"><span class="ic-symbol">✧</span><span id="ic-balance">100M</span><small>IC</small></aside>
   <main class="game-shell">
     <header class="topbar">
       <div class="brand-mark" aria-hidden="true">TB</div>
@@ -102,6 +103,19 @@
       </div>
       <div class="detail-row"><span class="detail-label">Special Tag</span><strong id="detail-item-tag"></strong></div>
       <div class="detail-row"><span class="detail-label">Quantity</span><strong id="detail-item-count"></strong></div>
+      <button class="duplicate-button" id="detail-duplicate-button" type="button">Duplicate</button>
+    </article>
+  </section>
+  <section class="duplicate-confirm-overlay" id="duplicate-confirm-overlay" aria-hidden="true" hidden>
+    <article class="duplicate-confirm-card" role="dialog" aria-modal="true" aria-labelledby="duplicate-title">
+      <h2 id="duplicate-title">Confirm Duplicate</h2>
+      <div class="duplicate-item-preview"><img id="duplicate-item-image" src="" alt=""><strong id="duplicate-item-name"></strong></div>
+      <p id="duplicate-message">Spend 1 IC to receive 500 additional items?</p>
+      <p class="duplicate-cost">Cost: <strong>1 IC</strong> · Receive: <strong>500</strong></p>
+      <div class="duplicate-actions">
+        <button id="duplicate-cancel-button" type="button">Cancel</button>
+        <button id="duplicate-confirm-button" type="button">Confirm</button>
+      </div>
     </article>
   </section>
   <nav class="bottom-menu" aria-label="Main menu">

@@ -231,3 +231,40 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 .inventory-panel.is-half .inventory-content { padding-bottom: 12px; }
 
 .biome-cost-icon { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; image-rendering: pixelated; }
+
+/* Infinity Catalyst balance */
+.ic-balance {
+  position: fixed; z-index: 40; top: max(10px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right));
+  display: flex; align-items: center; gap: 7px; min-height: 36px; padding: 6px 11px;
+  border: 1px solid #8b9b65; border-radius: 10px; background: #18251fee; color: #f0f5d9;
+  box-shadow: 0 5px 18px #0007; font-size: 13px; font-weight: 850; font-variant-numeric: tabular-nums;
+}
+.ic-symbol { color: #d7ed8d; font-size: 18px; }
+.ic-balance small { color: #b6c98b; font-size: 10px; letter-spacing: .8px; }
+.duplicate-button {
+  width: 100%; min-height: 42px; margin-top: 16px; border: 1px solid #a0bd72; border-radius: 9px;
+  background: linear-gradient(135deg, #526d3b, #354e35); color: #f0f7e8; font-weight: 850; cursor: pointer;
+}
+.duplicate-button:focus-visible, .duplicate-actions button:focus-visible { outline: 2px solid #d5f19a; outline-offset: 2px; }
+.duplicate-confirm-overlay {
+  position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 20px;
+  background: #050b08d9; backdrop-filter: blur(4px);
+}
+.duplicate-confirm-overlay[hidden] { display: none; }
+.duplicate-confirm-card {
+  width: min(100%, 380px); padding: 20px; border: 1px solid #829b62; border-radius: 15px;
+  background: linear-gradient(155deg, #2b4030, #17251d); box-shadow: 0 22px 70px #000b; text-align: center;
+}
+.duplicate-confirm-card h2 { margin: 0 0 15px; font-size: 19px; }
+.duplicate-item-preview { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; }
+.duplicate-item-preview img { width: 52px; height: 52px; object-fit: contain; image-rendering: pixelated; }
+.duplicate-confirm-card p { color: #c0d0ba; font-size: 13px; line-height: 1.5; }
+.duplicate-cost { padding: 10px; border: 1px solid #465e43; border-radius: 8px; background: #1b2a20; }
+.duplicate-cost strong { color: #e4f3b5; }
+.duplicate-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 16px; }
+.duplicate-actions button { min-height: 40px; border: 1px solid #607b57; border-radius: 8px; background: #263a2b; color: #edf4ec; font-weight: 800; cursor: pointer; }
+.duplicate-actions button:last-child { background: #526d3b; }
+.duplicate-actions button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Keep the fixed currency HUD clear of the page heading. */
+.game-shell { padding-top: 58px; }
