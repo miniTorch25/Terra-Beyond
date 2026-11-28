@@ -4,6 +4,7 @@ import {
   INVENTORY_CATEGORIES,
   PLAINS_INVENTORY,
   TUNDRA_INVENTORY,
+  CAVE_INVENTORY,
   LIQUID_INVENTORY,
   chunkItems, formatItemCount, getItemDetails, INVENTORY_ITEMS,
 } from "../src/inventory.js";
@@ -82,4 +83,21 @@ test("crafted mining tools store their special abilities in Inventory metadata",
     emerald_pick: ["+1 Emerald when mining Emerald Ore"],
   };
   for (const [id, abilities] of Object.entries(expected)) assert.deepEqual(getItemDetails(id, "Crafted").abilities, abilities);
+});
+
+test("Cave natural ores and crafted bars are correctly categorized",()=>{
+ assert.deepEqual(CAVE_INVENTORY.item.Natural.map(({id,name})=>[id,name]),[["stone_item","Stone"],["coal","Coal"],["raw_copper","Raw Copper"],["raw_iron","Raw Iron"],["raw_lead","Raw Lead"]]);
+ assert.deepEqual(CAVE_INVENTORY.item.Crafted.map(({id})=>id),["copper_bar","iron_bar","lead_bar"]);
+ assert.ok(CAVE_INVENTORY.item.Natural.every(item=>item.image.startsWith("./sprites/item/cave/")));
+ assert.ok(CAVE_INVENTORY.item.Crafted.every(item=>item.image.startsWith("./sprites/item/cave/")));
+});
+test("Cave weapons and picks use biome-specific folders",()=>{
+ assert.deepEqual(CAVE_INVENTORY.tool.Crafted.map(({id})=>id),["stone_pick","copper_pick","iron_pick"]);
+ assert.deepEqual(CAVE_INVENTORY.sword.Crafted.map(({id})=>id),["copper_dagger","iron_sword","lead_sword"]);
+ assert.ok(CAVE_INVENTORY.tool.Crafted.every(item=>item.image.startsWith("./sprites/tool/cave/")));
+ assert.ok(CAVE_INVENTORY.sword.Crafted.every(item=>item.image.startsWith("./sprites/sword/cave/")));
+});
+test("Cave raw resources show Natural origin and bars show Crafted tag",()=>{
+ for(const id of ["stone_item","coal","raw_copper","raw_iron","raw_lead"]){const detail=getItemDetails(id);assert.equal(detail.tag,"Natural");assert.ok(detail.origin?.image.includes("/block/cave/"));}
+ for(const id of ["copper_bar","iron_bar","lead_bar"])assert.equal(getItemDetails(id,"Crafted").tag,"Crafted");
 });

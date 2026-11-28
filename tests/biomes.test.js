@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { BIOMES, getBiomeAction, getBiomeById } from "../src/biomes.js";
 
 test("map includes Plains and Tundra with descriptive text", () => {
-  assert.deepEqual(BIOMES.map(({ id }) => id), ["plains", "tundra"]);
+  assert.deepEqual(BIOMES.map(({ id }) => id), ["plains", "tundra", "cave"]);
   assert.ok(BIOMES.every(({ name, description }) => name && description.length > 20));
 });
 
@@ -32,4 +32,9 @@ test("unknown biome IDs return null", () => {
 
 test("invalid biome values are rejected", () => {
   assert.throws(() => getBiomeAction(null, "plains"), TypeError);
+});
+
+test("Cave unlock costs 100 Sapphire", () => {
+  assert.deepEqual(getBiomeById("cave").unlockCost, { itemId: "sapphire", amount: 100 });
+  assert.equal(getBiomeAction(getBiomeById("cave"), "tundra"), "Unlock");
 });

@@ -74,7 +74,7 @@ test("breaking Grass drops one Grass inventory item", () => {
 });
 
 test("every non-Grass block has a matching resource drop", () => {
-  const expected = { oak_log: "wood_scrap", cobblestone: "cobble_rock", emerald_ore: "emerald", berry_bush: "sweet_berry", snow: "snowball", ice_block: "ice_shard", spruce_log: "spruce_wood", sapphire_ore: "sapphire" };
+  const expected = { oak_log: "wood_scrap", cobblestone: "cobble_rock", emerald_ore: "emerald", berry_bush: "sweet_berry", snow: "snowball", ice_block: "ice_shard", spruce_log: "spruce_wood", sapphire_ore: "sapphire", stone_block: "stone_item", coal_ore: "coal", copper_ore: "raw_copper", iron_ore: "raw_iron", lead_ore: "raw_lead" };
   for (const blocks of Object.values(BLOCKS_BY_BIOME)) for (const block of blocks) {
     if (block.id === "grass") continue;
     assert.deepEqual(getBlockDrops(block).map(({ itemId }) => itemId), [expected[block.id]]);
@@ -82,3 +82,18 @@ test("every non-Grass block has a matching resource drop", () => {
 });
 
 test("Emerald Pick grants one bonus Emerald when Emerald Ore breaks",()=>{const ore=BLOCKS.find(block=>block.id==="emerald_ore");const r=mineBlock({block:ore,hp:1},1,()=>0,"plains","emerald_pick");assert.deepEqual(r.drops,[{itemId:"emerald",amount:2}])});test("fractional mining damage preserves decimal HP",()=>{const r=mineBlock({block:BLOCKS[0],hp:5},1.5,()=>0.99);assert.equal(r.broken,false);assert.equal(r.state.hp,3.5)});
+test("Tundra block HP is twice the corresponding Plains progression",()=>{
+ const plains=BLOCKS,tundra=BLOCKS_BY_BIOME.tundra;
+ assert.deepEqual(tundra.map(block=>block.maxHp),[10,14,20,24,30]);
+ assert.deepEqual([tundra[0].maxHp,tundra[1].maxHp,tundra[2].maxHp,tundra[4].maxHp],plains.map(block=>block.maxHp*2));
+});
+test("Cave blocks follow Stone to Lead rarity order and descending spawn rates",()=>{
+ const cave=BLOCKS_BY_BIOME.cave;
+ assert.deepEqual(cave.map(block=>block.id),["stone_block","coal_ore","copper_ore","iron_ore","lead_ore"]);
+ assert.deepEqual(cave.map(block=>block.spawnRate),[40,25,18,12,5]);
+ assert.equal(cave.reduce((sum,block)=>sum+block.spawnRate,0),100);
+});
+test("every Cave block drops its matching natural resource",()=>{
+ const expected={stone_block:"stone_item",coal_ore:"coal",copper_ore:"raw_copper",iron_ore:"raw_iron",lead_ore:"raw_lead"};
+ for(const block of BLOCKS_BY_BIOME.cave)assert.deepEqual(getBlockDrops(block),[{itemId:expected[block.id],amount:1}]);
+});
