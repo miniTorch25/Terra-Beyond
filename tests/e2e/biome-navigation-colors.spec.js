@@ -309,17 +309,11 @@ test("Half-screen navigation panels leave the bottom shortcut bar unobstructed",
   await expect(page.locator("#inventory-panel")).toHaveClass(/is-half/);
   await expect(page.locator("#inventory-panel")).toHaveClass(/is-bottom/);
 
-  const geometry = await page.locator("#inventory-panel").evaluate((panel) => ({
-    top: panel.getBoundingClientRect().top,
-    bottom: panel.getBoundingClientRect().bottom,
+  const panel = page.locator("#inventory-panel");
+  await expect.poll(() => panel.evaluate((node) => node.getBoundingClientRect().top)).toBeGreaterThanOrEqual(422);
+  const geometry = await panel.evaluate((node) => ({
+    bottom: node.getBoundingClientRect().bottom,
     menuTop: document.querySelector(".bottom-menu").getBoundingClientRect().top,
-    className: panel.className,
-    cssTop: getComputedStyle(panel).top,
-    cssHeight: getComputedStyle(panel).height,
-    inlineStyle: panel.getAttribute("style"),
-    biome: document.body.dataset.biome,
   }));
-  console.log("HALF_PANEL_DEBUG", JSON.stringify(geometry));
-  expect(geometry.top).toBeGreaterThanOrEqual(422);
   expect(geometry.bottom).toBeLessThanOrEqual(geometry.menuTop + 1);
 });
