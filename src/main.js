@@ -2,7 +2,7 @@ import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, INVENTORY_ITEMS, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
 import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
-import { STARTING_IC, DUPLICATE_COST, DUPLICATE_AMOUNT, duplicateItem } from "./economy.js";
+import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -360,8 +360,7 @@ elements.button.addEventListener("click", () => {
   elements.helper.textContent = result.broken
     ? (dropMessage ? dropMessage + " · " : "") + result.state.block.name + " appeared. Keep mining!"
     : "-" + PLAYER_DAMAGE + " HP · " + result.state.hp + " HP remaining";
-  renderCurrency();
-render();
+  render();
 });
 
 elements.navButtons.forEach((button) => {
@@ -463,4 +462,5 @@ document.addEventListener("keydown", (event) => {
   else if (event.key === "Escape" && activePanel !== null) closeActivePanel();
 });
 
+renderCurrency();
 render();
