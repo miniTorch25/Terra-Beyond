@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#18251f">
   <title>Terra Beyond — Block Mining Prototype</title>
   <link rel="stylesheet" href="./styles.css?v=20261128-workbench-damage">
-<link rel="stylesheet" href="./workbench.css?v=20261128-workbench-damage">
+<link rel="stylesheet" href="./workbench.css?v=20261128-equipment-recipes">
 </head>
 <body>
   <aside class="ic-balance" aria-label="Infinity Catalyst balance"><span class="ic-symbol">✧</span><span id="ic-balance">100M</span><small>IC</small></aside>
@@ -84,7 +84,7 @@
   <section class="simple-panel navigation-panel workbench-panel" id="craft-panel" data-nav-panel="craft" aria-labelledby="craft-title" aria-hidden="true" hidden><div class="inventory-heading"><h2 id="craft-title">Workbench</h2></div><div class="workbench-stations" id="workbench-stations"><button class="workbench-station" type="button" data-station="crafting_table"><span class="station-icon">⚒</span><strong>Crafting Table</strong><span class="station-status" id="crafting-table-status">Locked</span><span class="station-cost" id="crafting-table-cost">10 Wood Scrap · 2 Cobble Rock</span></button><button class="workbench-station is-locked" type="button" data-station="furnace" disabled><span class="station-icon">♨</span><strong>Furnace</strong><span class="station-status">Locked</span><span class="station-cost">Requires Cave Biome</span></button></div><section class="workbench-crafting" id="workbench-crafting" hidden><div class="workbench-section-heading"><h3>Crafting Table</h3><span id="equipped-tool-label">No tool equipped</span></div><div class="workbench-tabs" role="tablist" aria-label="Crafting categories"><button type="button" class="workbench-tab is-active" data-craft-category="item" aria-selected="true">Item</button><button type="button" class="workbench-tab" data-craft-category="tool" aria-selected="false">Tool</button><button type="button" class="workbench-tab" data-craft-category="artifact" aria-selected="false">Artifact</button></div><div class="workbench-recipes" id="workbench-recipes"></div></section></section>
   <section class="simple-panel navigation-panel" id="gear-panel" data-nav-panel="gear" aria-labelledby="gear-title" aria-hidden="true" hidden>
     <div class="inventory-heading"><h2 id="gear-title">Gear</h2></div>
-    <p class="panel-placeholder">Equipment management is not available yet.</p>
+    <div class="player-info-panel"><h3>Player Info</h3><p class="player-info-hint">Currently equipped equipment</p><div id="player-equipment" class="player-equipment"></div><div class="player-info-damage"><div><span>Base Dmg</span><strong id="player-base-damage">1</strong></div><div><span>Block Dmg</span><strong id="player-block-damage">0</strong></div><div><span>Mob Dmg</span><strong id="player-mob-damage">0</strong></div></div></div>
   </section>
   <section class="simple-panel navigation-panel" id="more-panel" data-nav-panel="more" aria-labelledby="more-title" aria-hidden="true" hidden>
     <div class="inventory-heading"><h2 id="more-title">More</h2></div>
@@ -102,7 +102,7 @@
       </div>
       <div class="detail-row"><span class="detail-label">Special Tag</span><strong id="detail-item-tag"></strong></div>
       <div class="detail-row"><span class="detail-label">Quantity</span><strong id="detail-item-count"></strong></div>
-      <button class="duplicate-button" id="detail-duplicate-button" type="button">Duplicate</button>
+      <button class="equip-item-button" id="detail-equip-button" type="button" hidden>Equip</button><button class="duplicate-button" id="detail-duplicate-button" type="button">Duplicate</button>
     </article>
   </section>
   <section class="duplicate-confirm-overlay" id="duplicate-confirm-overlay" aria-hidden="true" hidden>
@@ -126,6 +126,6 @@
     <button class="menu-button" id="more-open" type="button" data-nav-target="more" aria-label="Open More" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⚙</span><span>More</span></button>
     <button class="menu-button" id="map-open" type="button" data-nav-target="map" aria-label="Open Map" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⌖</span><span>Map</span></button>
   </nav>
-  <script type="module" src="./src/main.js?v=20261128-ic-duplicate"></script>
+  <script type="module" src="./src/main.js?v=20261128-equipment-recipes"></script>
 </body>
 </html>
