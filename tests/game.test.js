@@ -73,8 +73,10 @@ test("breaking Grass drops one Grass inventory item", () => {
   assert.equal(getBlockDrops(BLOCKS[0])[0].itemId, "item_grass");
 });
 
-test("other blocks do not drop items until their drop rules are added", () => {
-  const result = mineBlock({ block: BLOCKS[1], hp: 1 }, PLAYER_DAMAGE, () => 0.99, "plains");
-  assert.equal(result.broken, true);
-  assert.deepEqual(result.drops, []);
+test("every non-Grass block has a matching resource drop", () => {
+  const expected = { oak_log: "wood_scrap", cobblestone: "cobble_rock", emerald_ore: "emerald", berry_bush: "sweet_berry", snow: "snowball", ice_block: "ice_shard", spruce_log: "spruce_wood", sapphire_ore: "sapphire" };
+  for (const blocks of Object.values(BLOCKS_BY_BIOME)) for (const block of blocks) {
+    if (block.id === "grass") continue;
+    assert.deepEqual(getBlockDrops(block).map(({ itemId }) => itemId), [expected[block.id]]);
+  }
 });

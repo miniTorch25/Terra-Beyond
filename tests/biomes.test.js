@@ -16,8 +16,9 @@ test("unlocked non-current biomes are marked Visit", () => {
   assert.equal(getBiomeAction(biome, "plains"), "Visit");
 });
 
-test("locked biomes without an unlock cost are marked Lock", () => {
-  assert.equal(getBiomeAction(getBiomeById("tundra"), "plains"), "Lock");
+test("Tundra unlock cost is 75 Emerald", () => {
+  assert.deepEqual(getBiomeById("tundra").unlockCost, { itemId: "emerald", amount: 75 });
+  assert.equal(getBiomeAction(getBiomeById("tundra"), "plains"), "Unlock");
 });
 
 test("locked biomes with a configured cost show that cost", () => {

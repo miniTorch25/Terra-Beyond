@@ -11,7 +11,7 @@ export const BIOMES = Object.freeze([
     name: "Tundra",
     description: "A cold northern biome covered in snow and ice. Spruce trees, frozen water, berries, and sapphire deposits are found here.",
     unlocked: false,
-    unlockCost: null,
+    unlockCost: Object.freeze({ itemId: "emerald", amount: 75 }),
   }),
 ]);
 
@@ -20,7 +20,7 @@ export function getBiomeAction(biome, currentBiomeId) {
   if (biome.id === currentBiomeId) return "Current";
   if (biome.unlocked) return "Visit";
   if (biome.unlockCost === null || biome.unlockCost === undefined || biome.unlockCost === "") return "Lock";
-  return String(biome.unlockCost);
+  return typeof biome.unlockCost === "string" ? biome.unlockCost : "Unlock";
 }
 
 export function getBiomeById(id) {
