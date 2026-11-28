@@ -1,6 +1,6 @@
 import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
-import { createInventoryState, getInventoryCount, takeInventoryItem, returnInventoryItem, expireInventoryItem } from "./inventory-state.js";
+import { createInventoryState, getInventoryCount, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 
 const elements = {
@@ -15,6 +15,7 @@ const elements = {
   helper: document.querySelector("#helper-text"),
   currentBiomeLabel: document.querySelector("#current-biome-label"),
   inventory: document.querySelector("#inventory-panel"),
+  inventoryButton: document.querySelector("#inventory-open"),
   inventoryClose: document.querySelector("#inventory-close"),
   inventoryCollapse: document.querySelector("#inventory-collapse"),
   worldItems: document.querySelector("#world-items"),
@@ -310,9 +311,15 @@ document.addEventListener("pointerup", (event) => {
     const drag = activeWorldDrag;
     drag.node.classList.remove("is-dragging");
     drag.node.style.pointerEvents = "none";
-    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".inventory-slot");
+    const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
+    const inventorySlot = dropTarget?.closest?.(".inventory-slot");
+    const inventoryButton = dropTarget?.closest?.("#inventory-open");
     drag.node.style.pointerEvents = "auto";
-    if (target && !elements.inventory.hidden) returnWorldItem(drag.instanceId, drag.node);
+    if (isInventoryDropTarget({
+      overSlot: Boolean(inventorySlot),
+      inventoryOpen: !elements.inventory.hidden,
+      overInventoryButton: Boolean(inventoryButton),
+    })) returnWorldItem(drag.instanceId, drag.node);
     activeWorldDrag = null;
   }
   window.setTimeout(() => { suppressInventoryClick = false; }, 0);

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createInventoryState, getInventoryCount, takeInventoryItem, returnInventoryItem, expireInventoryItem } from "../src/inventory-state.js";
+import { createInventoryState, getInventoryCount, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "../src/inventory-state.js";
 
 test("taking an item decreases its inventory count and creates a 90-second world item", () => {
   const initial = createInventoryState([{ id: "emerald", count: 3 }]);
@@ -44,4 +44,20 @@ test("returning or expiring an unknown item instance is safe", () => {
   const state = createInventoryState([]);
   assert.equal(returnInventoryItem(state, 99), state);
   assert.equal(expireInventoryItem(state, 99), state);
+});
+
+test("an open inventory accepts drops on item slots", () => {
+  assert.equal(isInventoryDropTarget({ overSlot: true, inventoryOpen: true }), true);
+});
+
+test("a closed inventory rejects drops on hidden item slots", () => {
+  assert.equal(isInventoryDropTarget({ overSlot: true, inventoryOpen: false }), false);
+});
+
+test("the Inventory navigation button accepts drops even while its panel is closed", () => {
+  assert.equal(isInventoryDropTarget({ overInventoryButton: true, inventoryOpen: false }), true);
+});
+
+test("unrelated UI targets do not accept returned items", () => {
+  assert.equal(isInventoryDropTarget({ inventoryOpen: false }), false);
 });

@@ -8,6 +8,10 @@ export function getInventoryCount(state, itemId) {
   return Math.max(0, Math.floor(state.counts[itemId] ?? 0));
 }
 
+export function isInventoryDropTarget({ overSlot = false, inventoryOpen = false, overInventoryButton = false } = {}) {
+  return Boolean(overInventoryButton || (overSlot && inventoryOpen));
+}
+
 export function takeInventoryItem(state, itemId, now = Date.now(), maxDetached = 10, lifetime = 90000) {
   if (state.detached.length >= maxDetached || getInventoryCount(state, itemId) < 1) {
     return { state, detachedItem: null };
