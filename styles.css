@@ -590,3 +590,174 @@ body[data-biome] .biome-visit-button[data-biome-color="cave"].is-locked { border
 body[data-biome] .bottom-menu { border-color:#626262; background:#252525f2; }
 body[data-biome] .menu-button { color:#bdbdbd; }
 body[data-biome] .menu-button.is-selected { background:#414141; color:#f2f2f2; }
+
+
+/* Navigation panels have independent palettes and do not inherit biome themes.
+   Map is intentionally excluded so its background continues to follow the active biome. */
+.navigation-panel[data-nav-panel="inventory"] {
+  --panel-bg: #302219;
+  --panel-bg-raised: #493326;
+  --panel-bg-soft: #3b2a20;
+  --panel-border: #806047;
+  --panel-accent: #b58a65;
+  --panel-text: #f1e4d8;
+  --panel-muted: #c6aa92;
+  border-color: var(--panel-border);
+  background: linear-gradient(160deg, #503927, var(--panel-bg));
+  color: var(--panel-text);
+}
+.navigation-panel[data-nav-panel="inventory"] .inventory-heading h2,
+.navigation-panel[data-nav-panel="inventory"] .inventory-section h3 { color: #f1dfcd; }
+.navigation-panel[data-nav-panel="inventory"] .inventory-close,
+.navigation-panel[data-nav-panel="inventory"] .ui-half-toggle,
+.navigation-panel[data-nav-panel="inventory"] .ui-position-toggle {
+  border-color: #9a7658; background: #5a4030; color: #fff0df;
+}
+.navigation-panel[data-nav-panel="inventory"] .inventory-tab {
+  border-color: #70513a; background: #39291f; color: #d8c0a8;
+}
+.navigation-panel[data-nav-panel="inventory"] .inventory-tab.is-active {
+  border-color: #c29a70; background: #725039; color: #fff0df;
+}
+.navigation-panel[data-nav-panel="inventory"] .tab-check,
+.navigation-panel[data-nav-panel="inventory"] .drawer-arrow { color: #e4bd91; }
+.navigation-panel[data-nav-panel="inventory"] .biome-drawer {
+  border-color: #76553d; background: #35271e;
+}
+.navigation-panel[data-nav-panel="inventory"] .biome-drawer > summary {
+  background: #60432f; color: #f5e6d6;
+}
+.navigation-panel[data-nav-panel="inventory"] .inventory-section + .inventory-section,
+.navigation-panel[data-nav-panel="inventory"] .detail-origin,
+.navigation-panel[data-nav-panel="inventory"] .detail-row { border-color: #614733; }
+.navigation-panel[data-nav-panel="inventory"] .inventory-section h3,
+.navigation-panel[data-nav-panel="inventory"] .detail-label { color: #d9b998; }
+.navigation-panel[data-nav-panel="inventory"] .inventory-slot {
+  border-color: #806047; background: linear-gradient(145deg, #5a4030, #39291f);
+}
+.navigation-panel[data-nav-panel="inventory"] .item-info-button {
+  border-color: #c29a70; background: #39291f; color: #fff0df;
+}
+.navigation-panel[data-nav-panel="inventory"] .empty-inventory { color: #b99b80; }
+
+.navigation-panel[data-nav-panel="craft"] {
+  --panel-bg: #281b2b;
+  --panel-bg-raised: #472d4b;
+  --panel-bg-soft: #35233a;
+  --panel-border: #805887;
+  --panel-accent: #c18acb;
+  --panel-text: #f5eafa;
+  --panel-muted: #cdb3d4;
+  border-color: var(--panel-border);
+  background: linear-gradient(160deg, #57385d, var(--panel-bg));
+  color: var(--panel-text);
+}
+.navigation-panel[data-nav-panel="craft"] .inventory-heading h2 { color: #f8eafa; }
+.navigation-panel[data-nav-panel="craft"] .ui-half-toggle,
+.navigation-panel[data-nav-panel="craft"] .ui-position-toggle {
+  border-color: #a477ad; background: #54375a; color: #fff0ff;
+}
+.navigation-panel[data-nav-panel="craft"] .workbench-station {
+  border-color: #8d6395; background: linear-gradient(145deg, #55385a, #35233a); color: #f8eafa;
+}
+.navigation-panel[data-nav-panel="craft"] .workbench-station.is-unlocked {
+  border-color: #d0a0d7; background: linear-gradient(145deg, #704c77, #49304e);
+}
+.navigation-panel[data-nav-panel="craft"] .station-icon,
+.navigation-panel[data-nav-panel="craft"] .station-status,
+.navigation-panel[data-nav-panel="craft"] .workbench-section-heading span { color: #e4b8eb; }
+.navigation-panel[data-nav-panel="craft"] .station-cost,
+.navigation-panel[data-nav-panel="craft"] .recipe-info p,
+.navigation-panel[data-nav-panel="craft"] .recipe-flavor { color: #d2b9d8; }
+.navigation-panel[data-nav-panel="craft"] .workbench-crafting { border-color: #76527d; }
+.navigation-panel[data-nav-panel="craft"] .workbench-tab {
+  border-color: #805887; background: #35233a; color: #d8c1df;
+}
+.navigation-panel[data-nav-panel="craft"] .workbench-tab.is-active {
+  border-color: #d0a0d7; background: #704c77; color: #fff3ff;
+}
+.navigation-panel[data-nav-panel="craft"] .recipe-card {
+  border-color: #76527d; background: #35233a; color: #f5eafa;
+}
+.navigation-panel[data-nav-panel="craft"] .recipe-info strong,
+.navigation-panel[data-nav-panel="craft"] .recipe-title-line { color: #fff0ff; }
+.navigation-panel[data-nav-panel="craft"] .recipe-line { color: #dfcbe5; }
+.navigation-panel[data-nav-panel="craft"] .recipe-cost,
+.navigation-panel[data-nav-panel="craft"] .recipe-line > b,
+.navigation-panel[data-nav-panel="craft"] .recipe-ingredient small { color: #e9c4ef; }
+.navigation-panel[data-nav-panel="craft"] .recipe-icon { border-color: #805887; background: #281b2b; }
+.navigation-panel[data-nav-panel="craft"] .recipe-craft-button {
+  border-color: #bd8bc5; background: #704c77; color: #fff3ff;
+}
+.navigation-panel[data-nav-panel="craft"] .recipe-card:not(:disabled):active {
+  border-color: #e2b9e8; background: #49304e;
+}
+
+.navigation-panel[data-nav-panel="gear"] {
+  --panel-bg: #172d2b;
+  --panel-bg-raised: #294744;
+  --panel-bg-soft: #203936;
+  --panel-border: #527d77;
+  --panel-accent: #83b6aa;
+  --panel-text: #e8f5f1;
+  --panel-muted: #b0cec5;
+  border-color: var(--panel-border);
+  background: linear-gradient(160deg, #315b55, var(--panel-bg));
+  color: var(--panel-text);
+}
+.navigation-panel[data-nav-panel="gear"] .inventory-heading h2,
+.navigation-panel[data-nav-panel="gear"] .player-info-panel h3 { color: #effaf6; }
+.navigation-panel[data-nav-panel="gear"] .ui-half-toggle,
+.navigation-panel[data-nav-panel="gear"] .ui-position-toggle {
+  border-color: #709c92; background: #315b55; color: #effaf6;
+}
+.navigation-panel[data-nav-panel="gear"] .player-info-panel {
+  border-color: #527d77; background: linear-gradient(150deg, #315b55, #203936); color: #e8f5f1;
+}
+.navigation-panel[data-nav-panel="gear"] .player-info-hint { color: #b6d1c9; }
+.navigation-panel[data-nav-panel="gear"] .equipment-group > h4,
+.navigation-panel[data-nav-panel="gear"] .equipment-primary-headings h4,
+.navigation-panel[data-nav-panel="gear"] .equipment-group-artifact > h4,
+.navigation-panel[data-nav-panel="gear"] .ability-log-panel h4 { color: #a9d2c6; }
+.navigation-panel[data-nav-panel="gear"] .equipment-slot-card {
+  border-color: #527d77; background: #1d3834; color: #c5ded6;
+}
+.navigation-panel[data-nav-panel="gear"] .equipment-slot-card.is-locked,
+.navigation-panel[data-nav-panel="gear"] .equipment-slot-card:disabled {
+  border-color: #49645f; background: #263a37; color: #9db5ae;
+}
+.navigation-panel[data-nav-panel="gear"] .equipment-slot-card:not(:disabled):hover { border-color: #a9d2c6; }
+.navigation-panel[data-nav-panel="gear"] .ability-log-panel,
+.navigation-panel[data-nav-panel="gear"] .player-info-damage div { border-color: #527d77; }
+.navigation-panel[data-nav-panel="gear"] .ability-log-list { color: #d7ebe4; }
+.navigation-panel[data-nav-panel="gear"] .ability-log-list li::marker { color: #a9d2c6; }
+.navigation-panel[data-nav-panel="gear"] .player-info-damage div { background: #203936; }
+.navigation-panel[data-nav-panel="gear"] .player-info-damage span { color: #b0cec5; }
+.navigation-panel[data-nav-panel="gear"] .player-info-damage strong { color: #effaf6; }
+
+.navigation-panel[data-nav-panel="more"] {
+  --panel-bg: #202124;
+  --panel-bg-raised: #383a3e;
+  --panel-bg-soft: #2c2e32;
+  --panel-border: #55585e;
+  --panel-accent: #92969d;
+  --panel-text: #eeeeef;
+  --panel-muted: #b9bbc0;
+  border-color: var(--panel-border);
+  background: linear-gradient(160deg, #3b3d42, var(--panel-bg));
+  color: var(--panel-text);
+}
+.navigation-panel[data-nav-panel="more"] .inventory-heading h2 { color: #f3f3f4; }
+.navigation-panel[data-nav-panel="more"] .ui-half-toggle,
+.navigation-panel[data-nav-panel="more"] .ui-position-toggle {
+  border-color: #666970; background: #414349; color: #f0f0f1;
+}
+.navigation-panel[data-nav-panel="more"] .panel-placeholder {
+  border-color: #55585e; background: #2c2e32; color: #c6c7cb;
+}
+
+/* Keep each menu's identity palette fixed while biome themes continue to control Map. */
+body[data-biome] .navigation-panel[data-nav-panel="inventory"],
+body[data-biome] .navigation-panel[data-nav-panel="craft"],
+body[data-biome] .navigation-panel[data-nav-panel="gear"],
+body[data-biome] .navigation-panel[data-nav-panel="more"] { color-scheme: dark; }
