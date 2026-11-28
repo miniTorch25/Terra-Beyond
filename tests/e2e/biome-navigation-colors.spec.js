@@ -242,3 +242,69 @@ test("Map navigation button follows the player's current biome palette", async (
     await button.click();
   }
 });
+
+
+test("Navigation panels stay above the bottom shortcut bar on mobile screens", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => localStorage.clear());
+  await page.goto("/");
+
+  const menus = [
+    { button: "#inventory-open", panel: "#inventory-panel" },
+    { button: "#craft-open", panel: "#craft-panel" },
+    { button: "#gear-open", panel: "#gear-panel" },
+    { button: "#more-open", panel: "#more-panel" },
+    { button: "#map-open", panel: "#map-panel" },
+  ];
+  const navigation = page.locator(".bottom-menu");
+
+  for (const menu of menus) {
+    await page.locator(menu.button).click();
+    const geometry = await page.locator(menu.panel).evaluate((panel) => ({
+      top: panel.getBoundingClientRect().top,
+      bottom: panel.getBoundingClientRect().bottom,
+      menuTop: document.querySelector(".bottom-menu").getBoundingClientRect().top,
+      viewportHeight: window.innerHeight,
+    }));
+    expect(geometry.top).toBeGreaterThanOrEqual(0);
+    expect(geometry.bottom).toBeLessThanOrEqual(geometry.menuTop + 1);
+    expect(geometry.menuTop).toBeLessThan(geometry.viewportHeight);
+    await page.locator(menu.button).click();
+  }
+
+  const menuGeometry = await navigation.evaluate((menu) => ({
+    height: menu.getBoundingClientRect().height,
+    buttons: [...menu.querySelectorAll(".menu-button")].map((button) => ({
+      top: button.getBoundingClientRect().top,
+      bottom: button.getBoundingClientRect().bottom,
+      borderWidth: getComputedStyle(button).borderTopWidth,
+      borderStyle: getComputedStyle(button).borderTopStyle,
+      radius: getComputedStyle(button).borderTopLeftRadius,
+    })),
+  }));
+  expect(menuGeometry.height).toBeGreaterThanOrEqual(88);
+  expect(menuGeometry.buttons).toHaveLength(5);
+  for (const button of menuGeometry.buttons) {
+    expect(button.top).toBeGreaterThanOrEqual(0);
+    expect(button.bottom).toBeLessThanOrEqual(844);
+    expect(button.borderWidth).toBe("1px");
+    expect(button.borderStyle).toBe("solid");
+    expect(button.radius).toBe("10px");
+  }
+});
+
+test("Half-screen navigation panels leave the bottom shortcut bar unobstructed", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => localStorage.clear());
+  await page.goto("/");
+  await page.locator("#inventory-open").click();
+  await page.locator('[data-ui-half="inventory"]').click();
+
+  const geometry = await page.locator("#inventory-panel").evaluate((panel) => ({
+    top: panel.getBoundingClientRect().top,
+    bottom: panel.getBoundingClientRect().bottom,
+    menuTop: document.querySelector(".bottom-menu").getBoundingClientRect().top,
+  }));
+  expect(geometry.top).toBeGreaterThanOrEqual(422);
+  expect(geometry.bottom).toBeLessThanOrEqual(geometry.menuTop + 1);
+});
