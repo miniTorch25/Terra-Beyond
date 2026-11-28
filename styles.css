@@ -268,3 +268,24 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 
 /* Keep the fixed currency HUD clear of the page heading. */
 .game-shell { padding-top: 58px; }
+
+/* Separate Tool and Sword equipment slots */
+.player-info-panel { margin-top: 12px; padding: 15px; border: 1px solid #49634a; border-radius: 12px; background: linear-gradient(150deg, #263b2b, #19291f); }
+.player-info-panel h3 { margin: 0 0 5px; color: #edf5e7; font-size: 16px; }
+.player-info-hint { margin: 0 0 13px; color: #a9bda5; font-size: 12px; }
+.player-equipment { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.equipment-slot-card { min-width: 0; padding: 11px; border: 1px solid #526c50; border-radius: 10px; background: #1b2b20; }
+.equipment-slot-heading { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 10px; }
+.equipment-slot-heading h4 { margin: 0; color: #e4efd9; font-size: 13px; }
+.equipment-slot-heading > span { color: #a9c58b; font-size: 10px; }
+.equipment-slot-item { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.equipment-slot-item > img { width: 42px; height: 42px; flex: 0 0 42px; object-fit: contain; image-rendering: pixelated; }
+.equipment-slot-item > div { display: grid; gap: 3px; min-width: 0; flex: 1; }
+.equipment-slot-item strong { overflow-wrap: anywhere; color: #edf5e7; font-size: 11px; }
+.equipment-slot-item small { color: #9db39a; font-size: 10px; }
+.equipment-slot-item button { padding: 6px 8px; border: 1px solid #617d56; border-radius: 7px; background: #344b31; color: #e8f1df; font-size: 10px; font-weight: 750; cursor: pointer; }
+.equipment-slot-empty { margin: 10px 0 3px; color: #849783; font-size: 11px; text-align: center; }
+.equipped-marker { position: absolute; z-index: 3; right: 3px; bottom: 3px; display: grid; place-items: center; min-width: 16px; height: 16px; padding: 0 3px; border: 1px solid #d8ed9a; border-radius: 5px; background: #405b2d; color: #f4ffd9; font-size: 10px; font-weight: 950; line-height: 1; pointer-events: none; }
+.inventory-slot.is-equipped { border-color: #b0d77a; box-shadow: inset 0 0 0 1px #8daf5a, 0 0 8px #9bc66b55; }
+.equip-item-button { width: 100%; min-height: 40px; margin-top: 14px; border: 1px solid #799b59; border-radius: 8px; background: #344d30; color: #eff8e8; font-weight: 800; cursor: pointer; }
+@media (max-width: 420px) { .player-equipment { grid-template-columns: 1fr; } }
