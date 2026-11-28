@@ -293,15 +293,16 @@ function confirmDuplicate() {
     elements.duplicateConfirm.disabled = true;
     return;
   }
+  const duplicatedItemId = pendingDuplicateItemId;
   catalystBalance = result.balance;
   inventoryState = result.inventoryState;
   renderCurrency();
   renderInventoryCounts();
   if (!elements.inventory.hidden) renderInventory();
-  elements.detailCount.textContent = String(getInventoryCount(inventoryState, pendingDuplicateItemId));
+  elements.detailCount.textContent = String(getInventoryCount(inventoryState, duplicatedItemId));
   elements.detailCount.closest(".detail-row").hidden = false;
   closeDuplicateConfirmation();
-  elements.helper.textContent = "Duplicated " + inventoryItems.find((item) => item.id === pendingDuplicateItemId)?.name + " ×500.";
+  elements.helper.textContent = "Duplicated " + inventoryItems.find((item) => item.id === duplicatedItemId)?.name + " ×500.";
 }
 
 function closeItemDetails() {
