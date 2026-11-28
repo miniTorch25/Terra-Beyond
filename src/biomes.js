@@ -13,6 +13,13 @@ export const BIOMES = Object.freeze([
     unlocked: false,
     unlockCost: Object.freeze({ itemId: "emerald", amount: 75 }),
   }),
+  Object.freeze({
+    id: "cave",
+    name: "Cave",
+    description: "A deep underground biome filled with stone and increasingly rare mineral deposits, from Coal and Copper to Iron and Lead.",
+    unlocked: false,
+    unlockCost: Object.freeze({ itemId: "sapphire", amount: 100 }),
+  }),
 ]);
 
 export function getBiomeAction(biome, currentBiomeId) {
