@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("More settings persist and control mining feedback, drops, and damage overlay", async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
   await page.locator("#more-open").click();
 
@@ -26,7 +26,7 @@ test("More settings persist and control mining feedback, drops, and damage overl
 });
 
 test("reset progress requires confirmation and starts a fresh run without changing preferences", async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
   await page.locator("#mine-button").click();
   await expect(page.locator("#hp-current")).toHaveText("4");
@@ -53,4 +53,22 @@ test("More can restore the default panel layout", async ({ page }) => {
   await expect(page.locator("#more-panel")).toHaveClass(/is-top/);
   await page.locator("#reset-panel-layouts").click();
   await expect(page.locator("#more-panel")).toHaveClass(/is-bottom/);
+});
+
+test("liquid source protection can be disabled to mine a source block", async ({ page }) => {
+  await page.addInitScript(() => {
+    const rolls = [0, 0, 0.5];
+    Math.random = () => rolls.length ? rolls.shift() : 0.5;
+  });
+  await page.goto("/");
+  const mineButton = page.locator("#mine-button");
+  await expect(mineButton).toBeDisabled();
+  await expect(page.locator("#setting-liquid-protection")).toBeChecked();
+
+  await page.locator("#more-open").click();
+  await page.locator("#setting-liquid-protection").uncheck();
+  await page.locator("#more-open").click();
+  await expect(mineButton).toBeEnabled();
+  for (let hit = 0; hit < 5; hit += 1) await mineButton.click();
+  await expect(page.locator(".water-puddle")).toBeHidden();
 });

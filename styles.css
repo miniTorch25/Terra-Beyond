@@ -1059,3 +1059,13 @@ body[data-biome] .navigation-panel[data-nav-panel="more"] .more-section {
   pointer-events: none;
 }
 .water-puddle[hidden] { display: none; }
+
+
+/* Keep protected source blocks visibly non-interactive. */
+.block-target:disabled {
+  cursor: not-allowed;
+  opacity: .9;
+}
+.block-target.is-liquid-protected .tap-hint {
+  color: #9fe8ff;
+}

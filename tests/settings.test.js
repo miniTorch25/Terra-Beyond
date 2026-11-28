@@ -20,6 +20,7 @@ test("settings load valid saved values and safely default missing options", () =
     showMiningFeedback: true,
     showDropNotifications: false,
     showDamageOverlay: true,
+    protectLiquidSources: true,
   });
 });
 
@@ -30,10 +31,23 @@ test("invalid stored settings fall back to defaults", () => {
 test("saveSettings persists only supported boolean settings", () => {
   const storage = createStorage();
   const saved = saveSettings(storage, { showMiningFeedback: false, unknownOption: true });
-  assert.deepEqual(saved, { showMiningFeedback: false, showDropNotifications: true, showDamageOverlay: true });
+  assert.deepEqual(saved, { showMiningFeedback: false, showDropNotifications: true, showDamageOverlay: true, protectLiquidSources: true });
   assert.deepEqual(loadSettings(storage), saved);
 });
 
 test("normalizeSettings rejects non-object input", () => {
   assert.deepEqual(normalizeSettings(null), { ...DEFAULT_SETTINGS });
+});
+
+
+test("liquid source protection can be disabled and persists across reloads", () => {
+  const storage = createStorage();
+  const saved = saveSettings(storage, { protectLiquidSources: false });
+  assert.equal(saved.protectLiquidSources, false);
+  assert.equal(loadSettings(storage).protectLiquidSources, false);
+});
+
+test("legacy settings default liquid source protection to enabled", () => {
+  const storage = createStorage({ [SETTINGS_STORAGE_KEY]: JSON.stringify({ showMiningFeedback: false }) });
+  assert.equal(loadSettings(storage).protectLiquidSources, true);
 });

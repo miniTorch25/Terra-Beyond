@@ -314,8 +314,19 @@ function render() {
   if (!elements.damage.hidden) {
     elements.damage.src = "./sprites/environment/destroy_stage_" + stage + ".png";
   }
-  elements.button.setAttribute("aria-label", "Mine " + block.name + ". " + hp + " of " + block.maxHp + " HP remaining.");
+  const liquidProtected = state.waterPuddle === true && gameSettings.protectLiquidSources === true;
+  elements.button.disabled = liquidProtected;
+  elements.button.classList.toggle("is-liquid-protected", liquidProtected);
+  elements.button.setAttribute("aria-label", liquidProtected
+    ? "Mining disabled. A water source is protected on this block."
+    : "Mine " + block.name + ". " + hp + " of " + block.maxHp + " HP remaining.");
   elements.waterPuddle.hidden = !state.waterPuddle;
+  if (liquidProtected) {
+    elements.helper.textContent = "Water source protected. Turn off Preserve Liquid Sources in More to mine this block.";
+  } else if (elements.helper.dataset.liquidProtectionHint === "true") {
+    elements.helper.textContent = "";
+  }
+  elements.helper.dataset.liquidProtectionHint = String(liquidProtected);
   const currentBiome = getBiomeById(currentBiomeId);
   elements.currentBiomeLabel.textContent = (currentBiome?.name || "Unknown").toUpperCase() + " BIOME";
   renderDamageStats();
@@ -668,7 +679,11 @@ function closeActivePanel() {
 
 elements.button.addEventListener("click", () => {
   const damage=getBlockDamage(equippedToolId,state.block);
-  const result=mineBlock(state,damage,Math.random,currentBiomeId,equippedToolId);
+  const result=mineBlock(state,damage,Math.random,currentBiomeId,equippedToolId,{ protectLiquidSources: gameSettings.protectLiquidSources });
+  if (result.blockedByLiquid) {
+    showToast("warning", "Water source protected. Disable Preserve Liquid Sources in More to mine this block.");
+    return;
+  }
   state = result.state;
   for (const drop of result.drops) {
     inventoryState = addInventoryItem(inventoryState, drop.itemId, drop.amount);

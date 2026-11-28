@@ -130,3 +130,24 @@ test("breaking a block rolls the puddle chance for the newly spawned Grass block
   assert.equal(result.state.block.id, "grass");
   assert.equal(result.state.waterPuddle, true);
 });
+
+
+test("liquid source protection prevents all mining damage and block destruction", () => {
+  const sourceState = { block: BLOCKS[0], hp: 3, waterPuddle: true };
+  let randomCalls = 0;
+  const result = mineBlock(sourceState, 10, () => { randomCalls += 1; return 0.4; }, "plains", null, { protectLiquidSources: true });
+  assert.equal(result.blockedByLiquid, true);
+  assert.equal(result.broken, false);
+  assert.equal(result.state.hp, 3);
+  assert.equal(result.state.waterPuddle, true);
+  assert.deepEqual(result.drops, []);
+  assert.equal(randomCalls, 0);
+});
+
+test("unprotected liquid source disappears immediately when its block is destroyed", () => {
+  const sourceState = { block: BLOCKS[0], hp: 1, waterPuddle: true };
+  const result = mineBlock(sourceState, 1, () => 0.4, "plains", null, { protectLiquidSources: false });
+  assert.equal(result.broken, true);
+  assert.equal(result.state.block.id, "oak_log");
+  assert.equal(result.state.waterPuddle, false);
+});

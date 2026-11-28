@@ -4,6 +4,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   showMiningFeedback: true,
   showDropNotifications: true,
   showDamageOverlay: true,
+  protectLiquidSources: true,
 });
 
 export function normalizeSettings(value) {
@@ -12,6 +13,7 @@ export function normalizeSettings(value) {
     showMiningFeedback: source.showMiningFeedback !== false,
     showDropNotifications: source.showDropNotifications !== false,
     showDamageOverlay: source.showDamageOverlay !== false,
+    protectLiquidSources: source.protectLiquidSources !== false,
   };
 }
 

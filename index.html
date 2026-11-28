@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#18251f">
   <title>Terra Beyond — Block Mining Prototype</title>
-  <link rel="stylesheet" href="./styles.css?v=grass-water-puddle-20261128">
+  <link rel="stylesheet" href="./styles.css?v=liquid-source-protection-20261128">
 <link rel="stylesheet" href="./workbench.css?v=20261128-result-preview">
 </head>
 <body>
@@ -97,6 +97,7 @@
       <label class="setting-row" for="setting-mining-feedback"><span><strong>Mining Feedback</strong><small>Show damage and mining messages below the block.</small></span><input id="setting-mining-feedback" type="checkbox" data-game-setting="showMiningFeedback" checked></label>
       <label class="setting-row" for="setting-drop-notifications"><span><strong>Drop Notifications</strong><small>Show an item notification when a block is mined.</small></span><input id="setting-drop-notifications" type="checkbox" data-game-setting="showDropNotifications" checked></label>
       <label class="setting-row" for="setting-damage-overlay"><span><strong>Block Damage Overlay</strong><small>Show cracks on a block as its HP decreases.</small></span><input id="setting-damage-overlay" type="checkbox" data-game-setting="showDamageOverlay" checked></label>
+      <label class="setting-row" for="setting-liquid-protection"><span><strong>Preserve Liquid Sources</strong><small>Prevent mining blocks that contain a water source, so it cannot be lost accidentally.</small></span><input id="setting-liquid-protection" type="checkbox" data-game-setting="protectLiquidSources" checked></label>
       <button class="more-secondary-button" id="reset-panel-layouts" type="button">Restore Default Panel Layouts</button>
     </section>
     <section class="more-section more-danger-section" aria-labelledby="data-title">
@@ -154,6 +155,6 @@
     <button class="menu-button" id="more-open" type="button" data-nav-target="more" aria-label="Open More" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⚙</span><span>More</span></button>
     <button class="menu-button" id="map-open" type="button" data-nav-target="map" aria-label="Open Map" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⌖</span><span>Map</span></button>
   </nav>
-  <script type="module" src="./src/main.js?v=grass-water-puddle-20261128"></script>
+  <script type="module" src="./src/main.js?v=liquid-source-protection-20261128"></script>
 </body>
 </html>

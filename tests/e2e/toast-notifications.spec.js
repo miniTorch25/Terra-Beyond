@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("mining drops show a compact icon log and expire after five seconds", async ({ page }) => {
   await page.clock.install();
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
   for (let i = 0; i < 5; i += 1) await page.locator("#mine-button").click();
 
@@ -31,7 +31,6 @@ test("warning notifications are capped at three and expire after five seconds", 
   await expect(notices).toHaveCount(0);
 });
 
-
 test("locked biome attempts show a red insufficient-cost notification", async ({ page }) => {
   await page.goto("/");
   await page.locator("#map-open").click();
@@ -43,7 +42,6 @@ test("locked biome attempts show a red insufficient-cost notification", async ({
   await expect(notice).toContainText("75");
   await expect(notice).toHaveClass(/toast-notice--danger/);
 });
-
 
 test("attempting an unavailable craft shows yellow resource advice", async ({ page }) => {
   await page.goto("/");
@@ -63,7 +61,7 @@ test("attempting an unavailable craft shows yellow resource advice", async ({ pa
   await expect(notice).toHaveClass(/toast-notice--warning/);
 });
 test("attempting to drop more than 32 world items shows a yellow capacity warning", async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
   const mine = page.locator("#mine-button");
   for (let i = 0; i < 165; i += 1) await mine.click();

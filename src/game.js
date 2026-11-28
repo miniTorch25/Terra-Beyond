@@ -71,12 +71,18 @@ export function createInitialState(random = Math.random, biomeId = "plains") {
   return createBlockState(block, random);
 }
 
-export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, biomeId = "plains", equippedToolId = null) {
+export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, biomeId = "plains", equippedToolId = null, options = {}) {
   if (!state || !state.block || !Number.isFinite(state.hp)) {
     throw new TypeError("A valid mining state is required.");
   }
   if (!Number.isFinite(damage) || damage <= 0) {
     throw new RangeError("Damage must be a positive number.");
+  }
+
+  // A spawned water source belongs to the current block. Protect it before applying any damage.
+  const protectLiquidSources = options?.protectLiquidSources === true;
+  if (protectLiquidSources && state.waterPuddle === true) {
+    return { state: { ...state }, broken: false, drops: [], blockedByLiquid: true };
   }
 
   const instantIceBreak = equippedToolId === "ice_pick" && state.block.id === "ice_block";
