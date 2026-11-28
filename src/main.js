@@ -26,6 +26,7 @@ const elements = {
   detailImage: document.querySelector("#detail-item-image"),
   detailName: document.querySelector("#detail-item-name"),
   detailDescription: document.querySelector("#detail-item-description"),
+  detailOrigin: document.querySelector("#item-detail-origin"),
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
   map: document.querySelector("#map-panel"),
@@ -226,6 +227,14 @@ function openItemDetails(id, fallbackTag) {
   elements.detailTag.textContent = item.tag;
   elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
   elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);
+  if (item.tag === "Natural" && item.origin) {
+    elements.detailOrigin.hidden = false;
+    elements.detailOrigin.querySelector("img").src = item.origin.image;
+    elements.detailOrigin.querySelector("img").alt = item.origin.name;
+    elements.detailOrigin.querySelector(".origin-name").textContent = item.origin.name;
+  } else {
+    elements.detailOrigin.hidden = true;
+  }
   elements.detailOverlay.hidden = false;
   elements.detailOverlay.setAttribute("aria-hidden", "false");
   elements.detailCard.focus();

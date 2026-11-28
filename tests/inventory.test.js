@@ -56,14 +56,15 @@ test("inventory count formatter uses integer compact suffixes", () => {
   assert.equal(formatItemCount(1e36), "1e36");
   assert.throws(() => formatItemCount(-1), RangeError);
 });
-test("item details omit Origin and identify crafted weapons", () => {
+test("Origin is shown for natural resources but omitted from crafted equipment", () => {
   assert.equal(getItemDetails("item_grass").tag, "Natural");
-  assert.equal(Object.hasOwn(getItemDetails("item_grass"), "origin"), false);
+  assert.equal(getItemDetails("item_grass").origin.image, "./sprites/block/plains/grass.png");
   assert.equal(getItemDetails("stone_dagger", "Crafted").tag, "Crafted");
+  assert.equal(getItemDetails("stone_dagger", "Crafted").origin, null);
 });
 test("liquid detail metadata uses Liquid tag and omits block origin", () => {
   const water = getItemDetails("water");
   assert.equal(water.tag, "Liquid");
   assert.equal(water.biome, "Plains");
-  assert.equal(Object.hasOwn(water, "origin"), false);
+  assert.equal(water.origin, null);
 });
