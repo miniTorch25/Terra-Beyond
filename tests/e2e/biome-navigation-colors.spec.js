@@ -22,28 +22,29 @@ test("Map biome buttons retain their individual colors across biome themes", asy
   expect(new Set(snapshots[0].map((button) => button.background)).size).toBe(3);
 });
 
-test("All five bottom navigation tabs keep the same dark-gray palette in every biome", async ({ page }) => {
+test("Bottom navigation keeps its dark surface while Map follows the active biome", async ({ page }) => {
   await page.goto("/");
-  await page.locator("#map-open").click();
-
-  const snapshots = [];
-  for (const theme of ["plains", "tundra", "cave"]) {
-    await page.locator("body").evaluate((body, biome) => { body.dataset.biome = biome; }, theme);
-    snapshots.push(await page.locator(".bottom-menu").evaluate((menu) => ({
-      background: getComputedStyle(menu).backgroundColor,
-      border: getComputedStyle(menu).borderTopColor,
-      buttons: [...menu.querySelectorAll(".menu-button")].map((button) => ({
-        background: getComputedStyle(button).backgroundColor,
-        color: getComputedStyle(button).color,
-      })),
-    })));
+  const mapButton = page.locator("#map-open");
+  const expectedMapColors = {
+    plains: "rgb(37, 61, 43)",
+    tundra: "rgb(41, 73, 92)",
+    cave: "rgb(68, 68, 68)",
+  };
+  const menuBackgrounds = [];
+  for (const biome of ["plains", "tundra", "cave"]) {
+    await page.locator("body").evaluate((body, id) => { body.dataset.biome = id; }, biome);
+    await mapButton.click();
+    const menu = await page.locator(".bottom-menu").evaluate((node) => ({
+      background: getComputedStyle(node).backgroundColor,
+      border: getComputedStyle(node).borderTopColor,
+    }));
+    menuBackgrounds.push(menu);
+    expect(await mapButton.evaluate((node) => getComputedStyle(node).backgroundColor)).toBe(expectedMapColors[biome]);
+    await mapButton.click();
   }
-
-  expect(snapshots[1]).toEqual(snapshots[0]);
-  expect(snapshots[2]).toEqual(snapshots[0]);
-  expect(snapshots[0].buttons).toHaveLength(5);
-  expect(snapshots[0].background).toBe("rgba(37, 37, 37, 0.95)");
-  expect(snapshots[0].buttons[4].background).toBe("rgb(65, 65, 65)");
+  expect(menuBackgrounds[1]).toEqual(menuBackgrounds[0]);
+  expect(menuBackgrounds[2]).toEqual(menuBackgrounds[0]);
+  expect(menuBackgrounds[0].background).toBe("rgba(37, 37, 37, 0.95)");
 });
 
 test("Inventory, Workbench, Gear and More keep their own palettes across biome themes", async ({ page }) => {
