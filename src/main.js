@@ -309,7 +309,9 @@ document.addEventListener("pointerup", (event) => {
   if (activeWorldDrag && activeWorldDrag.pointerId === event.pointerId) {
     const drag = activeWorldDrag;
     drag.node.classList.remove("is-dragging");
+    drag.node.style.pointerEvents = "none";
     const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".inventory-slot");
+    drag.node.style.pointerEvents = "auto";
     if (target && !elements.inventory.hidden) returnWorldItem(drag.instanceId, drag.node);
     activeWorldDrag = null;
   }
