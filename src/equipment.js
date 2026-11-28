@@ -1,0 +1,3 @@
+export function isEquippableItem(item){return item?.category==="tool"||item?.category==="sword";}
+export function equipItem(currentEquippedId,itemId,inventoryState,inventoryItems){const item=inventoryItems.find(entry=>entry.id===itemId);if(!isEquippableItem(item))return{success:false,reason:"not-equippable",equippedItemId:currentEquippedId};if((inventoryState.counts[itemId]??0)<1)return{success:false,reason:"not-owned",equippedItemId:currentEquippedId};return{success:true,equippedItemId:currentEquippedId===itemId?null:itemId};}
+export function getEquippedItem(id,items){return items.find(item=>item.id===id)??null;}
