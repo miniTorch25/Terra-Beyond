@@ -2,6 +2,14 @@ export const PLAYER_DAMAGE = 1;
 
 export const BLOCK_DROPS = Object.freeze({
   grass: Object.freeze([{ itemId: "item_grass", amount: 1 }]),
+  oak_log: Object.freeze([{ itemId: "wood_scrap", amount: 2 }]),
+  cobblestone: Object.freeze([{ itemId: "cobble_rock", amount: 1 }]),
+  emerald_ore: Object.freeze([{ itemId: "emerald", amount: 1 }]),
+  berry_bush: Object.freeze([{ itemId: "sweet_berry", amount: 2 }]),
+  snow: Object.freeze([{ itemId: "snowball", amount: 2 }]),
+  ice_block: Object.freeze([{ itemId: "ice_shard", amount: 1 }]),
+  spruce_log: Object.freeze([{ itemId: "spruce_wood", amount: 2 }]),
+  sapphire_ore: Object.freeze([{ itemId: "sapphire", amount: 1 }]),
 });
 
 export function getBlockDrops(block) {
