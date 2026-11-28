@@ -265,3 +265,6 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 .duplicate-actions button { min-height: 40px; border: 1px solid #607b57; border-radius: 8px; background: #263a2b; color: #edf4ec; font-weight: 800; cursor: pointer; }
 .duplicate-actions button:last-child { background: #526d3b; }
 .duplicate-actions button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Keep the fixed currency HUD clear of the page heading. */
+.game-shell { padding-top: 58px; }
