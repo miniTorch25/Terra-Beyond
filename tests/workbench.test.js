@@ -1,4 +1,4 @@
-import test from"node:test";import assert from"node:assert/strict";import{createWorkbenchState,CRAFTING_TABLE_COST,FURNACE_COST,RECIPES,getUncraftedToolRecipes,unlockCraftingTable,unlockFurnace,craftRecipe}from"../src/workbench.js";import{createInventoryState,addInventoryItem}from"../src/inventory-state.js";import{INVENTORY_ITEMS}from"../src/inventory.js";
+import test from"node:test";import assert from"node:assert/strict";import{createWorkbenchState,CRAFTING_TABLE_COST,FURNACE_COST,RECIPES,getUncraftedToolRecipes,getVisibleRecipes,unlockCraftingTable,unlockFurnace,craftRecipe}from"../src/workbench.js";import{createInventoryState,addInventoryItem}from"../src/inventory-state.js";import{INVENTORY_ITEMS}from"../src/inventory.js";
 const unlocked=()=>{const w=createWorkbenchState();w.unlockedStations.add("crafting_table");return w;};const invWith=o=>{let s=createInventoryState(INVENTORY_ITEMS);for(const[k,n]of Object.entries(o))s=addInventoryItem(s,k,n);return s;};
 test("Crafting Table costs 10 Wood Scrap and 2 Cobble Rock",()=>{assert.deepEqual(CRAFTING_TABLE_COST,{wood_scrap:10,cobble_rock:2});const r=unlockCraftingTable(createWorkbenchState(),invWith({wood_scrap:10,cobble_rock:2}));assert.equal(r.success,true);assert.equal(r.inventoryState.counts.wood_scrap,0);assert.equal(r.inventoryState.counts.cobble_rock,0);});
 test("Furnace remains locked pending Cave Biome",()=>assert.equal(createWorkbenchState().unlockedStations.has("furnace"),false));
@@ -68,3 +68,6 @@ test("Tool recipe list hides crafted tools immediately and never restores them a
  assert.ok(!getUncraftedToolRecipes(crafted.workbenchState).some(r=>r.id==="ice_pick"));
  assert.equal(craftRecipe(crafted.workbenchState,dropped,"ice_pick").reason,"already-owned");
 });
+
+test("Crafting recipes stay hidden until their biome is unlocked",()=>{const wb=unlocked();const plains=getVisibleRecipes("tool",new Set(["plains"]),wb);assert.deepEqual(plains.map(r=>r.id),["sharp_stone","wood_pick","rock_pick","emerald_pick"]);const tundra=getVisibleRecipes("tool",new Set(["plains","tundra"]),wb);assert.deepEqual(tundra.map(r=>r.id),["sharp_stone","wood_pick","rock_pick","emerald_pick","ice_pick","sapphire_pick"]);});
+test("Crafted tools remain hidden after their biome becomes available",()=>{const wb=unlocked();wb.craftedRecipes.add("ice_pick");const recipes=getVisibleRecipes("tool",new Set(["plains","tundra"]),wb);assert.ok(!recipes.some(r=>r.id==="ice_pick"));assert.ok(recipes.some(r=>r.id==="sapphire_pick"));});

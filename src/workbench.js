@@ -1,14 +1,15 @@
 const freezeRecipe = (recipe) => Object.freeze({ ...recipe, materials: Object.freeze({ ...recipe.materials }), requirements: Object.freeze({ ...recipe.requirements }) });
 const tools = [
-{id:"sharp_stone",itemId:"sharp_stone",name:"Sharp Stone",category:"tool",image:"./sprites/tool/plains/sharp_stone.png",materials:{cobble_rock:2},requirements:{},unique:true,flavorText:"Use a stone to chip away at another stone to obtain: a sharper stone."},
-{id:"wood_pick",itemId:"oak_pick",name:"Wood Pick",category:"tool",image:"./sprites/tool/plains/oak_pick.png",materials:{wood_scrap:10,item_grass:3},requirements:{sharp_stone:1},unique:true,flavorText:"A wooden pick. It is mostly wood, with a little bit of ambition."},
-{id:"rock_pick",itemId:"rock_pick",name:"Rock Pick",category:"tool",image:"./sprites/tool/plains/rock_pick.png",materials:{wood_scrap:4,cobble_rock:6,item_grass:3},requirements:{oak_pick:1},unique:true,flavorText:"More rock means more pick. That is how geology works, probably."},
-{id:"emerald_pick",itemId:"emerald_pick",name:"Emerald Pick",category:"tool",image:"./sprites/tool/plains/emerald_pick.png",materials:{wood_scrap:4,emerald:6,item_grass:5},requirements:{rock_pick:1},unique:true,flavorText:"So shiny that the ore might ask you for an autograph."},
-{id:"ice_pick",itemId:"ice_pick",name:"Ice Pick",category:"tool",image:"./sprites/tool/tundra/ice_pick.png",materials:{ice_shard:12,spruce_wood:6,item_grass:12},requirements:{},unique:true,flavorText:"A cold-forged pick made to shatter solid ice."},
-{id:"sapphire_pick",itemId:"sapphire_pick",name:"Sapphire Pick",category:"tool",image:"./sprites/tool/tundra/sapphire_pick.png",materials:{sapphire:24,spruce_wood:12},requirements:{ice_pick:1},unique:true,flavorText:"A powerful sapphire pick forged for the frozen depths."}
+{id:"sharp_stone",biomeId:"plains",itemId:"sharp_stone",name:"Sharp Stone",category:"tool",image:"./sprites/tool/plains/sharp_stone.png",materials:{cobble_rock:2},requirements:{},unique:true,flavorText:"Use a stone to chip away at another stone to obtain: a sharper stone."},
+{id:"wood_pick",biomeId:"plains",itemId:"oak_pick",name:"Wood Pick",category:"tool",image:"./sprites/tool/plains/oak_pick.png",materials:{wood_scrap:10,item_grass:3},requirements:{sharp_stone:1},unique:true,flavorText:"A wooden pick. It is mostly wood, with a little bit of ambition."},
+{id:"rock_pick",biomeId:"plains",itemId:"rock_pick",name:"Rock Pick",category:"tool",image:"./sprites/tool/plains/rock_pick.png",materials:{wood_scrap:4,cobble_rock:6,item_grass:3},requirements:{oak_pick:1},unique:true,flavorText:"More rock means more pick. That is how geology works, probably."},
+{id:"emerald_pick",biomeId:"plains",itemId:"emerald_pick",name:"Emerald Pick",category:"tool",image:"./sprites/tool/plains/emerald_pick.png",materials:{wood_scrap:4,emerald:6,item_grass:5},requirements:{rock_pick:1},unique:true,flavorText:"So shiny that the ore might ask you for an autograph."},
+{id:"ice_pick",biomeId:"tundra",itemId:"ice_pick",name:"Ice Pick",category:"tool",image:"./sprites/tool/tundra/ice_pick.png",materials:{ice_shard:12,spruce_wood:6,item_grass:12},requirements:{},unique:true,flavorText:"A cold-forged pick made to shatter solid ice."},
+{id:"sapphire_pick",biomeId:"tundra",itemId:"sapphire_pick",name:"Sapphire Pick",category:"tool",image:"./sprites/tool/tundra/sapphire_pick.png",materials:{sapphire:24,spruce_wood:12},requirements:{ice_pick:1},unique:true,flavorText:"A powerful sapphire pick forged for the frozen depths."}
 ].map(freezeRecipe);
 export const RECIPES=Object.freeze({item:Object.freeze([]),tool:Object.freeze(tools),artifact:Object.freeze([])});
-export function getUncraftedToolRecipes(workbenchState){return RECIPES.tool.filter(recipe=>!workbenchState.craftedRecipes?.has(recipe.id));}
+export function getVisibleRecipes(category,unlockedBiomeIds,workbenchState){const unlocked=unlockedBiomeIds instanceof Set?unlockedBiomeIds:new Set(unlockedBiomeIds||[]);return (RECIPES[category]||[]).filter(recipe=>unlocked.has(recipe.biomeId||"plains")&&!(category==="tool"&&workbenchState.craftedRecipes?.has(recipe.id)));}
+export function getUncraftedToolRecipes(workbenchState,unlockedBiomeIds=new Set(["plains","tundra","cave"])){return getVisibleRecipes("tool",unlockedBiomeIds,workbenchState);}
 export const CRAFTING_TABLE_COST=Object.freeze({wood_scrap:10,cobble_rock:2});
 export const FURNACE_COST=Object.freeze({stone_item:10,coal:1});
 export function createWorkbenchState(){return{unlockedStations:new Set(),craftedRecipes:new Set()};}

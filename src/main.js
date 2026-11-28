@@ -1,10 +1,10 @@
-import { createInitialState, mineBlock } from "./game.js?v=20261128-3x-biome-hp";
+import { createInitialState, mineBlock, BLOCKS_BY_BIOME } from "./game.js?v=20261128-3x-biome-hp";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, CAVE_INVENTORY, LIQUID_INVENTORY, INVENTORY_ITEMS, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
 import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, mergeDetachedItems, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
 import { getPlayerDamageStats, getBlockDamage, formatDamage, getNonZeroDamageStats } from "./damage.js";
-import { createWorkbenchState, CRAFTING_TABLE_COST, FURNACE_COST, RECIPES, getUncraftedToolRecipes, unlockCraftingTable, unlockFurnace, craftRecipe } from "./workbench.js";
+import { createWorkbenchState, CRAFTING_TABLE_COST, FURNACE_COST, RECIPES, getUncraftedToolRecipes, getVisibleRecipes, unlockCraftingTable, unlockFurnace, craftRecipe } from "./workbench.js";
 import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
 import { renderEquipmentSlots, renderAbilityLog } from "./equipment-ui.js";
@@ -333,13 +333,20 @@ function renderInventory() {
       ).join("") + '</div></section>'
     : "";
 
-  elements.inventoryContent.innerHTML =
-    '<details class="biome-drawer" open><summary><span>Plains</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>' +
-    '<div class="biome-content">' + renderSections(plainsSections) + '</div></details>' +
-    '<details class="biome-drawer" open><summary><span>Tundra</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>' +
-    '<div class="biome-content">' + renderSections(tundraSections) + '</div></details>' +
-    '<details class="biome-drawer" open><summary><span>Cave</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>' +
-    '<div class="biome-content">' + renderSections(caveSections) + '</div></details>' + liquidMarkup;
+  const drawers = [{id:"plains",name:"Plains",sections:plainsSections},{id:"tundra",name:"Tundra",sections:tundraSections},{id:"cave",name:"Cave",sections:caveSections}].filter(biome=>unlockedBiomeIds.has(biome.id));
+  const visibleLiquids = LIQUID_INVENTORY.filter(item=>unlockedBiomeIds.has(item.biomeId));
+  const visibleLiquidMarkup = activeCategory === "item" && visibleLiquids.length
+    ? '<section class="inventory-section liquid-inventory"><h3>Liquid</h3><div class="item-row">' + visibleLiquids.map(item=>
+        '<div class="inventory-slot" data-item-id="' + item.id + '">' +
+        '<button class="inventory-item-button" type="button" data-item-id="' + item.id + '" aria-label="Drop ' + item.name + '" title="Click to drop ' + item.name + '"' +
+        (getInventoryCount(inventoryState,item.id)<1?' disabled':'') + '><img src="' + item.image + '" alt="" loading="lazy"></button>' +
+        '<button class="item-info-button" type="button" data-item-info="' + item.id + '" data-item-tag="Liquid" aria-label="View ' + item.name + ' details" title="Item information">?</button>' +
+        '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState,item.id)) + '</span></div>').join("") + '</div></section>'
+    : "";
+  elements.inventoryContent.innerHTML = drawers.map(biome=>
+    '<details class="biome-drawer" data-biome-drawer="' + biome.id + '" open><summary><span>' + biome.name + '</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>' +
+    '<div class="biome-content">' + renderSections(biome.sections) + '</div></details>'
+  ).join("") + visibleLiquidMarkup;
 }
 
 function renderDamageStats(){equippedToolId=equipmentState.tool[0];const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);elements.playerBaseDamage.textContent=formatDamage(s.baseDamage);elements.playerBlockDamage.textContent=formatDamage(s.blockDamage);elements.playerMobDamage.textContent=formatDamage(s.mobDamage);}
@@ -353,7 +360,7 @@ elements.furnaceCost.textContent=furnaceUnlocked?"Ready to use":currentBiomeId!=
 const furnace=elements.workbenchStations.querySelector('[data-station="furnace"]');furnace.disabled=furnaceUnlocked||!canUnlockFurnace;furnace.classList.toggle("is-unlocked",furnaceUnlocked);furnace.classList.toggle("can-unlock",!furnaceUnlocked&&canUnlockFurnace);
 const equippedTool=getEquippedItem(equipmentState.tool[0],inventoryItems),equippedSword=getEquippedItem(equipmentState.sword[0],inventoryItems);elements.equippedToolLabel.textContent="Tool: "+(equippedTool?.name||"None")+" · Sword: "+(equippedSword?.name||"None");
 elements.workbenchTabs.forEach(t=>{const active=t.dataset.craftCategory===activeCraftCategory;t.classList.toggle("is-active",active);t.setAttribute("aria-selected",String(active));});if(!unlocked)return;
-const recipes=activeCraftCategory==="tool"?getUncraftedToolRecipes(workbenchState):(RECIPES[activeCraftCategory]||[]);if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">'+(activeCraftCategory==="tool"?"All tools have been crafted.":"No craftable items in this category yet.")+'</p>';return;}
+const recipes=getVisibleRecipes(activeCraftCategory,unlockedBiomeIds,workbenchState);if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">'+(activeCraftCategory==="tool"?"All tools have been crafted.":"No craftable items in this category yet.")+'</p>';return;}
 const icon=(id,n)=>{const item=inventoryItems.find(x=>x.id===id);return '<span class="recipe-ingredient" title="'+(item?.name||id)+' ×'+n+'"><img src="'+(item?.image||"")+'" alt="'+(item?.name||id)+'"><small>×'+n+'</small></span>';};
 elements.workbenchRecipes.innerHTML=recipes.map(recipe=>{
 const owned=getInventoryCount(inventoryState,recipe.itemId),hasMaterials=Object.entries(recipe.materials).every(([id,n])=>getInventoryCount(inventoryState,id)>=n),hasRequirements=Object.entries(recipe.requirements).every(([id,n])=>getInventoryCount(inventoryState,id)>=n),can=hasMaterials&&hasRequirements&&(!recipe.unique||owned<1);
@@ -419,13 +426,14 @@ function renderMap() {
     const costItem = cost ? inventoryItems.find((item) => item.id === cost.itemId) : null;
     const buttonContent = !unlocked && cost ? `Unlock <img class="biome-cost-icon" src="${costItem?.image || ""}" alt="${costItem?.name || ""}"> <strong>${cost.amount}</strong>` : buttonLabel;
     const infoOpen = expandedBiomeInfo.has(biome.id);
+    const spawnRows = (BLOCKS_BY_BIOME[biome.id] || []).map(block=>'<li><span>' + block.name + '</span><strong>' + block.spawnRate + '%</strong></li>').join("");
     return '<article class="map-biome-row" data-biome-row="' + biome.id + '">' +
       '<div class="map-biome-heading"><h3>' + biome.name + '</h3>' +
       '<div class="map-biome-actions">' +
       '<button class="biome-info-toggle' + (infoOpen ? ' is-open' : '') + '" type="button" data-biome-info="' + biome.id + '" aria-expanded="' + String(infoOpen) + '" aria-label="' + (infoOpen ? 'Hide' : 'Show') + ' ' + biome.name + ' information">!</button>' +
       '<button class="biome-visit-button' + (isCurrent ? ' is-current' : isLocked ? ' is-locked' : '') + '" type="button" data-biome-visit="' + biome.id + '"' + (isCurrent || isLocked ? ' disabled' : '') + '>' + buttonContent + '</button>' +
       '</div></div>' +
-      '<div class="map-biome-info"' + (infoOpen ? '' : ' hidden') + '><p>' + biome.description + '</p></div>' +
+      '<div class="map-biome-info"' + (infoOpen ? '' : ' hidden') + '><p>' + biome.description + '</p>' + (spawnRows ? '<div class="biome-spawn-chances"><h4>Block Spawn Chance</h4><ul>' + spawnRows + '</ul></div>' : '') + '</div>' +
       '</article>';
   }).join("");
 }
@@ -452,7 +460,7 @@ function openItemDetails(id, fallbackTag) {
     elements.detailOrigin.hidden = false;
     elements.detailOrigin.querySelector("img").src = item.origin.image;
     elements.detailOrigin.querySelector("img").alt = item.origin.name;
-    elements.detailOrigin.querySelector(".origin-name").textContent = item.origin.name;
+    elements.detailOrigin.querySelector(".origin-name").textContent = item.origin.name + (item.origin.spawnChance === null ? "" : " · Spawn Chance: " + item.origin.spawnChance + "%");
   } else {
     elements.detailOrigin.hidden = true;
   }
@@ -722,6 +730,8 @@ elements.biomeList.addEventListener("click", (event) => {
         inventoryState = { ...inventoryState, counts: { ...inventoryState.counts, [itemId]: owned - amount } };
         unlockedBiomeIds.add(biome.id);
         renderInventoryCounts();
+        if (activePanels.has("inventory")) renderInventory();
+        if (activePanels.has("craft")) renderWorkbench();
         renderMap();
       } else {
         const itemName = inventoryItems.find(item => item.id === itemId)?.name || itemId;
