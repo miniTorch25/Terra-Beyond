@@ -9,7 +9,7 @@ test("Gear renders Tool and Sword together as one six-slot row", () => {
   assert.equal((html.match(/data-equipment-slot="tool"/g) || []).length, 3);
   assert.equal((html.match(/data-equipment-slot="sword"/g) || []).length, 3);
   assert.equal((html.match(/data-equipment-slot="artifact"/g) || []).length, 6);
-  assert.match(html, /<h4>Tool<\/h4><h4>Sword<\/h4>/);
+  assert.match(html, /<h4>TOOL<\/h4><h4>SWORD<\/h4>/);
 });
 
 test("unlocked empty slots remain blank and locked Tool/Sword slots show Locked", () => {
