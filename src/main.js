@@ -849,5 +849,6 @@ document.addEventListener("keydown", (event) => {
 });
 
 applyAllPanelLayouts();
+renderGameSettings();
 renderCurrency();
 render();
