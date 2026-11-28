@@ -313,7 +313,13 @@ test("Half-screen navigation panels leave the bottom shortcut bar unobstructed",
     top: panel.getBoundingClientRect().top,
     bottom: panel.getBoundingClientRect().bottom,
     menuTop: document.querySelector(".bottom-menu").getBoundingClientRect().top,
+    className: panel.className,
+    cssTop: getComputedStyle(panel).top,
+    cssHeight: getComputedStyle(panel).height,
+    inlineStyle: panel.getAttribute("style"),
+    biome: document.body.dataset.biome,
   }));
+  console.log("HALF_PANEL_DEBUG", JSON.stringify(geometry));
   expect(geometry.top).toBeGreaterThanOrEqual(422);
   expect(geometry.bottom).toBeLessThanOrEqual(geometry.menuTop + 1);
 });
