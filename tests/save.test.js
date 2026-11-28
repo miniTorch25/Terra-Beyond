@@ -5,6 +5,7 @@ import { createInitialState } from "../src/game.js";
 import { createInventoryState } from "../src/inventory-state.js";
 import { createEquipmentState } from "../src/equipment.js";
 import { createWorkbenchState } from "../src/workbench.js";
+import { STARTING_IC } from "../src/economy.js";
 import { GAME_SAVE_STORAGE_KEY, GAME_SAVE_VERSION, loadGameProgress, saveGameProgress } from "../src/save.js";
 
 function createStorage(initial = {}) {
@@ -111,6 +112,12 @@ test("equipment is restored only for owned items in valid unlocked slots", () =>
   assert.equal(restored.equipmentState.tool[0], null);
   assert.equal(restored.equipmentState.tool[1], null);
   assert.equal(restored.equipmentState.sword[0], null);
+});
+
+test("invalid currency data falls back to the normal starting balance", () => {
+  const storage = createStorage();
+  saveGameProgress(storage, createProgress({ catalystBalance: -1 }));
+  assert.equal(loadGameProgress(storage, INVENTORY_ITEMS).catalystBalance, STARTING_IC);
 });
 
 test("unsupported save versions and corrupt JSON are ignored", () => {
