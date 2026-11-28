@@ -104,3 +104,7 @@ test("Cave block HP is at least three times the corresponding Tundra progression
  assert.deepEqual(cave.map(block=>block.maxHp),[45,63,90,108,135]);
  assert.deepEqual(cave.map((block,index)=>block.maxHp >= tundra[index].maxHp*3),[true,true,true,true,true]);
 });
+
+
+test("Ice Pick instantly breaks Ice Block regardless of remaining HP",()=>{const ice=BLOCKS_BY_BIOME.tundra.find(block=>block.id==="ice_block");const result=mineBlock({block:ice,hp:ice.maxHp},5,()=>0,"tundra","ice_pick");assert.equal(result.broken,true);assert.deepEqual(result.drops,[{itemId:"ice_shard",amount:1}]);assert.equal(result.state.hp,15);});
+test("other picks do not instantly break Ice Block",()=>{const ice=BLOCKS_BY_BIOME.tundra.find(block=>block.id==="ice_block");const result=mineBlock({block:ice,hp:ice.maxHp},8,()=>0,"tundra","sapphire_pick");assert.equal(result.broken,false);assert.equal(result.state.hp,ice.maxHp-8);});

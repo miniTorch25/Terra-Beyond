@@ -72,7 +72,8 @@ export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, b
     throw new RangeError("Damage must be a positive number.");
   }
 
-  const remainingHp = Math.max(0, state.hp - damage);
+  const instantIceBreak = equippedToolId === "ice_pick" && state.block.id === "ice_block";
+  const remainingHp = instantIceBreak ? 0 : Math.max(0, state.hp - damage);
   if (remainingHp > 0) {
     return { state: { block: state.block, hp: remainingHp }, broken: false, drops: [] };
   }

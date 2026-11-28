@@ -101,3 +101,6 @@ test("Cave raw resources show Natural origin and bars show Crafted tag",()=>{
  for(const id of ["stone_item","coal","raw_copper","raw_iron","raw_lead"]){const detail=getItemDetails(id);assert.equal(detail.tag,"Natural");assert.ok(detail.origin?.image.includes("/block/cave/"));}
  for(const id of ["copper_bar","iron_bar","lead_bar"])assert.equal(getItemDetails(id,"Crafted").tag,"Crafted");
 });
+
+
+test("Tundra picks carry their damage and Ice Pick special ability metadata",()=>{const ice=getItemDetails("ice_pick","Crafted"),sapphire=getItemDetails("sapphire_pick","Crafted");assert.deepEqual(ice.abilities,["Instantly breaks Ice Block in one click, regardless of its HP"]);assert.equal(ice.description,"A cold-forged pick that instantly shatters Ice Blocks in one click, regardless of their HP.");assert.equal(sapphire.description,"A powerful pick fitted with a sapphire head, delivering +7 Block Dmg.");});

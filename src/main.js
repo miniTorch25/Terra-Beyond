@@ -3,7 +3,7 @@ import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, CAVE_INVENTOR
 import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
-import { getPlayerDamageStats, getBlockDamage, formatDamage } from "./damage.js";
+import { getPlayerDamageStats, getBlockDamage, formatDamage, getNonZeroDamageStats } from "./damage.js";
 import { createWorkbenchState, CRAFTING_TABLE_COST, FURNACE_COST, RECIPES, unlockCraftingTable, unlockFurnace, craftRecipe } from "./workbench.js";
 import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
@@ -32,6 +32,7 @@ const elements = {
   detailName: document.querySelector("#detail-item-name"),
   detailDescription: document.querySelector("#detail-item-description"),
   detailAbilities: document.querySelector("#detail-item-abilities"),
+  detailDamage: document.querySelector("#detail-item-damage"), detailDamageList: document.querySelector("#detail-item-damage-list"),
   detailOrigin: document.querySelector("#item-detail-origin"),
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
@@ -366,6 +367,9 @@ function openItemDetails(id, fallbackTag) {
   elements.detailDescription.textContent = item.description;
   elements.detailAbilities.textContent = (item.abilities || []).join(" · ");
   elements.detailAbilities.closest(".detail-abilities").hidden = !(item.abilities || []).length;
+  const damageStats = ["tool", "sword"].includes(item.category) ? getNonZeroDamageStats(item.id) : [];
+  elements.detailDamage.hidden = damageStats.length === 0;
+  elements.detailDamageList.innerHTML = damageStats.map(({ label, value }) => "<li><span>" + label + "</span><strong>" + formatDamage(value) + "</strong></li>").join("");
   elements.detailTag.textContent = item.tag;
   elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
   elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);
