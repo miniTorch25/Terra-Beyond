@@ -1,6 +1,6 @@
 import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
-import { createInventoryState, getInventoryCount, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
+import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 
 const elements = {
@@ -250,8 +250,16 @@ function closeActivePanel() {
 elements.button.addEventListener("click", () => {
   const result = mineBlock(state, PLAYER_DAMAGE, Math.random, currentBiomeId);
   state = result.state;
+  for (const drop of result.drops) {
+    inventoryState = addInventoryItem(inventoryState, drop.itemId, drop.amount);
+  }
+  if (result.drops.length > 0) renderInventoryCounts();
+  const dropMessage = result.drops.map((drop) => {
+    const item = inventoryItems.find((entry) => entry.id === drop.itemId);
+    return (item?.name || drop.itemId) + " +" + drop.amount;
+  }).join(", ");
   elements.helper.textContent = result.broken
-    ? result.state.block.name + " appeared. Keep mining!"
+    ? (dropMessage ? dropMessage + " · " : "") + result.state.block.name + " appeared. Keep mining!"
     : "-" + PLAYER_DAMAGE + " HP · " + result.state.hp + " HP remaining";
   render();
 });

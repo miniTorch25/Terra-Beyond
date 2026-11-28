@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createInventoryState, getInventoryCount, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "../src/inventory-state.js";
+import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "../src/inventory-state.js";
 
 test("taking an item decreases its inventory count and creates a 90-second world item", () => {
   const initial = createInventoryState([{ id: "emerald", count: 3 }]);
@@ -60,4 +60,17 @@ test("the Inventory navigation button accepts drops even while its panel is clos
 
 test("unrelated UI targets do not accept returned items", () => {
   assert.equal(isInventoryDropTarget({ inventoryOpen: false }), false);
+});
+
+test("adding a mined drop increases the matching inventory item count", () => {
+  const initial = createInventoryState([{ id: "item_grass", count: 0 }]);
+  const updated = addInventoryItem(initial, "item_grass", 1);
+  assert.equal(getInventoryCount(updated, "item_grass"), 1);
+  assert.equal(getInventoryCount(initial, "item_grass"), 0);
+});
+
+test("adding an invalid amount or unknown item is rejected", () => {
+  const state = createInventoryState([{ id: "item_grass", count: 0 }]);
+  assert.throws(() => addInventoryItem(state, "item_grass", 0), RangeError);
+  assert.throws(() => addInventoryItem(state, "unknown", 1), RangeError);
 });
