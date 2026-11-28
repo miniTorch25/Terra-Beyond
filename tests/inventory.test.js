@@ -43,7 +43,7 @@ test("tools, swords and artifacts use Crafted only, with daggers under Sword", (
   for (const biome of [PLAINS_INVENTORY, TUNDRA_INVENTORY]) for (const category of ["tool", "sword", "artifact"]) assert.deepEqual(Object.keys(biome[category]), ["Crafted"]);
   assert.deepEqual(PLAINS_INVENTORY.sword.Crafted.map(({ id }) => id), ["stone_dagger"]);
   assert.deepEqual(TUNDRA_INVENTORY.sword.Crafted.map(({ id }) => id), ["sapphire_dagger"]);
-  assert.ok(INVENTORY_ITEMS.filter(({ unique }) => unique).every(({ count }) => count === 0));
+  assert.ok(INVENTORY_ITEMS.filter(({ unique }) => unique).every(({ count }) => count === 0));\n  for (const biome of [PLAINS_INVENTORY, TUNDRA_INVENTORY]) {\n    for (const category of ["tool", "sword", "artifact"]) assert.ok(biome[category].Crafted.every(({ unique }) => unique));\n  }
 });
 
 test("invalid row sizes are rejected", () => {
