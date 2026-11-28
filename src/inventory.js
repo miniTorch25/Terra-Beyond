@@ -3,8 +3,8 @@ export const INVENTORY_CATEGORIES = Object.freeze([
   Object.freeze({ id: "sword", label: "Sword" }), Object.freeze({ id: "artifact", label: "Artifact" }),
 ]);
 const item = (id, name, biome) => Object.freeze({ id, name, image: `./sprites/item/${biome}/${id}.png`, count: 0, unique: false });
-const tool = (id, name, biome) => Object.freeze({ id, name, image: `./sprites/tool/${biome}/${id}.png`, count: 0, unique: true });
-const sword = (id, name, biome) => Object.freeze({ id, name, image: `./sprites/sword/${biome}/${id}.png`, count: 0, unique: true });
+const tool = (id, name, biome) => Object.freeze({ id, name, category: "tool", image: `./sprites/tool/${biome}/${id}.png`, count: 0, unique: true });
+const sword = (id, name, biome) => Object.freeze({ id, name, category: "sword", image: `./sprites/sword/${biome}/${id}.png`, count: 0, unique: true });
 const sections = (natural = [], crafted = []) => Object.freeze({ Natural: Object.freeze(natural), Crafted: Object.freeze(crafted) });
 const craftedOnly = (crafted = []) => Object.freeze({ Crafted: Object.freeze(crafted.map((entry) => Object.freeze({ ...entry, unique: true }))) });
 export const PLAINS_INVENTORY = Object.freeze({
