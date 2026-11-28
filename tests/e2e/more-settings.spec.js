@@ -8,6 +8,7 @@ test("More settings persist and control mining feedback, drops, and damage overl
   await page.locator("#setting-mining-feedback").uncheck();
   await page.locator("#setting-drop-notifications").uncheck();
   await page.locator("#setting-damage-overlay").uncheck();
+  await page.locator("#more-open").click();
   await page.locator("#mine-button").click();
 
   await expect(page.locator("#hp-current")).toHaveText("4");
