@@ -1,5 +1,5 @@
 import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
-import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
+import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, INVENTORY_ITEMS, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
 import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 
@@ -26,7 +26,6 @@ const elements = {
   detailImage: document.querySelector("#detail-item-image"),
   detailName: document.querySelector("#detail-item-name"),
   detailDescription: document.querySelector("#detail-item-description"),
-  detailOrigin: document.querySelector("#item-detail-origin"),
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
   map: document.querySelector("#map-panel"),
@@ -40,7 +39,8 @@ let activeCategory = "item";
 let activePanel = null;
 let currentBiomeId = "plains";
 const expandedBiomeInfo = new Set();
-const inventoryItems = [...PLAINS_INVENTORY.item.Natural, ...PLAINS_INVENTORY.tool.Natural, ...TUNDRA_INVENTORY.item.Natural, ...TUNDRA_INVENTORY.tool.Natural, ...LIQUID_INVENTORY];
+const unlockedBiomeIds = new Set(BIOMES.filter((biome) => biome.unlocked).map((biome) => biome.id));
+const inventoryItems = INVENTORY_ITEMS;
 let inventoryState = createInventoryState(inventoryItems);
 const INVENTORY_COMPACT_KEY = "terra-beyond-inventory-half-screen";
 let inventoryCompact = localStorage.getItem(INVENTORY_COMPACT_KEY) === "true";
@@ -165,7 +165,7 @@ function renderInventory() {
         '<img src="' + item.image + '" alt="" loading="lazy"></button>' +
         '<button class="item-info-button" type="button" data-item-info="' + item.id +
         '" data-item-tag="' + sectionName + '" aria-label="View ' + item.name + ' details" title="Item information">?</button>' +
-        '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span></div>'
+        (item.unique ? '' : '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span>') + '</div>'
       ).join("");
       return '<div class="item-row">' + slots + '</div>';
     }).join("");
@@ -196,16 +196,20 @@ function renderInventory() {
 
 function renderMap() {
   elements.biomeList.innerHTML = BIOMES.map((biome) => {
-    const action = getBiomeAction(biome, currentBiomeId);
+    const unlocked = unlockedBiomeIds.has(biome.id);
+    const action = getBiomeAction({ ...biome, unlocked }, currentBiomeId);
     const isCurrent = action === "Current";
-    const isLocked = action === "Lock" || (!biome.unlocked && action !== "Current");
+    const cost = biome.unlockCost && typeof biome.unlockCost === "object" ? biome.unlockCost : null;
+    const canAfford = cost ? getInventoryCount(inventoryState, cost.itemId) >= cost.amount : false;
+    const isLocked = action === "Lock" || (!unlocked && !cost && action !== "Current");
     const buttonLabel = action === "Visit" ? "Visit" : action === "Current" ? "Current" : action === "Lock" ? "Lock" : action;
+    const buttonContent = !unlocked && cost ? `Unlock <img class="biome-cost-icon" src="./sprites/item/plains/emerald.png" alt="Emerald"> <strong>${cost.amount}</strong>` : buttonLabel;
     const infoOpen = expandedBiomeInfo.has(biome.id);
     return '<article class="map-biome-row" data-biome-row="' + biome.id + '">' +
       '<div class="map-biome-heading"><h3>' + biome.name + '</h3>' +
       '<div class="map-biome-actions">' +
       '<button class="biome-info-toggle' + (infoOpen ? ' is-open' : '') + '" type="button" data-biome-info="' + biome.id + '" aria-expanded="' + String(infoOpen) + '" aria-label="' + (infoOpen ? 'Hide' : 'Show') + ' ' + biome.name + ' information">!</button>' +
-      '<button class="biome-visit-button' + (isCurrent ? ' is-current' : isLocked ? ' is-locked' : '') + '" type="button" data-biome-visit="' + biome.id + '"' + (isCurrent || isLocked ? ' disabled' : '') + '>' + buttonLabel + '</button>' +
+      '<button class="biome-visit-button' + (isCurrent ? ' is-current' : isLocked ? ' is-locked' : '') + '" type="button" data-biome-visit="' + biome.id + '"' + (isCurrent || isLocked || (!unlocked && cost && !canAfford) ? ' disabled' : '') + '>' + buttonContent + '</button>' +
       '</div></div>' +
       '<div class="map-biome-info"' + (infoOpen ? '' : ' hidden') + '><p>' + biome.description + '</p></div>' +
       '</article>';
@@ -221,14 +225,7 @@ function openItemDetails(id, fallbackTag) {
   elements.detailDescription.textContent = item.description;
   elements.detailTag.textContent = item.tag;
   elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
-  if (item.tag === "Natural" && item.origin) {
-    elements.detailOrigin.hidden = false;
-    elements.detailOrigin.querySelector("img").src = item.origin.image;
-    elements.detailOrigin.querySelector("img").alt = item.origin.name;
-    elements.detailOrigin.querySelector(".origin-name").textContent = item.origin.name;
-  } else {
-    elements.detailOrigin.hidden = true;
-  }
+  elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);
   elements.detailOverlay.hidden = false;
   elements.detailOverlay.setAttribute("aria-hidden", "false");
   elements.detailCard.focus();
@@ -359,7 +356,17 @@ elements.biomeList.addEventListener("click", (event) => {
   const visitButton = event.target.closest("[data-biome-visit]");
   if (visitButton) {
     const biome = getBiomeById(visitButton.dataset.biomeVisit);
-    if (biome && getBiomeAction(biome, currentBiomeId) === "Visit") {
+    if (biome && !unlockedBiomeIds.has(biome.id) && biome.unlockCost && typeof biome.unlockCost === "object") {
+      const { itemId, amount } = biome.unlockCost;
+      if (getInventoryCount(inventoryState, itemId) >= amount) {
+        inventoryState = { ...inventoryState, counts: { ...inventoryState.counts, [itemId]: getInventoryCount(inventoryState, itemId) - amount } };
+        unlockedBiomeIds.add(biome.id);
+        renderInventoryCounts();
+        renderMap();
+      }
+      return;
+    }
+    if (biome && getBiomeAction({ ...biome, unlocked: unlockedBiomeIds.has(biome.id) }, currentBiomeId) === "Visit") {
       currentBiomeId = biome.id;
       state = createInitialState(Math.random, currentBiomeId);
       elements.helper.textContent = "Entered " + biome.name + ". A new block appeared!";
