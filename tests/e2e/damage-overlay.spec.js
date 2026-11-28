@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("damage overlay stays hidden while a block has full HP", async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
 
   const damage = page.locator("#damage-image");
@@ -11,7 +11,7 @@ test("damage overlay stays hidden while a block has full HP", async ({ page }) =
 });
 
 test("damage overlay appears after the first hit and hides when a new block spawns", async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
 
   const damage = page.locator("#damage-image");
