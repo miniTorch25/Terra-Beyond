@@ -513,21 +513,55 @@ document.addEventListener("click", event => {
   if (halfButton) setPanelHalf(halfButton.dataset.uiHalf);
   if (positionButton) swapPanelHalf(positionButton.dataset.uiPosition);
 });
+function finishEquipmentDrag(event, cancelled = false) {
+  if (!equipmentDrag || (event && equipmentDrag.pointerId !== event.pointerId)) return;
+  const drag = equipmentDrag;
+  equipmentDrag = null;
+  drag.ghost.remove();
+  if (cancelled || !event) return;
+  const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.("[data-equipment-slot]");
+  const item = inventoryItems.find(entry => entry.id === drag.itemId);
+  if (target && !target.classList.contains("is-locked") && target.dataset.equipmentSlot === getEquipmentSlot(item)) {
+    handleEquipItem(drag.itemId, Number(target.dataset.slotIndex));
+    suppressEquipClickItemId = drag.itemId;
+  }
+}
+
+function finishWorldDrag(event, cancelled = false) {
+  if (!activeWorldDrag || (event && activeWorldDrag.pointerId !== event.pointerId)) return;
+  const drag = activeWorldDrag;
+  activeWorldDrag = null;
+  drag.node.classList.remove("is-dragging");
+  if (cancelled || !event) return;
+  drag.node.style.pointerEvents = "none";
+  const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
+  const inventorySlot = dropTarget?.closest?.(".inventory-slot");
+  const inventoryButton = dropTarget?.closest?.("#inventory-open");
+  drag.node.style.pointerEvents = "auto";
+  if (isInventoryDropTarget({
+    overSlot: Boolean(inventorySlot),
+    inventoryOpen: !elements.inventory.hidden,
+    overInventoryButton: Boolean(inventoryButton),
+  })) returnWorldItem(drag.instanceId, drag.node);
+}
+
 elements.inventoryContent.addEventListener("pointerdown", event => {
-  if (!activePanels.has("inventory") || !activePanels.has("gear")) return;
+  if (!activePanels.has("inventory") || !activePanels.has("gear") || equipmentDrag) return;
   const button = event.target.closest(".inventory-item-button");
   if (!button || button.disabled) return;
   const item = inventoryItems.find(entry => entry.id === button.dataset.itemId);
   if (!isEquippableItem(item)) return;
+  event.preventDefault();
+  if (button.setPointerCapture) button.setPointerCapture(event.pointerId);
   const ghost = document.createElement("div");
   ghost.className = "equipment-drag-ghost";
   ghost.innerHTML = '<img src="' + item.image + '" alt="">';
-  ghost.style.left = event.clientX + "px"; ghost.style.top = event.clientY + "px";
+  ghost.style.left = event.clientX + "px";
+  ghost.style.top = event.clientY + "px";
   document.body.append(ghost);
   equipmentDrag = { itemId: item.id, pointerId: event.pointerId, ghost };
-  event.preventDefault();
 });
-document.addEventListener("pointermove", (event) => {
+document.addEventListener("pointermove", event => {
   if (equipmentDrag && equipmentDrag.pointerId === event.pointerId) {
     equipmentDrag.ghost.style.left = event.clientX + "px";
     equipmentDrag.ghost.style.top = event.clientY + "px";
@@ -537,31 +571,22 @@ document.addEventListener("pointermove", (event) => {
     activeWorldDrag.node.style.top = event.clientY + "px";
   }
 });
-document.addEventListener("pointerup", (event) => {
-  if (equipmentDrag && equipmentDrag.pointerId === event.pointerId) {
-    const drag = equipmentDrag;
-    drag.ghost.remove();
-    equipmentDrag = null;
-    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.("[data-equipment-slot]");
-    if (target && !target.classList.contains("is-locked") && target.dataset.equipmentSlot === getEquipmentSlot(inventoryItems.find(item => item.id === drag.itemId))) {
-      handleEquipItem(drag.itemId, Number(target.dataset.slotIndex));
-      suppressEquipClickItemId = drag.itemId;
-    }
-  }
-  if (activeWorldDrag && activeWorldDrag.pointerId === event.pointerId) {
-    const drag = activeWorldDrag;
-    drag.node.classList.remove("is-dragging");
-    drag.node.style.pointerEvents = "none";
-    const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
-    const inventorySlot = dropTarget?.closest?.(".inventory-slot");
-    const inventoryButton = dropTarget?.closest?.("#inventory-open");
-    drag.node.style.pointerEvents = "auto";
-    if (isInventoryDropTarget({
-      overSlot: Boolean(inventorySlot),
-      inventoryOpen: !elements.inventory.hidden,
-      overInventoryButton: Boolean(inventoryButton),
-    })) returnWorldItem(drag.instanceId, drag.node);
-    activeWorldDrag = null;
+document.addEventListener("pointerup", event => {
+  finishEquipmentDrag(event);
+  finishWorldDrag(event);
+});
+document.addEventListener("pointercancel", event => {
+  finishEquipmentDrag(event, true);
+  finishWorldDrag(event, true);
+});
+window.addEventListener("blur", () => {
+  finishEquipmentDrag(null, true);
+  finishWorldDrag(null, true);
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    finishEquipmentDrag(null, true);
+    finishWorldDrag(null, true);
   }
 });
 elements.detailOverlay.addEventListener("click", (event) => {
