@@ -565,3 +565,11 @@ body[data-biome="cave"] .world-item-timer,body[data-biome="cave"] .world-item-st
 
 .recipe-card[aria-disabled="true"] { opacity: .62; }
 .recipe-card[aria-disabled="true"]:focus-visible { opacity: 1; outline: 2px solid var(--accent, #e0bd59); outline-offset: 2px; }
+
+
+/* Biome block spawn chance details */
+.biome-spawn-chances { margin-top: 0.75rem; }
+.biome-spawn-chances h4 { margin: 0 0 0.35rem; font-size: 0.82rem; }
+.biome-spawn-chances ul { display: grid; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+.biome-spawn-chances li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 0.82rem; }
+.biome-spawn-chances li strong { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
