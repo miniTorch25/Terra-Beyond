@@ -1043,3 +1043,19 @@ body[data-biome] .navigation-panel[data-nav-panel="more"] .more-section {
 .reset-data-actions { display: flex; gap: 9px; margin-top: 20px; }
 .reset-data-actions button { flex: 1; min-height: 42px; border: 1px solid #9d7f87; border-radius: 9px; background: #382c34; color: #fff0f2; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
 .reset-data-actions #reset-data-confirm { border-color: #c16d78; background: #713744; }
+
+
+/* Small collectible water point shown beneath the mining hint on selected Grass blocks. */
+.water-puddle {
+  display: block;
+  width: 76px;
+  height: 9px;
+  margin-top: -7px;
+  border: 1px solid #69c9e8;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4eb9e866, #8de5ff99, #4eb9e866);
+  box-shadow: 0 0 9px #4eb9e866, inset 0 0 4px #b8f0ff88;
+  opacity: .82;
+  pointer-events: none;
+}
+.water-puddle[hidden] { display: none; }

@@ -14,6 +14,7 @@ import { loadGameProgress, saveGameProgress } from "./save.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
+  waterPuddle: document.querySelector("#water-puddle"),
   image: document.querySelector("#block-image"),
   damage: document.querySelector("#damage-image"),
   name: document.querySelector("#block-name"),
@@ -314,6 +315,7 @@ function render() {
     elements.damage.src = "./sprites/environment/destroy_stage_" + stage + ".png";
   }
   elements.button.setAttribute("aria-label", "Mine " + block.name + ". " + hp + " of " + block.maxHp + " HP remaining.");
+  elements.waterPuddle.hidden = !state.waterPuddle;
   const currentBiome = getBiomeById(currentBiomeId);
   elements.currentBiomeLabel.textContent = (currentBiome?.name || "Unknown").toUpperCase() + " BIOME";
   renderDamageStats();

@@ -37,6 +37,7 @@ export function createGameSave({
     unlockedBiomeIds: [...unlockedBiomeIds],
     blockId: state.block.id,
     blockHp: state.hp,
+    waterPuddle: state.block.id === "grass" && state.waterPuddle === true,
     inventoryCounts: { ...inventoryState.counts },
     detachedItems: inventoryState.detached.map((entry) => ({ ...entry })),
     nextWorldItemId: inventoryState.nextId,
@@ -161,7 +162,11 @@ export function loadGameProgress(storage, inventoryItems, now = Date.now()) {
   }
 
   return {
-    state: { block: selectedBlock, hp: blockHp },
+    state: {
+      block: selectedBlock,
+      hp: blockHp,
+      waterPuddle: selectedBlock.id === "grass" && saved.waterPuddle === true,
+    },
     currentBiomeId,
     unlockedBiomeIds,
     inventoryState,
