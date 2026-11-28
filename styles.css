@@ -523,3 +523,41 @@ body[data-biome="cave"] .detail-damage{border-color:#656565}body[data-biome="cav
 .world-item.is-dragging { opacity:.75; cursor:grabbing; }
 body[data-biome="tundra"] .world-item-timer,body[data-biome="tundra"] .world-item-stack { border-color:#9bc7da; background:#122532f2; }
 body[data-biome="cave"] .world-item-timer,body[data-biome="cave"] .world-item-stack { border-color:#bfbfbf; background:#222222f2; }
+
+
+/* Toast Text 1: important notices and warnings, capped at three. */
+.toast-notifications {
+  position: fixed; z-index: 50; top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right)); display: flex;
+  width: min(50vw, 360px); flex-direction: column; gap: 7px; pointer-events: none;
+}
+.toast-notice {
+  width: 100%; min-height: 38px; padding: 10px 12px; border: 1px solid;
+  border-radius: 9px; box-shadow: 0 5px 18px #0008; color: #fff;
+  font-size: 12px; font-weight: 750; line-height: 1.35; overflow-wrap: anywhere;
+  animation: toast-enter 160ms ease-out;
+}
+.toast-notice--danger { border-color: #e66a6a; background: #762b2bf2; }
+.toast-notice--warning { border-color: #e0bd59; background: #71551df2; color: #fff4c9; }
+
+/* Toast Text 2: compact mining drop log, aligned with the IC balance bar. */
+.toast-drop-log {
+  position: fixed; z-index: 45; left: max(12px, env(safe-area-inset-left));
+  bottom: calc(82px + env(safe-area-inset-bottom)); display: flex;
+  max-width: min(50vw, 320px); flex-direction: column; align-items: flex-start;
+  gap: 5px; pointer-events: none;
+}
+.toast-drop-entry {
+  display: inline-flex; min-height: 36px; align-items: center; gap: 7px;
+  padding: 4px 9px; border: 1px solid #858585; border-radius: 8px;
+  background: #454545ed; box-shadow: 0 4px 14px #0007; color: #f4f4f4;
+  animation: toast-enter 160ms ease-out;
+}
+.toast-drop-amount { font-size: 12px; font-weight: 850; font-variant-numeric: tabular-nums; }
+.toast-drop-entry img { width: 25px; height: 25px; object-fit: contain; image-rendering: pixelated; }
+@keyframes toast-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 380px) {
+  .toast-notice { padding: 8px 9px; font-size: 11px; }
+  .toast-drop-entry { min-height: 34px; padding: 3px 7px; }
+  .toast-drop-entry img { width: 23px; height: 23px; }
+}

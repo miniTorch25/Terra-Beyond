@@ -8,6 +8,7 @@ import { createWorkbenchState, CRAFTING_TABLE_COST, FURNACE_COST, RECIPES, unloc
 import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
 import { renderEquipmentSlots, renderAbilityLog } from "./equipment-ui.js";
+import { pushToast, removeToast, TOAST_DURATION } from "./toast-state.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -40,6 +41,8 @@ const elements = {
   detailEquip: document.querySelector("#detail-equip-button"), playerEquipment: document.querySelector("#player-equipment"), abilityLog: document.querySelector("#ability-log"),
   playerBaseDamage: document.querySelector("#player-base-damage"), playerBlockDamage: document.querySelector("#player-block-damage"), playerMobDamage: document.querySelector("#player-mob-damage"),
   currencyCount: document.querySelector("#ic-balance"),
+  toastNotifications: document.querySelector("#toast-notifications"),
+  toastDropLog: document.querySelector("#toast-drop-log"),
   duplicateOverlay: document.querySelector("#duplicate-confirm-overlay"),
   duplicateImage: document.querySelector("#duplicate-item-image"),
   duplicateName: document.querySelector("#duplicate-item-name"),
@@ -62,6 +65,9 @@ const unlockedBiomeIds = new Set(BIOMES.filter((biome) => biome.unlocked).map((b
 const inventoryItems = INVENTORY_ITEMS;
 let inventoryState = createInventoryState(inventoryItems);
 let catalystBalance = STARTING_IC;
+let toastSequence = 0;
+const toastQueues = { notice: [], drops: [] };
+const toastTimers = new Map();
 let pendingDuplicateItemId = null;
 let workbenchState=createWorkbenchState();
 let activeCraftCategory="item";
@@ -73,6 +79,59 @@ let panelLayouts = (() => { try { return { ...defaultPanelLayout, ...JSON.parse(
 let activeWorldDrag = null;
 let equipmentDrag = null;
 let suppressEquipClickItemId = null;
+
+function renderToastQueue(queueName) {
+  const container = queueName === "notice" ? elements.toastNotifications : elements.toastDropLog;
+  container.replaceChildren();
+  for (const toast of toastQueues[queueName]) {
+    const node = document.createElement("div");
+    if (queueName === "notice") {
+      node.className = "toast-notice toast-notice--" + toast.type;
+      node.setAttribute("role", "status");
+      node.textContent = toast.message;
+    } else {
+      node.className = "toast-drop-entry";
+      node.setAttribute("role", "status");
+      const amount = document.createElement("span");
+      amount.className = "toast-drop-amount";
+      amount.textContent = "+" + toast.amount;
+      const image = document.createElement("img");
+      image.src = toast.image;
+      image.alt = toast.name;
+      image.title = toast.name;
+      node.append(amount, image);
+    }
+    container.append(node);
+  }
+}
+function enqueueToast(queueName, toast) {
+  const id = ++toastSequence;
+  const previous = toastQueues[queueName];
+  const next = pushToast(previous, { ...toast, id });
+  const retained = new Set(next.map(entry => entry.id));
+  for (const old of previous) {
+    if (!retained.has(old.id)) {
+      clearTimeout(toastTimers.get(queueName + ":" + old.id));
+      toastTimers.delete(queueName + ":" + old.id);
+    }
+  }
+  toastQueues[queueName] = next;
+  renderToastQueue(queueName);
+  const timerKey = queueName + ":" + id;
+  toastTimers.set(timerKey, window.setTimeout(() => {
+    toastQueues[queueName] = removeToast(toastQueues[queueName], id);
+    toastTimers.delete(timerKey);
+    renderToastQueue(queueName);
+  }, TOAST_DURATION));
+}
+function showToast(type, message) {
+  enqueueToast("notice", { type: type === "danger" ? "danger" : "warning", message: String(message) });
+}
+function showDropLog(drop) {
+  const item = inventoryItems.find(entry => entry.id === drop.itemId);
+  if (!item || !Number.isInteger(drop.amount) || drop.amount <= 0) return;
+  enqueueToast("drops", { amount: drop.amount, image: item.image, name: item.name });
+}
 
 function renderCurrency() {
   elements.currencyCount.textContent = formatItemCount(catalystBalance);
@@ -303,19 +362,20 @@ return renderRecipeCard(recipe,inventoryItems,{can,status,materials,requirements
 function handleWorkbenchStation(id){
 if(id==="furnace"){
   if(workbenchState.unlockedStations.has("furnace"))return;
-  if(currentBiomeId!=="cave"){elements.helper.textContent="Enter the Cave biome to unlock the Furnace.";return;}
+  if(currentBiomeId!=="cave"){elements.helper.textContent="Enter the Cave biome to unlock the Furnace.";showToast("warning","Enter the Cave biome to unlock the Furnace.");return;}
   const r=unlockFurnace(workbenchState,inventoryState);
-  if(!r.success){elements.helper.textContent="Need 10 Stone and 1 Coal to unlock the Furnace.";return;}
+  if(!r.success){elements.helper.textContent="Need 10 Stone and 1 Coal to unlock the Furnace.";showToast("warning","Not enough materials to unlock the Furnace.");return;}
   workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Furnace unlocked.";return;
 }
 if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;
-const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";
+const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";showToast("warning","Not enough materials to unlock the Crafting Table.");return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";
 }
-function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
+function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";showToast("warning","Cannot craft this recipe: "+r.reason+".");return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
 function handleEquipItem(id, slotIndex = 0) {
   const result = equipItem(equipmentState, id, inventoryState, inventoryItems, slotIndex);
   if (!result.success) {
     elements.helper.textContent = result.reason === "not-owned" ? "You must own this item before equipping it." : result.reason === "locked-slot" ? "This equipment slot is locked." : result.reason === "already-equipped" ? "This item is already equipped in another slot." : "This item cannot be equipped.";
+    showToast("danger", elements.helper.textContent);
     return;
   }
   equipmentState = result.equipmentState;
@@ -412,6 +472,8 @@ function openDuplicateConfirmation(itemId) {
     : catalystBalance < DUPLICATE_COST
       ? "Not enough Infinity Catalyst."
       : "Spend 1 IC to receive 500 additional " + item.name + "?";
+  if (owned < 1) showToast("warning", "You need at least 1 item before duplicating it.");
+  else if (catalystBalance < DUPLICATE_COST) showToast("warning", "Not enough Infinity Catalyst.");
   elements.duplicateConfirm.disabled = !canDuplicate;
   elements.duplicateOverlay.hidden = false;
   elements.duplicateOverlay.setAttribute("aria-hidden", "false");
@@ -499,6 +561,7 @@ elements.button.addEventListener("click", () => {
   state = result.state;
   for (const drop of result.drops) {
     inventoryState = addInventoryItem(inventoryState, drop.itemId, drop.amount);
+    if (result.broken) showDropLog(drop);
   }
   if (result.drops.length > 0) renderInventoryCounts();
   const dropMessage = result.drops.map((drop) => {
