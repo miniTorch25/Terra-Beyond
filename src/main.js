@@ -7,6 +7,7 @@ import { getPlayerDamageStats, getBlockDamage, formatDamage } from "./damage.js"
 import { createWorkbenchState, CRAFTING_TABLE_COST, RECIPES, unlockCraftingTable, craftRecipe } from "./workbench.js";
 import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
+import { renderEquipmentSlots, renderAbilityLog } from "./equipment-ui.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -34,7 +35,7 @@ const elements = {
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
   detailDuplicate: document.querySelector("#detail-duplicate-button"),
-  detailEquip: document.querySelector("#detail-equip-button"), playerEquipment: document.querySelector("#player-equipment"),
+  detailEquip: document.querySelector("#detail-equip-button"), playerEquipment: document.querySelector("#player-equipment"), abilityLog: document.querySelector("#ability-log"),
   playerBaseDamage: document.querySelector("#player-base-damage"), playerBlockDamage: document.querySelector("#player-block-damage"), playerMobDamage: document.querySelector("#player-mob-damage"),
   currencyCount: document.querySelector("#ic-balance"),
   duplicateOverlay: document.querySelector("#duplicate-confirm-overlay"),
@@ -301,17 +302,14 @@ function updateDetailEquipButton(id) {
   elements.detailEquip.textContent = slot ? ((equipmentState[slot] || []).includes(id) ? "Unequip" : "Equip") + " " + slot[0].toUpperCase() + slot.slice(1) : "Equip";
 }
 function renderGear() {
-  const slotCard = (type, index) => {
-    const locked = (type === "tool" || type === "sword") && index > 0;
-    const item = getEquippedItem(equipmentState[type][index], inventoryItems);
-    const label = type[0].toUpperCase() + type.slice(1);
-    return '<article class="equipment-slot-card equipment-' + type + (locked ? ' is-locked' : '') + '" data-equipment-slot="' + type + '" data-slot-index="' + index + '">' +
-      '<div class="equipment-slot-heading"><h4>' + label + ' ' + (index + 1) + '</h4><span>' + (locked ? 'Locked' : item ? 'Equipped' : 'Empty') + '</span></div>' +
-      (locked ? '<p class="equipment-slot-empty">Locked</p>' : item ? '<div class="equipment-slot-item"><img src="' + item.image + '" alt=""><div><strong>' + item.name + '</strong><small>' + label + '</small></div><button type="button" data-unequip-slot="' + type + '" data-slot-index="' + index + '">Unequip</button></div>' : '<p class="equipment-slot-empty">Drop ' + label + ' here</p>') +
-      '</article>';
-  };
-  elements.playerEquipment.innerHTML = ["tool", "sword", "artifact"].map(type => '<section class="equipment-group equipment-group-' + type + '"><h4>' + type.toUpperCase() + '</h4><div class="equipment-slot-grid">' + Array.from({length: type === "artifact" ? 6 : 3}, (_, index) => slotCard(type, index)).join("") + '</div></section>').join("");
-  elements.playerEquipment.querySelectorAll("[data-unequip-slot]").forEach(button => button.addEventListener("click", () => handleEquipItem(equipmentState[button.dataset.unequipSlot][Number(button.dataset.slotIndex)], Number(button.dataset.slotIndex))));
+  elements.playerEquipment.innerHTML = renderEquipmentSlots(equipmentState, inventoryItems);
+  elements.abilityLog.innerHTML = renderAbilityLog(equipmentState, inventoryItems);
+  elements.playerEquipment.querySelectorAll("[data-unequip-slot]").forEach(button => {
+    button.addEventListener("click", () => handleEquipItem(
+      equipmentState[button.dataset.unequipSlot][Number(button.dataset.slotIndex)],
+      Number(button.dataset.slotIndex)
+    ));
+  });
 }
 
 function renderMap() {
