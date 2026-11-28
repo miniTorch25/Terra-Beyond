@@ -573,3 +573,20 @@ body[data-biome="cave"] .world-item-timer,body[data-biome="cave"] .world-item-st
 .biome-spawn-chances ul { display: grid; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
 .biome-spawn-chances li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 0.82rem; }
 .biome-spawn-chances li strong { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+
+
+/* Map biome buttons keep their own biome palette regardless of the active world theme. */
+body[data-biome] .biome-visit-button[data-biome-color="plains"] { border-color:#78965f; background:#354e35; color:#e3f2d6; }
+body[data-biome] .biome-visit-button[data-biome-color="plains"].is-current { border-color:#4d7254; background:#253d2b; color:#a8d5a3; }
+body[data-biome] .biome-visit-button[data-biome-color="plains"].is-locked { border-color:#4a594b; background:#242f26; color:#91a08e; }
+body[data-biome] .biome-visit-button[data-biome-color="tundra"] { border-color:#8ab0c2; background:#3d6579; color:#f0f9fc; }
+body[data-biome] .biome-visit-button[data-biome-color="tundra"].is-current { border-color:#7097aa; background:#29495c; color:#c4e6f3; }
+body[data-biome] .biome-visit-button[data-biome-color="tundra"].is-locked { border-color:#4c6574; background:#263945; color:#9eb4bf; }
+body[data-biome] .biome-visit-button[data-biome-color="cave"] { border-color:#a9a9a9; background:#5e5e5e; color:#f7f7f7; }
+body[data-biome] .biome-visit-button[data-biome-color="cave"].is-current { border-color:#909090; background:#444444; color:#e0e0e0; }
+body[data-biome] .biome-visit-button[data-biome-color="cave"].is-locked { border-color:#616161; background:#363636; color:#b0b0b0; }
+
+/* The five bottom navigation tabs use a fixed dark-gray palette in every biome. */
+body[data-biome] .bottom-menu { border-color:#626262; background:#252525f2; }
+body[data-biome] .menu-button { color:#bdbdbd; }
+body[data-biome] .menu-button.is-selected { background:#414141; color:#f2f2f2; }
