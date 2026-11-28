@@ -22,7 +22,7 @@ test("Tundra contains Sapphire with its other biome items and tools", () => {
   assert.deepEqual(TUNDRA_INVENTORY.item.Natural.map(({ id }) => id), ["sweet_berry", "snowball", "spruce_wood", "ice_shard", "sapphire"]);
   assert.deepEqual(TUNDRA_INVENTORY.tool.Crafted.map(({ id }) => id), ["ice_pick", "sapphire_pick"]);
   assert.deepEqual(TUNDRA_INVENTORY.sword.Crafted.map(({ id }) => id), ["sapphire_dagger"]);
-  assert.ok([...TUNDRA_INVENTORY.item.Natural, ...TUNDRA_INVENTORY.tool.Natural]
+  assert.ok([...TUNDRA_INVENTORY.item.Natural, ...TUNDRA_INVENTORY.tool.Crafted, ...TUNDRA_INVENTORY.sword.Crafted]
     .every((entry) => entry.count === 0 && entry.image.includes("/tundra/")));
   assert.equal(TUNDRA_INVENTORY.item.Natural.at(-1).image, "./sprites/item/tundra/sapphire.png");
 });
