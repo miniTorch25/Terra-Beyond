@@ -71,3 +71,6 @@ test("liquid detail metadata uses Liquid tag and omits block origin", () => {
   assert.equal(water.biome, "Plains");
   assert.equal(water.origin, null);
 });
+
+
+test("Sharp Stone appears as a unique crafted Plains tool",()=>{const x=PLAINS_INVENTORY.tool.Crafted.find(i=>i.id==="sharp_stone");assert.ok(x);assert.equal(x.name,"Sharp Stone");assert.equal(x.image,"./sprites/tool/plains/sharp_stone.png");assert.equal(x.unique,true);assert.equal(getItemDetails("sharp_stone","Crafted").tag,"Crafted")});
