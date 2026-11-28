@@ -2,6 +2,7 @@ import { BLOCKS_BY_BIOME } from "./game.js";
 import { BIOMES } from "./biomes.js";
 import { EQUIPMENT_SLOT_COUNTS, createEquipmentState, getEquipmentSlot, isEquipmentSlotUnlocked } from "./equipment.js";
 import { RECIPES, createWorkbenchState } from "./workbench.js";
+import { STARTING_IC } from "./economy.js";
 
 export const GAME_SAVE_VERSION = 1;
 export const GAME_SAVE_STORAGE_KEY = "terra-beyond-game-save";
@@ -164,7 +165,7 @@ export function loadGameProgress(storage, inventoryItems, now = Date.now()) {
     currentBiomeId,
     unlockedBiomeIds,
     inventoryState,
-    catalystBalance: validCount(saved.catalystBalance) ? saved.catalystBalance : 0,
+    catalystBalance: validCount(saved.catalystBalance) ? saved.catalystBalance : STARTING_IC,
     workbenchState,
     equipmentState,
     savedAt: Number.isFinite(saved.savedAt) ? saved.savedAt : null,
