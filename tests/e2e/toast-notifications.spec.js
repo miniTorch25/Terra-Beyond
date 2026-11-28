@@ -30,3 +30,16 @@ test("warning notifications are capped at three and expire after five seconds", 
   await page.clock.fastForward(5000);
   await expect(notices).toHaveCount(0);
 });
+
+
+test("locked biome attempts show a red insufficient-cost notification", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#map-open").click();
+  const unlock = page.locator('[data-biome-visit="tundra"]');
+  await expect(unlock).toBeEnabled();
+  await unlock.click();
+  const notice = page.locator("#toast-notifications .toast-notice").last();
+  await expect(notice).toContainText("Not enough Emerald");
+  await expect(notice).toContainText("75");
+  await expect(notice).toHaveClass(/toast-notice--danger/);
+});
