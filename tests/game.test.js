@@ -74,7 +74,7 @@ test("breaking Grass drops one Grass inventory item", () => {
 });
 
 test("every non-Grass block has a matching resource drop", () => {
-  const expected = { oak_log: "wood_scrap", cobblestone: "cobble_rock", emerald_ore: "emerald", berry_bush: "sweet_berry", snow: "snowball", ice_block: "ice_shard", spruce_log: "spruce_wood", sapphire_ore: "sapphire" };
+  const expected = { oak_log: "wood_scrap", cobblestone: "cobble_rock", emerald_ore: "emerald", berry_bush: "sweet_berry", snow: "snowball", ice_block: "ice_shard", spruce_log: "spruce_wood", sapphire_ore: "sapphire", stone_block: "stone_item", coal_ore: "coal", copper_ore: "raw_copper", iron_ore: "raw_iron", lead_ore: "raw_lead" };
   for (const blocks of Object.values(BLOCKS_BY_BIOME)) for (const block of blocks) {
     if (block.id === "grass") continue;
     assert.deepEqual(getBlockDrops(block).map(({ itemId }) => itemId), [expected[block.id]]);
