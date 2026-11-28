@@ -51,3 +51,10 @@ test("equipping same item toggles off only its own slot", () => {
   assert.deepEqual(state.sword, ["stone_dagger", null, null]);
 });
 test("natural resources cannot be equipped", () => assert.equal(equipItem(createEquipmentState(), "wood_scrap", owned("wood_scrap"), INVENTORY_ITEMS).reason, "not-equippable"));
+
+test("the same item cannot occupy multiple slots in one equipment category", () => {
+  const inventory = owned("sharp_stone");
+  const equipped = equipItem(createEquipmentState(), "sharp_stone", inventory, INVENTORY_ITEMS);
+  assert.equal(equipItem(equipped.equipmentState, "sharp_stone", inventory, INVENTORY_ITEMS, 0).success, true);
+  assert.equal(equipItem(equipped.equipmentState, "sharp_stone", inventory, INVENTORY_ITEMS, 1).reason, "locked-slot");
+});
