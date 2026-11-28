@@ -6,7 +6,7 @@ const item = (id, name, biome) => Object.freeze({ id, name, image: `./sprites/it
 const tool = (id, name, biome) => Object.freeze({ id, name, image: `./sprites/tool/${biome}/${id}.png`, count: 0, unique: true });
 const sword = (id, name, biome) => Object.freeze({ id, name, image: `./sprites/sword/${biome}/${id}.png`, count: 0, unique: true });
 const sections = (natural = [], crafted = []) => Object.freeze({ Natural: Object.freeze(natural), Crafted: Object.freeze(crafted) });
-const craftedOnly = (crafted = []) => Object.freeze({ Crafted: Object.freeze(crafted) });
+const craftedOnly = (crafted = []) => Object.freeze({ Crafted: Object.freeze(crafted.map((entry) => Object.freeze({ ...entry, unique: true }))) });
 export const PLAINS_INVENTORY = Object.freeze({
   item: sections([item("item_grass","Grass","plains"),item("wood_scrap","Wood Scrap","plains"),item("cobble_rock","Cobble Rock","plains"),item("emerald","Emerald","plains")]),
   tool: craftedOnly([tool("oak_pick","Oak Pick","plains"),tool("rock_pick","Rock Pick","plains"),tool("emerald_pick","Emerald Pick","plains")]),
