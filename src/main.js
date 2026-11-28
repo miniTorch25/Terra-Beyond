@@ -5,6 +5,7 @@ import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
 import { getPlayerDamageStats, getBlockDamage, formatDamage } from "./damage.js";
 import { createWorkbenchState, CRAFTING_TABLE_COST, RECIPES, unlockCraftingTable, craftRecipe } from "./workbench.js";
+import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
 
 const elements = {
@@ -273,7 +274,7 @@ elements.workbenchRecipes.innerHTML=recipes.map(recipe=>{
 const owned=getInventoryCount(inventoryState,recipe.itemId),hasMaterials=Object.entries(recipe.materials).every(([id,n])=>getInventoryCount(inventoryState,id)>=n),hasRequirements=Object.entries(recipe.requirements).every(([id,n])=>getInventoryCount(inventoryState,id)>=n),can=hasMaterials&&hasRequirements&&(!recipe.unique||owned<1);
 const materials=Object.entries(recipe.materials).map(([id,n])=>icon(id,n)).join("")||'<span class="recipe-none">None</span>';const requirements=Object.entries(recipe.requirements).map(([id,n])=>icon(id,n)).join("")||'<span class="recipe-none">None</span>';
 const status=owned?"Already crafted":!hasRequirements?"Missing requirements":!hasMaterials?"Missing materials":"Ready to craft";
-const firstMaterial=Object.keys(recipe.materials)[0],firstRequirement=Object.keys(recipe.requirements)[0];const matIcon=inventoryItems.find(x=>x.id===firstMaterial)?.image||recipe.image,reqIcon=inventoryItems.find(x=>x.id===firstRequirement)?.image||recipe.image;return '<button type="button" class="recipe-card" data-recipe="'+recipe.id+'"'+(can?'':' disabled')+' aria-label="Craft '+recipe.name+'. '+status+'"><span class="recipe-line recipe-title-line"><img class="recipe-line-icon" src="'+recipe.image+'" alt=""><strong>'+recipe.name+'</strong><small>'+(can?"Ready":status)+'</small></span><span class="recipe-line"><img class="recipe-line-icon" src="'+matIcon+'" alt=""><b>Mat:</b><span class="recipe-ingredients">'+materials+'</span></span><span class="recipe-line"><img class="recipe-line-icon" src="'+reqIcon+'" alt=""><b>Req:</b><span class="recipe-ingredients">'+requirements+'</span></span><span class="recipe-line recipe-flavor"><img class="recipe-line-icon" src="'+recipe.image+'" alt=""><span>'+recipe.flavorText+'</span></span></button>';
+return renderRecipeCard(recipe,inventoryItems,{can,status,materials,requirements});
 }).join("");
 }
 function handleWorkbenchStation(id){if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";}
