@@ -80,3 +80,5 @@ test("every non-Grass block has a matching resource drop", () => {
     assert.deepEqual(getBlockDrops(block).map(({ itemId }) => itemId), [expected[block.id]]);
   }
 });
+
+test("Emerald Pick grants one bonus Emerald when Emerald Ore breaks",()=>{const ore=BLOCKS.find(block=>block.id==="emerald_ore");const r=mineBlock({block:ore,hp:1},1,()=>0,"plains","emerald_pick");assert.deepEqual(r.drops,[{itemId:"emerald",amount:2}])});test("fractional mining damage preserves decimal HP",()=>{const r=mineBlock({block:BLOCKS[0],hp:5},1.5,()=>0.99);assert.equal(r.broken,false);assert.equal(r.state.hp,3.5)});
