@@ -958,3 +958,46 @@ body[data-biome] .navigation-panel[data-nav-panel="more"] .panel-placeholder {
 }
 
 /* Gear retains its established Tidewater Green palette. */
+
+
+/* Gear follows the Tidewater Green equipment UI; Map follows the player's current biome. */
+body[data-biome] .menu-button[data-nav-target="gear"] {
+  border: 1px solid #709c92;
+  background: #315b55;
+  color: #effaf6;
+}
+body[data-biome] .menu-button[data-nav-target="gear"].is-selected {
+  border-color: #a9d2c6;
+  background: #3f7169;
+  color: #fff;
+}
+body[data-biome="plains"] .menu-button[data-nav-target="map"] {
+  border: 1px solid #78965f;
+  background: #354e35;
+  color: #e3f2d6;
+}
+body[data-biome="plains"] .menu-button[data-nav-target="map"].is-selected {
+  border-color: #a3c47c;
+  background: #253d2b;
+  color: #fff;
+}
+body[data-biome="tundra"] .menu-button[data-nav-target="map"] {
+  border: 1px solid #8ab0c2;
+  background: #3d6579;
+  color: #f0f9fc;
+}
+body[data-biome="tundra"] .menu-button[data-nav-target="map"].is-selected {
+  border-color: #b1d2df;
+  background: #29495c;
+  color: #fff;
+}
+body[data-biome="cave"] .menu-button[data-nav-target="map"] {
+  border: 1px solid #a9a9a9;
+  background: #5e5e5e;
+  color: #f7f7f7;
+}
+body[data-biome="cave"] .menu-button[data-nav-target="map"].is-selected {
+  border-color: #d0d0d0;
+  background: #444;
+  color: #fff;
+}
