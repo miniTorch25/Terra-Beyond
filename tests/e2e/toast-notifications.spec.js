@@ -43,3 +43,36 @@ test("locked biome attempts show a red insufficient-cost notification", async ({
   await expect(notice).toContainText("75");
   await expect(notice).toHaveClass(/toast-notice--danger/);
 });
+
+
+test("crafting an unavailable recipe shows yellow resource advice", async ({ page }) => {
+  await page.addInitScript(() => {
+    const rolls = [50, 50, 50, 50, 50, 80, 80, 0];
+    Math.random = () => rolls.length ? rolls.shift() / 100 : 0;
+  });
+  await page.goto("/");
+  const mine = page.locator("#mine-button");
+  for (let i = 0; i < 55; i += 1) await mine.click();
+  await page.locator("#craft-open").click();
+  await page.locator('[data-station="crafting_table"]').click();
+  const recipe = page.locator('[data-recipe="sharp_stone"]');
+  await expect(recipe).toHaveAttribute("aria-disabled", "true");
+  await recipe.click();
+  const notice = page.locator("#toast-notifications .toast-notice").last();
+  await expect(notice).toHaveText("Gather the required resources before crafting this item.");
+  await expect(notice).toHaveClass(/toast-notice--warning/);
+});
+
+test("attempting to drop more than 32 world items shows a yellow capacity warning", async ({ page }) => {
+  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.goto("/");
+  const mine = page.locator("#mine-button");
+  for (let i = 0; i < 165; i += 1) await mine.click();
+  await page.locator("#inventory-open").click();
+  const grass = page.locator('.inventory-slot[data-item-id="item_grass"] .inventory-item-button');
+  for (let i = 0; i < 33; i += 1) await grass.click();
+  await expect(page.locator(".world-item")).toHaveCount(32);
+  const notice = page.locator("#toast-notifications .toast-notice").last();
+  await expect(notice).toHaveText("The ground is full. Pick up dropped items before dropping more.");
+  await expect(notice).toHaveClass(/toast-notice--warning/);
+});
