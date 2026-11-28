@@ -63,6 +63,7 @@ test("inventory count formatter uses integer compact suffixes", () => {
 test("Origin is shown for natural resources but omitted from crafted equipment", () => {
   assert.equal(getItemDetails("item_grass").tag, "Natural");
   assert.equal(getItemDetails("item_grass").origin.image, "./sprites/block/plains/grass.png");
+  assert.equal(getItemDetails("item_grass").origin.spawnChance, 40);
   assert.equal(getItemDetails("stone_dagger", "Crafted").tag, "Crafted");
   assert.equal(getItemDetails("stone_dagger", "Crafted").origin, null);
 });
@@ -104,3 +105,6 @@ test("Cave raw resources show Natural origin and bars show Crafted tag",()=>{
 
 
 test("Tundra picks carry their damage and Ice Pick special ability metadata",()=>{const ice=getItemDetails("ice_pick","Crafted"),sapphire=getItemDetails("sapphire_pick","Crafted");assert.deepEqual(ice.abilities,["Instantly breaks Ice Block in one click, regardless of its HP"]);assert.equal(ice.description,"A cold-forged pick that instantly shatters Ice Blocks in one click, regardless of their HP.");assert.equal(sapphire.description,"A powerful pick fitted with a sapphire head, delivering +7 Block Dmg.");});
+
+test("Inventory resource origins include the matching block spawn chance",()=>{assert.equal(getItemDetails("emerald").origin.spawnChance,5);assert.equal(getItemDetails("sweet_berry").origin.spawnChance,40);assert.equal(getItemDetails("sapphire").origin.spawnChance,5);assert.equal(getItemDetails("raw_iron").origin.spawnChance,12);});
+test("liquid items are assigned to their source biome for visibility filtering",()=>{assert.equal(LIQUID_INVENTORY.find(x=>x.id==="water").biomeId,"plains");assert.equal(LIQUID_INVENTORY.find(x=>x.id==="cold_water").biomeId,"tundra");});
