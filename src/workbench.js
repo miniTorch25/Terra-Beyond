@@ -9,7 +9,7 @@ const tools = [
 ].map(freezeRecipe);
 export const RECIPES=Object.freeze({item:Object.freeze([]),tool:Object.freeze(tools),artifact:Object.freeze([])});
 export function getVisibleRecipes(category,unlockedBiomeIds,workbenchState){const unlocked=unlockedBiomeIds instanceof Set?unlockedBiomeIds:new Set(unlockedBiomeIds||[]);return (RECIPES[category]||[]).filter(recipe=>unlocked.has(recipe.biomeId||"plains")&&!(category==="tool"&&workbenchState.craftedRecipes?.has(recipe.id)));}
-export function getUncraftedToolRecipes(workbenchState,unlockedBiomeIds=new Set(["plains"])){return getVisibleRecipes("tool",unlockedBiomeIds,workbenchState);}
+export function getUncraftedToolRecipes(workbenchState,unlockedBiomeIds=new Set(["plains","tundra","cave"])){return getVisibleRecipes("tool",unlockedBiomeIds,workbenchState);}
 export const CRAFTING_TABLE_COST=Object.freeze({wood_scrap:10,cobble_rock:2});
 export const FURNACE_COST=Object.freeze({stone_item:10,coal:1});
 export function createWorkbenchState(){return{unlockedStations:new Set(),craftedRecipes:new Set()};}
