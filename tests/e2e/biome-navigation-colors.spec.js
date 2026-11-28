@@ -295,11 +295,19 @@ test("Navigation panels stay above the bottom shortcut bar on mobile screens", a
 
 test("Half-screen navigation panels leave the bottom shortcut bar unobstructed", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.addInitScript(() => localStorage.clear());
+  await page.addInitScript(() => {
+    localStorage.clear();
+    localStorage.setItem("terra-beyond-inventory-half-screen", "false");
+    localStorage.setItem("terra-beyond-panel-layouts", JSON.stringify({
+      inventory: { half: false, position: "bottom" },
+    }));
+  });
   await page.goto("/");
   await page.locator("body").evaluate((body) => { body.dataset.biome = "plains"; });
   await page.locator("#inventory-open").click();
   await page.locator('[data-ui-half="inventory"]').click();
+  await expect(page.locator("#inventory-panel")).toHaveClass(/is-half/);
+  await expect(page.locator("#inventory-panel")).toHaveClass(/is-bottom/);
 
   const geometry = await page.locator("#inventory-panel").evaluate((panel) => ({
     top: panel.getBoundingClientRect().top,
