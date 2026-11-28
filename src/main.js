@@ -206,6 +206,7 @@ function render() {
   const currentBiome = getBiomeById(currentBiomeId);
   elements.currentBiomeLabel.textContent = (currentBiome?.name || "Unknown").toUpperCase() + " BIOME";
   renderDamageStats();
+  if (activePanels.has("craft")) renderWorkbench();
 }
 
 function renderInventory() {
