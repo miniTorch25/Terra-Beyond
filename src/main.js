@@ -21,7 +21,6 @@ const elements = {
   inventory: document.querySelector("#inventory-panel"),
   inventoryButton: document.querySelector("#inventory-open"),
   inventoryClose: document.querySelector("#inventory-close"),
-  inventoryCollapse: document.querySelector("#inventory-collapse"),
   worldItems: document.querySelector("#world-items"),
   inventoryContent: document.querySelector("#inventory-content"),
   inventoryTabs: [...document.querySelectorAll(".inventory-tab")],
@@ -282,7 +281,7 @@ function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState
 function handleEquipItem(id, slotIndex = 0) {
   const result = equipItem(equipmentState, id, inventoryState, inventoryItems, slotIndex);
   if (!result.success) {
-    elements.helper.textContent = result.reason === "not-owned" ? "You must own this item before equipping it." : result.reason === "locked-slot" ? "This equipment slot is locked." : "This item cannot be equipped.";
+    elements.helper.textContent = result.reason === "not-owned" ? "You must own this item before equipping it." : result.reason === "locked-slot" ? "This equipment slot is locked." : result.reason === "already-equipped" ? "This item is already equipped in another slot." : "This item cannot be equipped.";
     return;
   }
   equipmentState = result.equipmentState;
