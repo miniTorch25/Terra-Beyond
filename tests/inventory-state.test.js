@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "../src/inventory-state.js";
+import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, mergeDetachedItems, isInventoryDropTarget, WORLD_ITEM_LIMIT } from "../src/inventory-state.js";
 
 test("taking an item decreases its inventory count and creates a 90-second world item", () => {
   const initial = createInventoryState([{ id: "emerald", count: 3 }]);
@@ -18,12 +18,13 @@ test("the world item can be returned and restores its own item type", () => {
   assert.equal(state.detached.length, 0);
 });
 
-test("up to ten detached items can exist at once", () => {
-  let state = createInventoryState([{ id: "stone", count: 12 }]);
-  for (let i = 0; i < 10; i++) state = takeInventoryItem(state, "stone").state;
+test("up to 32 detached world items can exist at once", () => {
+  let state = createInventoryState([{ id: "stone", count: 40 }]);
+  for (let i = 0; i < 32; i++) state = takeInventoryItem(state, "stone").state;
   const blocked = takeInventoryItem(state, "stone");
   assert.equal(blocked.detachedItem, null);
-  assert.equal(blocked.state.detached.length, 10);
+  assert.equal(blocked.state.detached.length, 32);
+  assert.equal(WORLD_ITEM_LIMIT, 32);
 });
 
 test("items cannot be taken when inventory count is empty", () => {
@@ -80,4 +81,42 @@ test("unique tools and swords cannot be acquired more than once", () => {
   const first = addInventoryItem(state, "stone_dagger");
   const duplicate = addInventoryItem(first, "stone_dagger");
   assert.equal(getInventoryCount(duplicate, "stone_dagger"), 1);
+});
+
+test("matching detached items merge into one stack and reset its expiry", () => {
+ let state=createInventoryState([{id:"stone",count:3}]);
+ const a=takeInventoryItem(state,"stone",1000); state=a.state;
+ const b=takeInventoryItem(state,"stone",2000); state=b.state;
+ const merged=mergeDetachedItems(state,a.detachedItem.instanceId,b.detachedItem.instanceId,2500);
+ assert.equal(merged.state.detached.length,1);
+ assert.equal(merged.mergedItem.stackCount,2);
+ assert.equal(merged.mergedItem.expiresAt,92500);
+});
+test("different item types cannot be merged", () => {
+ let state=createInventoryState([{id:"stone",count:1},{id:"berry",count:1}]);
+ const a=takeInventoryItem(state,"stone",0); state=a.state;
+ const b=takeInventoryItem(state,"berry",0); state=b.state;
+ const merged=mergeDetachedItems(state,a.detachedItem.instanceId,b.detachedItem.instanceId,100);
+ assert.equal(merged.mergedItem,null);
+ assert.equal(merged.state.detached.length,2);
+});
+test("returning a stack restores its full quantity", () => {
+ let state=createInventoryState([{id:"stone",count:2}]);
+ const a=takeInventoryItem(state,"stone",0); state=a.state;
+ const b=takeInventoryItem(state,"stone",100); state=b.state;
+ state=mergeDetachedItems(state,a.detachedItem.instanceId,b.detachedItem.instanceId,100).state;
+ state=returnInventoryItem(state,a.detachedItem.instanceId);
+ assert.equal(getInventoryCount(state,"stone"),2);
+ assert.equal(state.detached.length,0);
+});
+test("a stack loses one item after 90 seconds and restarts its timer", () => {
+ let state=createInventoryState([{id:"stone",count:2}]);
+ const a=takeInventoryItem(state,"stone",1000); state=a.state;
+ const b=takeInventoryItem(state,"stone",1000); state=b.state;
+ state=mergeDetachedItems(state,a.detachedItem.instanceId,b.detachedItem.instanceId,1000).state;
+ state=expireInventoryItem(state,a.detachedItem.instanceId,91000);
+ assert.equal(state.detached[0].stackCount,1);
+ assert.equal(state.detached[0].expiresAt,181000);
+ state=expireInventoryItem(state,a.detachedItem.instanceId,181000);
+ assert.equal(state.detached.length,0);
 });

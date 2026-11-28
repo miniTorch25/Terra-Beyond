@@ -1,6 +1,6 @@
 import { createInitialState, mineBlock } from "./game.js?v=20261128-3x-biome-hp";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, CAVE_INVENTORY, LIQUID_INVENTORY, INVENTORY_ITEMS, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
-import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
+import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, mergeDetachedItems, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
 import { getPlayerDamageStats, getBlockDamage, formatDamage, getNonZeroDamageStats } from "./damage.js";
@@ -115,33 +115,42 @@ function swapPanelHalf(panelName) {
   applyPanelLayout(panelName);
 }
 
+function updateWorldItemBadges(node, entry) {
+  const timer = node.querySelector(".world-item-timer");
+  const stack = node.querySelector(".world-item-stack");
+  if (timer) timer.textContent = Math.max(0, Math.ceil((entry.expiresAt - Date.now()) / 1000)) + "s";
+  if (stack) { stack.textContent = "x" + entry.stackCount; stack.hidden = entry.stackCount <= 1; }
+  else if (entry.stackCount > 1) {
+    const badge = document.createElement("span"); badge.className = "world-item-stack"; badge.textContent = "x" + entry.stackCount; node.append(badge);
+  }
+  node.setAttribute("aria-label", entry.stackCount + " " + (inventoryItems.find(item => item.id === entry.itemId)?.name || entry.itemId) + ", expires in " + Math.max(0, Math.ceil((entry.expiresAt - Date.now()) / 1000)) + " seconds");
+}
 function renderWorldItem(entry, x, y) {
   const data = inventoryItems.find((item) => item.id === entry.itemId);
   if (!data) return null;
   const node = document.createElement("button");
-  node.type = "button";
-  node.className = "world-item";
-  node.dataset.worldItemId = String(entry.instanceId);
-  node.setAttribute("aria-label", "Move " + data.name + " or drag it back into Inventory");
-  const image = document.createElement("img");
-  image.src = data.image;
-  image.alt = data.name;
-  node.append(image);
-  node.style.left = x + "px";
-  node.style.top = y + "px";
+  node.type = "button"; node.className = "world-item"; node.dataset.worldItemId = String(entry.instanceId);
+  const image = document.createElement("img"); image.src = data.image; image.alt = data.name; node.append(image);
+  const timer = document.createElement("span"); timer.className = "world-item-timer"; node.append(timer);
+  if ((entry.stackCount ?? 1) > 1) { const stack = document.createElement("span"); stack.className = "world-item-stack"; node.append(stack); }
+  node.style.left = x + "px"; node.style.top = y + "px";
+  updateWorldItemBadges(node, {...entry, stackCount:entry.stackCount??1});
   node.addEventListener("pointerdown", (event) => {
-    event.preventDefault();
-    activeWorldDrag = { instanceId: entry.instanceId, node, pointerId: event.pointerId };
-    node.classList.add("is-dragging");
+    event.preventDefault(); activeWorldDrag = { instanceId: entry.instanceId, node, pointerId: event.pointerId }; node.classList.add("is-dragging");
   });
-  elements.worldItems.append(node);
-  const remaining = Math.max(0, entry.expiresAt - Date.now());
-  window.setTimeout(() => {
-    inventoryState = expireInventoryItem(inventoryState, entry.instanceId);
-    node.remove();
-  }, remaining);
-  return node;
+  elements.worldItems.append(node); return node;
 }
+function updateWorldItemTimers() {
+  const now = Date.now();
+  for (const entry of [...inventoryState.detached]) {
+    if (entry.expiresAt <= now) inventoryState = expireInventoryItem(inventoryState, entry.instanceId, now);
+    const current = inventoryState.detached.find(item => item.instanceId === entry.instanceId);
+    const node = elements.worldItems.querySelector('[data-world-item-id="' + entry.instanceId + '"]');
+    if (!current) node?.remove();
+    else if (node) updateWorldItemBadges(node, current);
+  }
+}
+window.setInterval(updateWorldItemTimers, 250);
 
 function renderInventoryCounts() {
   elements.inventoryContent.querySelectorAll(".inventory-slot").forEach((slot) => {
@@ -556,20 +565,26 @@ function finishEquipmentDrag(event, cancelled = false) {
 
 function finishWorldDrag(event, cancelled = false) {
   if (!activeWorldDrag || (event && activeWorldDrag.pointerId !== event.pointerId)) return;
-  const drag = activeWorldDrag;
-  activeWorldDrag = null;
-  drag.node.classList.remove("is-dragging");
+  const drag = activeWorldDrag; activeWorldDrag = null; drag.node.classList.remove("is-dragging");
   if (cancelled || !event) return;
   drag.node.style.pointerEvents = "none";
   const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
   const inventorySlot = dropTarget?.closest?.(".inventory-slot");
   const inventoryButton = dropTarget?.closest?.("#inventory-open");
+  const worldTarget = dropTarget?.closest?.(".world-item");
   drag.node.style.pointerEvents = "auto";
-  if (isInventoryDropTarget({
-    overSlot: Boolean(inventorySlot),
-    inventoryOpen: !elements.inventory.hidden,
-    overInventoryButton: Boolean(inventoryButton),
-  })) returnWorldItem(drag.instanceId, drag.node);
+  if (worldTarget && worldTarget !== drag.node) {
+    const targetId = Number(worldTarget.dataset.worldItemId);
+    const merged = mergeDetachedItems(inventoryState, targetId, drag.instanceId);
+    if (merged.mergedItem) {
+      inventoryState = merged.state; drag.node.remove();
+      updateWorldItemBadges(worldTarget, merged.mergedItem);
+      return;
+    }
+  }
+  if (isInventoryDropTarget({overSlot:Boolean(inventorySlot),inventoryOpen:!elements.inventory.hidden,overInventoryButton:Boolean(inventoryButton)})) {
+    returnWorldItem(drag.instanceId, drag.node);
+  }
 }
 
 elements.inventoryContent.addEventListener("pointerdown", event => {
