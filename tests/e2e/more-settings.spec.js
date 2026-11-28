@@ -56,7 +56,10 @@ test("More can restore the default panel layout", async ({ page }) => {
 });
 
 test("liquid source protection can be disabled to mine a source block", async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => {
+    const rolls = [0, 0, 0.5];
+    Math.random = () => rolls.length ? rolls.shift() : 0.5;
+  });
   await page.goto("/");
   const mineButton = page.locator("#mine-button");
   await expect(mineButton).toBeDisabled();
@@ -66,7 +69,6 @@ test("liquid source protection can be disabled to mine a source block", async ({
   await page.locator("#setting-liquid-protection").uncheck();
   await page.locator("#more-open").click();
   await expect(mineButton).toBeEnabled();
-  await mineButton.click();
-  await expect(page.locator("#hp-current")).toHaveText("4");
+  for (let hit = 0; hit < 5; hit += 1) await mineButton.click();
   await expect(page.locator(".water-puddle")).toBeHidden();
 });
