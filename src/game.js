@@ -52,7 +52,7 @@ export function createInitialState(random = Math.random, biomeId = "plains") {
   return { block, hp: block.maxHp };
 }
 
-export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, biomeId = "plains") {
+export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, biomeId = "plains", equippedToolId = null) {
   if (!state || !state.block || !Number.isFinite(state.hp)) {
     throw new TypeError("A valid mining state is required.");
   }
@@ -66,5 +66,7 @@ export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, b
   }
 
   const nextBlock = randomBlock(random, biomeId);
-  return { state: { block: nextBlock, hp: nextBlock.maxHp }, broken: true, drops: getBlockDrops(state.block) };
+  const drops = getBlockDrops(state.block);
+  if (equippedToolId === "emerald_pick" && state.block.id === "emerald_ore") { const emerald=drops.find(drop=>drop.itemId==="emerald"); if(emerald)emerald.amount+=1; else drops.push({itemId:"emerald",amount:1}); }
+  return { state: { block: nextBlock, hp: nextBlock.maxHp }, broken: true, drops };
 }

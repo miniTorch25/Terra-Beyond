@@ -1,8 +1,10 @@
-import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
+import { createInitialState, mineBlock } from "./game.js";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, INVENTORY_ITEMS, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
 import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
+import { getPlayerDamageStats, getBlockDamage, formatDamage } from "./damage.js";
+import { createWorkbenchState, CRAFTING_TABLE_COST, RECIPES, unlockCraftingTable, craftRecipe } from "./workbench.js";
 
 const elements = {
   button: document.querySelector("#mine-button"),
@@ -42,6 +44,7 @@ const elements = {
   biomeList: document.querySelector("#biome-list"),
   navButtons: [...document.querySelectorAll(".menu-button[data-nav-target]")],
   navPanels: [...document.querySelectorAll(".navigation-panel")],
+  baseDamage:document.querySelector("#base-damage"),blockDamage:document.querySelector("#block-damage"),mobDamage:document.querySelector("#mob-damage"),workbenchStations:document.querySelector("#workbench-stations"),craftingTableStatus:document.querySelector("#crafting-table-status"),craftingTableCost:document.querySelector("#crafting-table-cost"),workbenchCrafting:document.querySelector("#workbench-crafting"),workbenchRecipes:document.querySelector("#workbench-recipes"),workbenchTabs:[...document.querySelectorAll(".workbench-tab")],equippedToolLabel:document.querySelector("#equipped-tool-label"),
 };
 
 let state = createInitialState(Math.random, "plains");
@@ -54,6 +57,9 @@ const inventoryItems = INVENTORY_ITEMS;
 let inventoryState = createInventoryState(inventoryItems);
 let catalystBalance = STARTING_IC;
 let pendingDuplicateItemId = null;
+let workbenchState=createWorkbenchState();
+let activeCraftCategory="item";
+let equippedToolId=null;
 const INVENTORY_COMPACT_KEY = "terra-beyond-inventory-half-screen";
 let inventoryCompact = localStorage.getItem(INVENTORY_COMPACT_KEY) === "true";
 let activeWorldDrag = null;
@@ -152,6 +158,7 @@ function render() {
   elements.button.setAttribute("aria-label", "Mine " + block.name + ". " + hp + " of " + block.maxHp + " HP remaining.");
   const currentBiome = getBiomeById(currentBiomeId);
   elements.currentBiomeLabel.textContent = (currentBiome?.name || "Unknown").toUpperCase() + " BIOME";
+  renderDamageStats();
 }
 
 function renderInventory() {
@@ -210,6 +217,11 @@ function renderInventory() {
     '<details class="biome-drawer" open><summary><span>Tundra</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>' +
     '<div class="biome-content">' + renderSections(tundraSections) + '</div></details>' + liquidMarkup;
 }
+
+function renderDamageStats(){const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);}
+function renderWorkbench(){const unlocked=workbenchState.unlockedStations.has("crafting_table"),wood=getInventoryCount(inventoryState,"wood_scrap"),rock=getInventoryCount(inventoryState,"cobble_rock");elements.craftingTableStatus.textContent=unlocked?"Unlocked":"Locked";elements.craftingTableCost.textContent=unlocked?"Ready to use":"10 Wood Scrap ("+wood+") · 2 Cobble Rock ("+rock+")";const station=elements.workbenchStations.querySelector('[data-station="crafting_table"]');station.classList.toggle("is-unlocked",unlocked);station.classList.toggle("can-unlock",!unlocked&&wood>=10&&rock>=2);elements.workbenchCrafting.hidden=!unlocked;elements.equippedToolLabel.textContent=equippedToolId?"Equipped: "+(inventoryItems.find(x=>x.id===equippedToolId)?.name||equippedToolId):"No tool equipped";elements.workbenchTabs.forEach(t=>{const a=t.dataset.craftCategory===activeCraftCategory;t.classList.toggle("is-active",a);t.setAttribute("aria-selected",String(a));});if(!unlocked)return;const recipes=RECIPES[activeCraftCategory]||[];if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">No craftable items in this category yet.</p>';return;}elements.workbenchRecipes.innerHTML=recipes.map(r=>{const owned=getInventoryCount(inventoryState,r.itemId),costs=Object.entries(r.cost).map(([id,n])=>{const item=inventoryItems.find(x=>x.id===id),count=getInventoryCount(inventoryState,id);return '<span class="recipe-cost'+(count<n?' is-missing':'')+'">'+(item?.name||id)+' '+count+'/'+n+'</span>';}).join(""),can=Object.entries(r.cost).every(([id,n])=>getInventoryCount(inventoryState,id)>=n)&&(!r.unique||owned<1),label=r.unique&&owned?"Owned":can?"Craft":"Missing materials";return '<article class="recipe-card"><div class="recipe-icon"><img src="'+r.image+'" alt=""></div><div class="recipe-info"><strong>'+r.name+'</strong><p>'+r.description+'</p><div class="recipe-costs">'+costs+'</div></div><button type="button" class="recipe-craft-button" data-recipe="'+r.id+'"'+(can?'':' disabled')+'>'+label+'</button></article>';}).join("");}
+function handleWorkbenchStation(id){if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";}
+function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;if(r.item.category==="tool")equippedToolId=r.itemId;renderWorkbench();renderInventoryCounts();renderDamageStats();elements.helper.textContent="Crafted "+r.item.name+(equippedToolId===r.itemId?" and equipped it.":".");}
 
 function renderMap() {
   elements.biomeList.innerHTML = BIOMES.map((biome) => {
@@ -330,6 +342,7 @@ function setActivePanel(panelName) {
 
   if (activePanel === "inventory") { applyInventorySize(); renderInventory(); }
   if (activePanel === "map") renderMap();
+  if (activePanel === "craft") renderWorkbench();
 }
 
 function closeActivePanel() {
@@ -347,7 +360,8 @@ function closeActivePanel() {
 }
 
 elements.button.addEventListener("click", () => {
-  const result = mineBlock(state, PLAYER_DAMAGE, Math.random, currentBiomeId);
+  const damage=getBlockDamage(equippedToolId,state.block);
+  const result=mineBlock(state,damage,Math.random,currentBiomeId,equippedToolId);
   state = result.state;
   for (const drop of result.drops) {
     inventoryState = addInventoryItem(inventoryState, drop.itemId, drop.amount);
@@ -359,10 +373,11 @@ elements.button.addEventListener("click", () => {
   }).join(", ");
   elements.helper.textContent = result.broken
     ? (dropMessage ? dropMessage + " · " : "") + result.state.block.name + " appeared. Keep mining!"
-    : "-" + PLAYER_DAMAGE + " HP · " + result.state.hp + " HP remaining";
+    : "-" + formatDamage(damage) + " HP · " + formatDamage(result.state.hp) + " HP remaining";
   render();
 });
 
+elements.workbenchStations.addEventListener("click",e=>{const b=e.target.closest("[data-station]");if(b&&!b.disabled)handleWorkbenchStation(b.dataset.station);});elements.workbenchTabs.forEach(t=>t.addEventListener("click",()=>{activeCraftCategory=t.dataset.craftCategory;renderWorkbench();}));elements.workbenchRecipes.addEventListener("click",e=>{const b=e.target.closest("[data-recipe]");if(b&&!b.disabled)handleCraftRecipe(b.dataset.recipe);});
 elements.navButtons.forEach((button) => {
   button.addEventListener("click", () => setActivePanel(button.dataset.navTarget));
 });

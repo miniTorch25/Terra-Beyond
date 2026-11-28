@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#18251f">
   <title>Terra Beyond — Block Mining Prototype</title>
-  <link rel="stylesheet" href="./styles.css?v=20261128-ic-duplicate">
+  <link rel="stylesheet" href="./styles.css?v=20261128-workbench-damage">
+<link rel="stylesheet" href="./workbench.css?v=20261128-workbench-damage">
 </head>
 <body>
   <aside class="ic-balance" aria-label="Infinity Catalyst balance"><span class="ic-symbol">✧</span><span id="ic-balance">100M</span><small>IC</small></aside>
@@ -51,8 +52,9 @@
     </section>
 
     <section class="rules-panel" aria-label="Mining rules">
-      <div class="rule-item"><span class="rule-icon">✦</span><span>Player damage</span><strong>1</strong></div>
-      <div class="rule-item"><span class="rule-icon">↻</span><span>Block breaks at</span><strong>0 HP</strong></div>
+      <div class="rule-item"><span class="rule-icon">✦</span><span>Base Dmg</span><strong id="base-damage">1</strong></div>
+      <div class="rule-item"><span class="rule-icon">▦</span><span>Block Dmg</span><strong id="block-damage">0</strong></div>
+      <div class="rule-item"><span class="rule-icon">⚔</span><span>Mob Dmg</span><strong id="mob-damage">0</strong></div>
     </section>
     <footer>Early prototype · Mining and random block respawn only</footer>
   </main>
@@ -79,10 +81,7 @@
     <div class="biome-list" id="biome-list"></div>
   </section>
 
-  <section class="simple-panel navigation-panel" id="craft-panel" data-nav-panel="craft" aria-labelledby="craft-title" aria-hidden="true" hidden>
-    <div class="inventory-heading"><h2 id="craft-title">Craft</h2></div>
-    <p class="panel-placeholder">Crafting is not available yet.</p>
-  </section>
+  <section class="simple-panel navigation-panel workbench-panel" id="craft-panel" data-nav-panel="craft" aria-labelledby="craft-title" aria-hidden="true" hidden><div class="inventory-heading"><h2 id="craft-title">Workbench</h2></div><div class="workbench-stations" id="workbench-stations"><button class="workbench-station" type="button" data-station="crafting_table"><span class="station-icon">⚒</span><strong>Crafting Table</strong><span class="station-status" id="crafting-table-status">Locked</span><span class="station-cost" id="crafting-table-cost">10 Wood Scrap · 2 Cobble Rock</span></button><button class="workbench-station is-locked" type="button" data-station="furnace" disabled><span class="station-icon">♨</span><strong>Furnace</strong><span class="station-status">Locked</span><span class="station-cost">Requires Cave Biome</span></button></div><section class="workbench-crafting" id="workbench-crafting" hidden><div class="workbench-section-heading"><h3>Crafting Table</h3><span id="equipped-tool-label">No tool equipped</span></div><div class="workbench-tabs" role="tablist" aria-label="Crafting categories"><button type="button" class="workbench-tab is-active" data-craft-category="item" aria-selected="true">Item</button><button type="button" class="workbench-tab" data-craft-category="tool" aria-selected="false">Tool</button><button type="button" class="workbench-tab" data-craft-category="artifact" aria-selected="false">Artifact</button></div><div class="workbench-recipes" id="workbench-recipes"></div></section></section>
   <section class="simple-panel navigation-panel" id="gear-panel" data-nav-panel="gear" aria-labelledby="gear-title" aria-hidden="true" hidden>
     <div class="inventory-heading"><h2 id="gear-title">Gear</h2></div>
     <p class="panel-placeholder">Equipment management is not available yet.</p>
@@ -122,7 +121,7 @@
     <button class="menu-button" id="inventory-open" type="button" data-nav-target="inventory" aria-label="Open Inventory" aria-expanded="false">
       <span class="menu-icon" aria-hidden="true">▦</span><span>Inventory</span>
     </button>
-    <button class="menu-button" id="craft-open" type="button" data-nav-target="craft" aria-label="Open Craft" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⚒</span><span>Craft</span></button>
+    <button class="menu-button" id="craft-open" type="button" data-nav-target="craft" aria-label="Open Craft" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⚒</span><span>Workbench</span></button>
     <button class="menu-button" id="gear-open" type="button" data-nav-target="gear" aria-label="Open Gear" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⚔</span><span>Gear</span></button>
     <button class="menu-button" id="more-open" type="button" data-nav-target="more" aria-label="Open More" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⚙</span><span>More</span></button>
     <button class="menu-button" id="map-open" type="button" data-nav-target="map" aria-label="Open Map" aria-expanded="false"><span class="menu-icon" aria-hidden="true">⌖</span><span>Map</span></button>
