@@ -9,7 +9,7 @@ test("mining drops show a compact icon log and expire after five seconds", async
   const log = page.locator("#toast-drop-log .toast-drop-entry");
   await expect(log).toHaveCount(1);
   await expect(log.locator(".toast-drop-amount")).toHaveText("+1");
-  await expect(log.locator("img")).toHaveAttribute("src", /item_grass\\.png$/);
+  await expect(log.locator("img")).toHaveAttribute("src", /item_grass\.png$/);
   await expect(log).toBeVisible();
 
   await page.clock.fastForward(5000);
