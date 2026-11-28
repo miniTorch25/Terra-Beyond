@@ -74,3 +74,10 @@ test("adding an invalid amount or unknown item is rejected", () => {
   assert.throws(() => addInventoryItem(state, "item_grass", 0), RangeError);
   assert.throws(() => addInventoryItem(state, "unknown", 1), RangeError);
 });
+
+test("unique tools and swords cannot be acquired more than once", () => {
+  const state = createInventoryState([{ id: "stone_dagger", count: 0, unique: true }]);
+  const first = addInventoryItem(state, "stone_dagger");
+  const duplicate = addInventoryItem(first, "stone_dagger");
+  assert.equal(getInventoryCount(duplicate, "stone_dagger"), 1);
+});
