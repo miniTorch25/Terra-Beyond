@@ -23,7 +23,8 @@ test("up to 32 detached world items can exist at once", () => {
   for (let i = 0; i < 32; i++) state = takeInventoryItem(state, "stone").state;
   const blocked = takeInventoryItem(state, "stone");
   assert.equal(blocked.detachedItem, null);
-  assert.equal(blocked.state.detached.length, 32);\n  assert.equal(WORLD_ITEM_LIMIT, 32);
+  assert.equal(blocked.state.detached.length, 32);
+  assert.equal(WORLD_ITEM_LIMIT, 32);
 });
 
 test("items cannot be taken when inventory count is empty", () => {
