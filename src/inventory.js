@@ -42,7 +42,9 @@ const ORIGIN_BLOCKS = Object.freeze({
 });
 export function getItemDetails(id, fallbackTag="Natural") {
  const entry=INVENTORY_ITEMS.find(candidate=>candidate.id===id); if(!entry)return null;
- const source=ORIGIN_BLOCKS[id];\n const origin=source?{name:source[1].replaceAll("_"," ").replace(/\\b\\w/g,letter=>letter.toUpperCase()),image:`./sprites/block/${source[0]}/${source[1]}.png`}:null;\n return {...entry,description:ITEM_DESCRIPTIONS[id]||"A curious item waiting to be discovered.",tag:entry.tag||fallbackTag,origin};
+ const source=ORIGIN_BLOCKS[id];
+ const origin=source?{name:source[1].replaceAll("_"," ").replace(/\b\w/g,letter=>letter.toUpperCase()),image:`./sprites/block/${source[0]}/${source[1]}.png`}:null;
+ return {...entry,description:ITEM_DESCRIPTIONS[id]||"A curious item waiting to be discovered.",tag:entry.tag||fallbackTag,origin};
 }
 const COUNT_SUFFIXES=["","k","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"];
 export function formatItemCount(value) {
