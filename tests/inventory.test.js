@@ -5,7 +5,7 @@ import {
   PLAINS_INVENTORY,
   TUNDRA_INVENTORY,
   LIQUID_INVENTORY,
-  chunkItems, formatItemCount, getItemDetails,
+  chunkItems, formatItemCount, getItemDetails, INVENTORY_ITEMS,
 } from "../src/inventory.js";
 
 test("inventory has the four requested categories", () => {
@@ -20,14 +20,15 @@ test("Plains contains only its four original items", () => {
 
 test("Tundra contains Sapphire with its other biome items and tools", () => {
   assert.deepEqual(TUNDRA_INVENTORY.item.Natural.map(({ id }) => id), ["sweet_berry", "snowball", "spruce_wood", "ice_shard", "sapphire"]);
-  assert.deepEqual(TUNDRA_INVENTORY.tool.Natural.map(({ id }) => id), ["ice_pick", "sapphire_dagger", "sapphire_pick"]);
+  assert.deepEqual(TUNDRA_INVENTORY.tool.Crafted.map(({ id }) => id), ["ice_pick", "sapphire_pick"]);
+  assert.deepEqual(TUNDRA_INVENTORY.sword.Crafted.map(({ id }) => id), ["sapphire_dagger"]);
   assert.ok([...TUNDRA_INVENTORY.item.Natural, ...TUNDRA_INVENTORY.tool.Natural]
     .every((entry) => entry.count === 0 && entry.image.includes("/tundra/")));
   assert.equal(TUNDRA_INVENTORY.item.Natural.at(-1).image, "./sprites/item/tundra/sapphire.png");
 });
 
 test("liquids are shared globally instead of being biome-specific", () => {
-  assert.deepEqual(LIQUID_INVENTORY.map(({ id }) => id), ["cold_water", "water"]);
+  assert.deepEqual(LIQUID_INVENTORY.map(({ id }) => id), ["water", "cold_water"]);
   assert.ok(LIQUID_INVENTORY.every((entry) => entry.image.startsWith("./sprites/liquid/")));
 });
 
@@ -38,9 +39,11 @@ test("inventory item rows contain at most six items", () => {
   assert.deepEqual(rows.flat(), items);
 });
 
-test("empty categories have Natural and Crafted sections", () => {
-  assert.deepEqual(Object.keys(PLAINS_INVENTORY.sword), ["Natural", "Crafted"]);
-  assert.ok(Object.values(PLAINS_INVENTORY.sword).every((items) => items.length === 0));
+test("tools, swords and artifacts use Crafted only, with daggers under Sword", () => {
+  for (const biome of [PLAINS_INVENTORY, TUNDRA_INVENTORY]) for (const category of ["tool", "sword", "artifact"]) assert.deepEqual(Object.keys(biome[category]), ["Crafted"]);
+  assert.deepEqual(PLAINS_INVENTORY.sword.Crafted.map(({ id }) => id), ["stone_dagger"]);
+  assert.deepEqual(TUNDRA_INVENTORY.sword.Crafted.map(({ id }) => id), ["sapphire_dagger"]);
+  assert.ok(INVENTORY_ITEMS.filter(({ unique }) => unique).every(({ count }) => count === 0));
 });
 
 test("invalid row sizes are rejected", () => {
@@ -53,11 +56,10 @@ test("inventory count formatter uses integer compact suffixes", () => {
   assert.equal(formatItemCount(1e36), "1e36");
   assert.throws(() => formatItemCount(-1), RangeError);
 });
-test("item detail metadata includes origin blocks for Natural items", () => {
-  const grass = getItemDetails("item_grass");
-  assert.equal(grass.tag, "Natural");
-  assert.equal(grass.origin.image, "./sprites/block/plains/grass.png");
-  assert.equal(getItemDetails("sapphire").origin.image, "./sprites/block/tundra/sapphire_ore.png");
+test("item details omit Origin and identify crafted weapons", () => {
+  assert.equal(getItemDetails("item_grass").tag, "Natural");
+  assert.equal(Object.hasOwn(getItemDetails("item_grass"), "origin"), false);
+  assert.equal(getItemDetails("stone_dagger", "Crafted").tag, "Crafted");
 });
 test("liquid detail metadata uses Liquid tag and omits block origin", () => {
   const water = getItemDetails("water");
