@@ -19,7 +19,7 @@ test("the world item can be returned and restores its own item type", () => {
 });
 
 test("up to 32 detached world items can exist at once", () => {
-  let state = createInventoryState([{ id: "stone", count: 12 }]);
+  let state = createInventoryState([{ id: "stone", count: 40 }]);
   for (let i = 0; i < 32; i++) state = takeInventoryItem(state, "stone").state;
   const blocked = takeInventoryItem(state, "stone");
   assert.equal(blocked.detachedItem, null);
