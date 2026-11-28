@@ -154,7 +154,7 @@ function renderInventory() {
         '<button class="inventory-slot" type="button" data-item-id="' + item.id +
         '" data-item-tag="Liquid" title="' + item.name + '" aria-label="View ' + item.name + ' details">' +
         '<img src="' + item.image + '" alt="" loading="lazy">' +
-        '<span class="item-count">' + formatItemCount(item.count) + '</span></button>'
+        '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span></button>'
       ).join("") + '</div></section>'
     : "";
 
@@ -191,7 +191,7 @@ function openItemDetails(id, fallbackTag) {
   elements.detailName.textContent = item.name;
   elements.detailDescription.textContent = item.description;
   elements.detailTag.textContent = item.tag;
-  elements.detailCount.textContent = String(Math.floor(item.count || 0));
+  elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
   if (item.tag === "Natural" && item.origin) {
     elements.detailOrigin.hidden = false;
     elements.detailOrigin.querySelector("img").src = item.origin.image;
