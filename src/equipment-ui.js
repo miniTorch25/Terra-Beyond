@@ -16,7 +16,7 @@ function renderSlot(type, index, equipmentState, inventoryItems) {
 }
 
 export function renderEquipmentSlots(equipmentState, inventoryItems) {
-  const primary = ["tool", "sword"].map(type => '<div class="equipment-group-' + type + '>' + Array.from({ length: 3 }, (_, index) =>
+  const primary = ["tool", "sword"].map(type => '<div class="equipment-group-' + type + '">' + Array.from({ length: 3 }, (_, index) =>
     renderSlot(type, index, equipmentState, inventoryItems)
   ).join("") + "</div>").join("");
   const artifacts = Array.from({ length: 6 }, (_, index) =>
