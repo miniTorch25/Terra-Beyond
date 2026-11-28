@@ -15,8 +15,8 @@ test("Gear renders Tool and Sword together as one six-slot row", () => {
 test("unlocked empty slots remain blank and locked Tool/Sword slots show Locked", () => {
   const html = renderEquipmentSlots(createEquipmentState(), []);
   assert.equal((html.match(/>Locked<\/button>/g) || []).length, 4);
-  assert.equal((html.match(/>Locked<\/button>/g) || []).length, 4);
-  assert.doesNotMatch(html, /Drop Tool|Drop Sword|Empty Tool|Empty Sword/);
+  assert.equal((html.match(/title="Empty[^"]*"><\/button>/g) || []).length, 8);
+  assert.doesNotMatch(html, />(?:Drop Tool|Drop Sword|Empty Tool|Empty Sword)</);
 });
 
 test("equipped slots show only the item image and remain unequippable", () => {
