@@ -34,3 +34,15 @@ test("duplicate cannot be confirmed without an item prototype", async ({ page })
   await expect(page.locator("#duplicate-confirm-button")).toBeDisabled();
   await expect(page.locator("#ic-balance")).toHaveText("100M");
 });
+
+test("Duplicate is hidden for Tool and Sword item details", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#inventory-open").click();
+  await page.locator('[data-category="tool"]').click();
+  await page.locator('[data-item-info="sharp_stone"]').click();
+  await expect(page.locator("#detail-duplicate-button")).toBeHidden();
+  await page.locator("#item-detail-overlay").click({ position: { x: 5, y: 5 } });
+  await page.locator('[data-category="sword"]').click();
+  await page.locator('[data-item-info="stone_dagger"]').click();
+  await expect(page.locator("#detail-duplicate-button")).toBeHidden();
+});
