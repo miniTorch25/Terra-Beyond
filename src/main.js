@@ -1,10 +1,10 @@
 import { createInitialState, mineBlock } from "./game.js";
-import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, INVENTORY_ITEMS, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
+import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, CAVE_INVENTORY, LIQUID_INVENTORY, INVENTORY_ITEMS, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
 import { createInventoryState, getInventoryCount, addInventoryItem, takeInventoryItem, returnInventoryItem, expireInventoryItem, isInventoryDropTarget } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 import { STARTING_IC, DUPLICATE_COST, duplicateItem } from "./economy.js";
 import { getPlayerDamageStats, getBlockDamage, formatDamage } from "./damage.js";
-import { createWorkbenchState, CRAFTING_TABLE_COST, RECIPES, unlockCraftingTable, craftRecipe } from "./workbench.js";
+import { createWorkbenchState, CRAFTING_TABLE_COST, FURNACE_COST, RECIPES, unlockCraftingTable, unlockFurnace, craftRecipe } from "./workbench.js";
 import { renderRecipeCard } from "./workbench-ui.js";
 import { createEquipmentState, equipItem, getEquippedItem, getEquipmentSlot, isEquippableItem } from "./equipment.js";
 import { renderEquipmentSlots, renderAbilityLog } from "./equipment-ui.js";
@@ -49,7 +49,7 @@ const elements = {
   biomeList: document.querySelector("#biome-list"),
   navButtons: [...document.querySelectorAll(".menu-button[data-nav-target]")],
   navPanels: [...document.querySelectorAll(".navigation-panel")],
-  baseDamage:document.querySelector("#base-damage"),blockDamage:document.querySelector("#block-damage"),mobDamage:document.querySelector("#mob-damage"),workbenchStations:document.querySelector("#workbench-stations"),craftingTableStatus:document.querySelector("#crafting-table-status"),craftingTableCost:document.querySelector("#crafting-table-cost"),workbenchCrafting:document.querySelector("#workbench-crafting"),workbenchRecipes:document.querySelector("#workbench-recipes"),workbenchTabs:[...document.querySelectorAll(".workbench-tab")],equippedToolLabel:document.querySelector("#equipped-tool-label"),
+  baseDamage:document.querySelector("#base-damage"),blockDamage:document.querySelector("#block-damage"),mobDamage:document.querySelector("#mob-damage"),workbenchStations:document.querySelector("#workbench-stations"),craftingTableStatus:document.querySelector("#crafting-table-status"),craftingTableCost:document.querySelector("#crafting-table-cost"),furnaceStatus:document.querySelector("#furnace-status"),furnaceCost:document.querySelector("#furnace-cost"),workbenchCrafting:document.querySelector("#workbench-crafting"),workbenchRecipes:document.querySelector("#workbench-recipes"),workbenchTabs:[...document.querySelectorAll(".workbench-tab")],equippedToolLabel:document.querySelector("#equipped-tool-label"),
 };
 
 let state = createInitialState(Math.random, "plains");
@@ -187,7 +187,7 @@ function render() {
   const { block, hp } = state;
   document.body.dataset.biome = currentBiomeId;
   const themeColor = document.querySelector('meta[name="theme-color"]');
-  if (themeColor) themeColor.content = currentBiomeId === "tundra" ? "#172b3a" : "#18251f";
+  if (themeColor) themeColor.content = currentBiomeId === "tundra" ? "#172b3a" : currentBiomeId === "cave" ? "#292929" : "#18251f";
   const damageTaken = block.maxHp - hp;
   const stage = Math.min(9, Math.floor((damageTaken / block.maxHp) * 10));
   elements.image.src = block.image;
@@ -211,6 +211,7 @@ function render() {
 function renderInventory() {
   const plainsSections = PLAINS_INVENTORY[activeCategory];
   const tundraSections = TUNDRA_INVENTORY[activeCategory];
+  const caveSections = CAVE_INVENTORY[activeCategory];
   elements.inventoryTabs.forEach((tab) => {
     const selected = tab.dataset.category === activeCategory;
     tab.classList.toggle("is-active", selected);
@@ -263,7 +264,9 @@ function renderInventory() {
     '<details class="biome-drawer" open><summary><span>Plains</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>' +
     '<div class="biome-content">' + renderSections(plainsSections) + '</div></details>' +
     '<details class="biome-drawer" open><summary><span>Tundra</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>' +
-    '<div class="biome-content">' + renderSections(tundraSections) + '</div></details>' + liquidMarkup;
+    '<div class="biome-content">' + renderSections(tundraSections) + '</div></details>' +
+    '<details class="biome-drawer" open><summary><span>Cave</span><span class="drawer-arrow" aria-hidden="true">⌄</span></summary>' +
+    '<div class="biome-content">' + renderSections(caveSections) + '</div></details>' + liquidMarkup;
 }
 
 function renderDamageStats(){equippedToolId=equipmentState.tool[0];const s=getPlayerDamageStats(equippedToolId);elements.baseDamage.textContent=formatDamage(s.baseDamage);elements.blockDamage.textContent=formatDamage(s.blockDamage);elements.mobDamage.textContent=formatDamage(s.mobDamage);elements.playerBaseDamage.textContent=formatDamage(s.baseDamage);elements.playerBlockDamage.textContent=formatDamage(s.blockDamage);elements.playerMobDamage.textContent=formatDamage(s.mobDamage);}
@@ -271,6 +274,10 @@ function renderWorkbench(){
 const unlocked=workbenchState.unlockedStations.has("crafting_table"),wood=getInventoryCount(inventoryState,"wood_scrap"),rock=getInventoryCount(inventoryState,"cobble_rock");
 elements.craftingTableStatus.textContent=unlocked?"Unlocked":"Locked";elements.craftingTableCost.textContent=unlocked?"Ready to use":"10 Wood Scrap ("+wood+") · 2 Cobble Rock ("+rock+")";
 const station=elements.workbenchStations.querySelector('[data-station="crafting_table"]');station.classList.toggle("is-unlocked",unlocked);station.classList.toggle("can-unlock",!unlocked&&wood>=10&&rock>=2);elements.workbenchCrafting.hidden=!unlocked;
+const furnaceUnlocked=workbenchState.unlockedStations.has("furnace"),stone=getInventoryCount(inventoryState,"stone_item"),coal=getInventoryCount(inventoryState,"coal"),canUnlockFurnace=currentBiomeId==="cave"&&stone>=FURNACE_COST.stone_item&&coal>=FURNACE_COST.coal;
+elements.furnaceStatus.textContent=furnaceUnlocked?"Unlocked":"Locked";
+elements.furnaceCost.textContent=furnaceUnlocked?"Ready to use":currentBiomeId!=="cave"?"Requires Cave Biome":"10 Stone ("+stone+") · 1 Coal ("+coal+")";
+const furnace=elements.workbenchStations.querySelector('[data-station="furnace"]');furnace.disabled=furnaceUnlocked||!canUnlockFurnace;furnace.classList.toggle("is-unlocked",furnaceUnlocked);furnace.classList.toggle("can-unlock",!furnaceUnlocked&&canUnlockFurnace);
 const equippedTool=getEquippedItem(equipmentState.tool[0],inventoryItems),equippedSword=getEquippedItem(equipmentState.sword[0],inventoryItems);elements.equippedToolLabel.textContent="Tool: "+(equippedTool?.name||"None")+" · Sword: "+(equippedSword?.name||"None");
 elements.workbenchTabs.forEach(t=>{const active=t.dataset.craftCategory===activeCraftCategory;t.classList.toggle("is-active",active);t.setAttribute("aria-selected",String(active));});if(!unlocked)return;
 const recipes=RECIPES[activeCraftCategory]||[];if(!recipes.length){elements.workbenchRecipes.innerHTML='<p class="workbench-empty">No craftable items in this category yet.</p>';return;}
@@ -282,7 +289,17 @@ const status=owned?"Already crafted":!hasRequirements?"Missing requirements":!ha
 return renderRecipeCard(recipe,inventoryItems,{can,status,materials,requirements});
 }).join("");
 }
-function handleWorkbenchStation(id){if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";}
+function handleWorkbenchStation(id){
+if(id==="furnace"){
+  if(workbenchState.unlockedStations.has("furnace"))return;
+  if(currentBiomeId!=="cave"){elements.helper.textContent="Enter the Cave biome to unlock the Furnace.";return;}
+  const r=unlockFurnace(workbenchState,inventoryState);
+  if(!r.success){elements.helper.textContent="Need 10 Stone and 1 Coal to unlock the Furnace.";return;}
+  workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Furnace unlocked.";return;
+}
+if(id!=="crafting_table"||workbenchState.unlockedStations.has(id))return;
+const r=unlockCraftingTable(workbenchState,inventoryState);if(!r.success){elements.helper.textContent="Need 10 Wood Scrap and 2 Cobble Rock to unlock the Crafting Table.";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();elements.helper.textContent="Crafting Table unlocked.";
+}
 function handleCraftRecipe(id){const r=craftRecipe(workbenchState,inventoryState,id);if(!r.success){elements.helper.textContent="Cannot craft this recipe: "+r.reason+".";return;}workbenchState=r.workbenchState;inventoryState=r.inventoryState;renderWorkbench();renderInventoryCounts();if(!elements.inventory.hidden)renderInventory();elements.helper.textContent="Crafted "+r.item.name+". It is now in your Inventory."; }
 function handleEquipItem(id, slotIndex = 0) {
   const result = equipItem(equipmentState, id, inventoryState, inventoryItems, slotIndex);
@@ -325,7 +342,8 @@ function renderMap() {
     const canAfford = cost ? getInventoryCount(inventoryState, cost.itemId) >= cost.amount : false;
     const isLocked = action === "Lock" || (!unlocked && !cost && action !== "Current");
     const buttonLabel = action === "Visit" ? "Visit" : action === "Current" ? "Current" : action === "Lock" ? "Lock" : action;
-    const buttonContent = !unlocked && cost ? `Unlock <img class="biome-cost-icon" src="./sprites/item/plains/emerald.png" alt="Emerald"> <strong>${cost.amount}</strong>` : buttonLabel;
+    const costItem = cost ? inventoryItems.find((item) => item.id === cost.itemId) : null;
+    const buttonContent = !unlocked && cost ? `Unlock <img class="biome-cost-icon" src="${costItem?.image || ""}" alt="${costItem?.name || ""}"> <strong>${cost.amount}</strong>` : buttonLabel;
     const infoOpen = expandedBiomeInfo.has(biome.id);
     return '<article class="map-biome-row" data-biome-row="' + biome.id + '">' +
       '<div class="map-biome-heading"><h3>' + biome.name + '</h3>' +
