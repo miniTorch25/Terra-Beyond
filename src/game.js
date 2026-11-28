@@ -72,6 +72,14 @@ export function createInitialState(random = Math.random, biomeId = "plains") {
 }
 
 export function mineBlock(state, damage = PLAYER_DAMAGE, random = Math.random, biomeId = "plains", equippedToolId = null) {
+  // A spawned water source belongs to the current block. Protect it before applying any damage.
+  const protectLiquidSources = arguments.length > 5 && arguments[5]?.protectLiquidSources === true;
+  if (protectLiquidSources && state?.waterPuddle === true) {
+    if (!state.block || !Number.isFinite(state.hp)) {
+      throw new TypeError("A valid mining state is required.");
+    }
+    return { state: { ...state }, broken: false, drops: [], blockedByLiquid: true };
+  }
   if (!state || !state.block || !Number.isFinite(state.hp)) {
     throw new TypeError("A valid mining state is required.");
   }
