@@ -136,3 +136,17 @@ test("missing save data leaves a new game untouched", () => {
   assert.equal(loadGameProgress(createStorage(), INVENTORY_ITEMS), null);
   assert.equal(createInitialState(() => 0, "plains").block.id, "grass");
 });
+
+
+test("water puddle state is saved and restored only for Grass", () => {
+  const storage = createStorage();
+  const progress = createProgress({ state: { block: { id: "grass" }, hp: 3, waterPuddle: true } });
+  saveGameProgress(storage, progress);
+  const raw = JSON.parse(storage.getItem(GAME_SAVE_STORAGE_KEY));
+  assert.equal(raw.waterPuddle, true);
+  assert.equal(loadGameProgress(storage, INVENTORY_ITEMS).state.waterPuddle, true);
+
+  const nonGrass = createProgress({ state: { block: { id: "ice_block" }, hp: 12, waterPuddle: true } });
+  saveGameProgress(storage, nonGrass);
+  assert.equal(loadGameProgress(storage, INVENTORY_ITEMS).state.waterPuddle, false);
+});
