@@ -17,13 +17,23 @@ export const TUNDRA_INVENTORY = Object.freeze({
   tool: craftedOnly([tool("ice_pick","Ice Pick","tundra"),tool("sapphire_pick","Sapphire Pick","tundra")]),
   sword: craftedOnly([sword("sapphire_dagger","Sapphire Dagger","tundra")]), artifact: craftedOnly(),
 });
+export const CAVE_INVENTORY = Object.freeze({
+  item: sections(
+    [item("stone_item","Stone","cave"),item("coal","Coal","cave"),item("raw_copper","Raw Copper","cave"),item("raw_iron","Raw Iron","cave"),item("raw_lead","Raw Lead","cave")],
+    [item("copper_bar","Copper Bar","cave"),item("iron_bar","Iron Bar","cave"),item("lead_bar","Lead Bar","cave")]
+  ),
+  tool: craftedOnly([tool("stone_pick","Stone Pick","cave"),tool("copper_pick","Copper Pick","cave"),tool("iron_pick","Iron Pick","cave")]),
+  sword: craftedOnly([sword("copper_dagger","Copper Dagger","cave"),sword("iron_sword","Iron Sword","cave"),sword("lead_sword","Lead Sword","cave")]),
+  artifact: craftedOnly(),
+});
 export const LIQUID_INVENTORY = Object.freeze([
   Object.freeze({id:"water",name:"Water",image:"./sprites/liquid/water.png",count:0,biome:"Plains",tag:"Liquid",unique:false}),
   Object.freeze({id:"cold_water",name:"Cold Water",image:"./sprites/liquid/cold_water.png",count:0,biome:"Tundra",tag:"Liquid",unique:false}),
 ]);
 export const INVENTORY_ITEMS = Object.freeze([
   ...PLAINS_INVENTORY.item.Natural,...PLAINS_INVENTORY.item.Crafted,...PLAINS_INVENTORY.tool.Crafted,...PLAINS_INVENTORY.sword.Crafted,...PLAINS_INVENTORY.artifact.Crafted,
-  ...TUNDRA_INVENTORY.item.Natural,...TUNDRA_INVENTORY.item.Crafted,...TUNDRA_INVENTORY.tool.Crafted,...TUNDRA_INVENTORY.sword.Crafted,...TUNDRA_INVENTORY.artifact.Crafted,...LIQUID_INVENTORY,
+  ...TUNDRA_INVENTORY.item.Natural,...TUNDRA_INVENTORY.item.Crafted,...TUNDRA_INVENTORY.tool.Crafted,...TUNDRA_INVENTORY.sword.Crafted,...TUNDRA_INVENTORY.artifact.Crafted,
+  ...CAVE_INVENTORY.item.Natural,...CAVE_INVENTORY.item.Crafted,...CAVE_INVENTORY.tool.Crafted,...CAVE_INVENTORY.sword.Crafted,...CAVE_INVENTORY.artifact.Crafted,...LIQUID_INVENTORY,
 ]);
 export function chunkItems(items, perRow=6) {
   if (!Array.isArray(items)) throw new TypeError("Items must be an array.");
@@ -31,7 +41,8 @@ export function chunkItems(items, perRow=6) {
   const rows=[]; for(let i=0;i<items.length;i+=perRow) rows.push(items.slice(i,i+perRow)); return rows;
 }
 const ITEM_DESCRIPTIONS = Object.freeze({
- item_grass:"A little piece of the world. It looks ordinary, but every journey starts somewhere.",wood_scrap:"A rough piece of timber left behind after gathering wood.",cobble_rock:"A sturdy stone fragment. Useful, dependable, and not very comfortable to carry.",emerald:"A bright green gem that seems far too valuable to leave lying around.",sweet_berry:"A bright berry that brings a little colour to the frozen landscape.",snowball:"A tightly packed ball of snow. Cold, round, and ready to be thrown.",spruce_wood:"A piece of hardy wood gathered from the northern forest.",ice_shard:"A sharp fragment of clear ice that catches the light.",sapphire:"A precious blue gemstone hidden beneath the frozen ground.",sharp_stone:"A carefully sharpened stone that improves your basic damage.",oak_pick:"A simple wooden pick made for getting started. It improves damage against blocks.",rock_pick:"A rough but reliable pick for harder materials.",emerald_pick:"A brilliant pick with an unmistakable green shine.",stone_dagger:"A small stone blade. Better than facing the wilderness empty-handed.",ice_pick:"A cold-forged pick suited to the frozen frontier.",sapphire_dagger:"A blue gemstone blade with a crisp edge.",sapphire_pick:"A powerful pick fitted with a sapphire head.",cold_water:"Water chilled by the frozen air of the Tundra.",water:"A clear and familiar liquid found in the Plains."
+ item_grass:"A little piece of the world. It looks ordinary, but every journey starts somewhere.",wood_scrap:"A rough piece of timber left behind after gathering wood.",cobble_rock:"A sturdy stone fragment. Useful, dependable, and not very comfortable to carry.",emerald:"A bright green gem that seems far too valuable to leave lying around.",sweet_berry:"A bright berry that brings a little colour to the frozen landscape.",snowball:"A tightly packed ball of snow. Cold, round, and ready to be thrown.",spruce_wood:"A piece of hardy wood gathered from the northern forest.",ice_shard:"A sharp fragment of clear ice that catches the light.",sapphire:"A precious blue gemstone hidden beneath the frozen ground.",sharp_stone:"A carefully sharpened stone that improves your basic damage.",oak_pick:"A simple wooden pick made for getting started. It improves damage against blocks.",rock_pick:"A rough but reliable pick for harder materials.",emerald_pick:"A brilliant pick with an unmistakable green shine.",stone_dagger:"A small stone blade. Better than facing the wilderness empty-handed.",ice_pick:"A cold-forged pick suited to the frozen frontier.",sapphire_dagger:"A blue gemstone blade with a crisp edge.",sapphire_pick:"A powerful pick fitted with a sapphire head.",cold_water:"Water chilled by the frozen air of the Tundra.",water:"A clear and familiar liquid found in the Plains.",
+ stone_item:"A solid piece of stone mined from the Cave.",coal:"A lump of coal mined from a deep deposit.",raw_copper:"Unrefined copper ore ready for smelting.",raw_iron:"Unrefined iron ore ready for smelting.",raw_lead:"Unrefined lead ore ready for smelting.",copper_bar:"A refined copper ingot.",iron_bar:"A refined iron ingot.",lead_bar:"A refined lead ingot.",stone_pick:"A sturdy pick made for mining underground stone.",copper_pick:"A copper pick for deeper mineral deposits.",iron_pick:"A durable iron pick.",copper_dagger:"A sharp copper dagger.",iron_sword:"A reliable iron sword.",lead_sword:"A heavy sword forged from lead."
 });
 const ORIGIN_BLOCKS = Object.freeze({
   item_grass: ["plains", "grass"], wood_scrap: ["plains", "oak_log"],
@@ -39,6 +50,8 @@ const ORIGIN_BLOCKS = Object.freeze({
   sweet_berry: ["tundra", "berry_bush"], snowball: ["tundra", "snow"],
   spruce_wood: ["tundra", "spruce_log"], ice_shard: ["tundra", "ice_block"],
   sapphire: ["tundra", "sapphire_ore"],
+  stone_item: ["cave", "stone_block"], coal: ["cave", "coal_ore"],
+  raw_copper: ["cave", "copper_ore"], raw_iron: ["cave", "iron_ore"], raw_lead: ["cave", "lead_ore"],
 });
 export function getItemDetails(id, fallbackTag="Natural") {
  const entry=INVENTORY_ITEMS.find(candidate=>candidate.id===id); if(!entry)return null;
