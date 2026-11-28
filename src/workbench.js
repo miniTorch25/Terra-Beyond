@@ -7,6 +7,13 @@ const tools = [
 ].map(freezeRecipe);
 export const RECIPES=Object.freeze({item:Object.freeze([]),tool:Object.freeze(tools),artifact:Object.freeze([])});
 export const CRAFTING_TABLE_COST=Object.freeze({wood_scrap:10,cobble_rock:2});
+export const FURNACE_COST=Object.freeze({stone_item:10,coal:1});
 export function createWorkbenchState(){return{unlockedStations:new Set(),craftedRecipes:new Set()};}
 export function unlockCraftingTable(wb,inv){if(wb.unlockedStations.has("crafting_table"))return{success:true,workbenchState:wb,inventoryState:inv,alreadyUnlocked:true};for(const[id,n]of Object.entries(CRAFTING_TABLE_COST))if((inv.counts[id]??0)<n)return{success:false,reason:"missing-materials",workbenchState:wb,inventoryState:inv};const counts={...inv.counts};for(const[id,n]of Object.entries(CRAFTING_TABLE_COST))counts[id]-=n;return{success:true,workbenchState:{...wb,unlockedStations:new Set([...wb.unlockedStations,"crafting_table"])},inventoryState:{...inv,counts}};}
+export function unlockFurnace(wb,inv){
+  if(wb.unlockedStations.has("furnace"))return{success:true,workbenchState:wb,inventoryState:inv,alreadyUnlocked:true};
+  for(const[id,n]of Object.entries(FURNACE_COST))if((inv.counts[id]??0)<n)return{success:false,reason:"missing-materials",workbenchState:wb,inventoryState:inv};
+  const counts={...inv.counts};for(const[id,n]of Object.entries(FURNACE_COST))counts[id]-=n;
+  return{success:true,workbenchState:{...wb,unlockedStations:new Set([...wb.unlockedStations,"furnace"])},inventoryState:{...inv,counts}};
+}
 export function craftRecipe(wb,inv,id){if(!wb.unlockedStations.has("crafting_table"))return{success:false,reason:"station-locked",workbenchState:wb,inventoryState:inv};const r=Object.values(RECIPES).flat().find(x=>x.id===id);if(!r)return{success:false,reason:"unknown-recipe",workbenchState:wb,inventoryState:inv};if(r.unique&&(inv.counts[r.itemId]??0)>0)return{success:false,reason:"already-owned",workbenchState:wb,inventoryState:inv};for(const[k,n]of Object.entries(r.requirements))if((inv.counts[k]??0)<n)return{success:false,reason:"missing-requirements",workbenchState:wb,inventoryState:inv};for(const[k,n]of Object.entries(r.materials))if((inv.counts[k]??0)<n)return{success:false,reason:"missing-materials",workbenchState:wb,inventoryState:inv};const counts={...inv.counts};for(const[k,n]of Object.entries(r.materials))counts[k]-=n;counts[r.itemId]=r.unique?1:(counts[r.itemId]??0)+1;return{success:true,recipe:r,item:{name:r.name,category:r.category},itemId:r.itemId,workbenchState:{...wb,craftedRecipes:new Set([...wb.craftedRecipes,r.id])},inventoryState:{...inv,counts}};}
