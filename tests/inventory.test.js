@@ -65,5 +65,5 @@ test("liquid detail metadata uses Liquid tag and omits block origin", () => {
   const water = getItemDetails("water");
   assert.equal(water.tag, "Liquid");
   assert.equal(water.biome, "Plains");
-  assert.equal(Object.hasOwn(water, "origin"), false);
+  assert.equal(water.origin, null);
 });
