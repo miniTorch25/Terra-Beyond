@@ -43,7 +43,7 @@ test("Inventory hides locked biome drawers and Cold Water", async ({ page }) => 
   await expect(page.locator('[data-biome-drawer="plains"]')).toBeVisible();
   await expect(page.locator('[data-biome-drawer="tundra"]')).toHaveCount(0);
   await expect(page.locator('[data-biome-drawer="cave"]')).toHaveCount(0);
-  await expect(page.locator('[data-item-id="water"]')).toBeVisible();
+  await expect(page.locator('.liquid-inventory .inventory-slot[data-item-id="water"]')).toBeVisible();
   await expect(page.locator('[data-item-id="cold_water"]')).toHaveCount(0);
 });
 test("Biome information lists each block spawn chance on its own line", async ({ page }) => {
