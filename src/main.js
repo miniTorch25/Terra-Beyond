@@ -1,5 +1,6 @@
 import { createInitialState, mineBlock, PLAYER_DAMAGE } from "./game.js";
 import { INVENTORY_CATEGORIES, PLAINS_INVENTORY, TUNDRA_INVENTORY, LIQUID_INVENTORY, chunkItems, formatItemCount, getItemDetails } from "./inventory.js";
+import { createInventoryState, getInventoryCount, takeInventoryItem, returnInventoryItem, expireInventoryItem } from "./inventory-state.js";
 import { BIOMES, getBiomeAction, getBiomeById } from "./biomes.js";
 
 const elements = {
@@ -15,6 +16,8 @@ const elements = {
   currentBiomeLabel: document.querySelector("#current-biome-label"),
   inventory: document.querySelector("#inventory-panel"),
   inventoryClose: document.querySelector("#inventory-close"),
+  inventoryCollapse: document.querySelector("#inventory-collapse"),
+  worldItems: document.querySelector("#world-items"),
   inventoryContent: document.querySelector("#inventory-content"),
   inventoryTabs: [...document.querySelectorAll(".inventory-tab")],
   detailOverlay: document.querySelector("#item-detail-overlay"),
@@ -36,6 +39,63 @@ let activeCategory = "item";
 let activePanel = null;
 let currentBiomeId = "plains";
 const expandedBiomeInfo = new Set();
+const inventoryItems = [...PLAINS_INVENTORY.item.Natural, ...PLAINS_INVENTORY.tool.Natural, ...TUNDRA_INVENTORY.item.Natural, ...TUNDRA_INVENTORY.tool.Natural, ...LIQUID_INVENTORY];
+let inventoryState = createInventoryState(inventoryItems);
+const INVENTORY_COMPACT_KEY = "terra-beyond-inventory-half-screen";
+let inventoryCompact = localStorage.getItem(INVENTORY_COMPACT_KEY) === "true";
+let pendingInventoryDrag = null;
+let activeWorldDrag = null;
+let suppressInventoryClick = false;
+
+function applyInventorySize() {
+  elements.inventory.classList.toggle("is-half", inventoryCompact);
+  elements.inventoryCollapse.setAttribute("aria-pressed", String(inventoryCompact));
+  elements.inventoryCollapse.setAttribute("aria-label", inventoryCompact ? "Expand inventory" : "Shrink inventory to half screen");
+  elements.inventoryCollapse.textContent = inventoryCompact ? "⌃" : "⌄";
+}
+
+function renderWorldItem(entry, x, y) {
+  const data = inventoryItems.find((item) => item.id === entry.itemId);
+  if (!data) return null;
+  const node = document.createElement("button");
+  node.type = "button";
+  node.className = "world-item";
+  node.dataset.worldItemId = String(entry.instanceId);
+  node.setAttribute("aria-label", "Move " + data.name + " or drag it back into Inventory");
+  const image = document.createElement("img");
+  image.src = data.image;
+  image.alt = data.name;
+  node.append(image);
+  node.style.left = x + "px";
+  node.style.top = y + "px";
+  node.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    activeWorldDrag = { instanceId: entry.instanceId, node, pointerId: event.pointerId };
+    node.classList.add("is-dragging");
+  });
+  elements.worldItems.append(node);
+  const remaining = Math.max(0, entry.expiresAt - Date.now());
+  window.setTimeout(() => {
+    inventoryState = expireInventoryItem(inventoryState, entry.instanceId);
+    node.remove();
+  }, remaining);
+  return node;
+}
+
+function renderInventoryCounts() {
+  elements.inventoryContent.querySelectorAll(".inventory-slot").forEach((slot) => {
+    const count = getInventoryCount(inventoryState, slot.dataset.itemId);
+    const counter = slot.querySelector(".item-count");
+    if (counter) counter.textContent = formatItemCount(count);
+  });
+}
+
+function returnWorldItem(instanceId, node) {
+  inventoryState = returnInventoryItem(inventoryState, instanceId);
+  node?.remove();
+  renderInventoryCounts();
+  if (!elements.inventory.hidden) renderInventory();
+}
 
 function render() {
   const { block, hp } = state;
@@ -80,7 +140,7 @@ function renderInventory() {
         '" data-item-tag="' + sectionName + '" title="' + item.name +
         '" aria-label="View ' + item.name + ' details">' +
         '<img src="' + item.image + '" alt="" loading="lazy">' +
-        '<span class="item-count">' + formatItemCount(item.count) + '</span></button>'
+        '<span class="item-count">' + formatItemCount(getInventoryCount(inventoryState, item.id)) + '</span></button>'
       ).join("");
       return '<div class="item-row">' + slots + '</div>';
     }).join("");
@@ -168,7 +228,7 @@ function setActivePanel(panelName) {
     button.setAttribute("aria-expanded", String(isOpen));
   });
 
-  if (activePanel === "inventory") renderInventory();
+  if (activePanel === "inventory") { applyInventorySize(); renderInventory(); }
   if (activePanel === "map") renderMap();
 }
 
@@ -207,7 +267,52 @@ elements.inventoryTabs.forEach((tab) => {
 });
 elements.inventoryContent.addEventListener("click", (event) => {
   const slot = event.target.closest(".inventory-slot");
+  if (suppressInventoryClick) { suppressInventoryClick = false; return; }
   if (slot) openItemDetails(slot.dataset.itemId, slot.dataset.itemTag);
+});
+elements.inventoryCollapse.addEventListener("click", () => {
+  inventoryCompact = !inventoryCompact;
+  localStorage.setItem(INVENTORY_COMPACT_KEY, String(inventoryCompact));
+  applyInventorySize();
+});
+elements.inventoryContent.addEventListener("pointerdown", (event) => {
+  const slot = event.target.closest(".inventory-slot");
+  if (!slot || event.button !== 0 || getInventoryCount(inventoryState, slot.dataset.itemId) < 1) return;
+  pendingInventoryDrag = { itemId: slot.dataset.itemId, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, dragging: false };
+});
+document.addEventListener("pointermove", (event) => {
+  if (pendingInventoryDrag && pendingInventoryDrag.pointerId === event.pointerId) {
+    const drag = pendingInventoryDrag;
+    if (!drag.dragging && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 8 && !elements.inventory.contains(document.elementFromPoint(event.clientX, event.clientY))) {
+      const result = takeInventoryItem(inventoryState, drag.itemId);
+      if (result.detachedItem) {
+        inventoryState = result.state;
+        const node = renderWorldItem(result.detachedItem, event.clientX, event.clientY);
+        activeWorldDrag = { instanceId: result.detachedItem.instanceId, node, pointerId: event.pointerId };
+        node?.classList.add("is-dragging");
+        drag.dragging = true;
+        suppressInventoryClick = true;
+        renderInventoryCounts();
+      }
+    }
+  }
+  if (activeWorldDrag && activeWorldDrag.pointerId === event.pointerId) {
+    activeWorldDrag.node.style.left = event.clientX + "px";
+    activeWorldDrag.node.style.top = event.clientY + "px";
+  }
+});
+document.addEventListener("pointerup", (event) => {
+  if (pendingInventoryDrag && pendingInventoryDrag.pointerId === event.pointerId) {
+    if (!pendingInventoryDrag.dragging) pendingInventoryDrag = null;
+    else pendingInventoryDrag = null;
+  }
+  if (activeWorldDrag && activeWorldDrag.pointerId === event.pointerId) {
+    const drag = activeWorldDrag;
+    drag.node.classList.remove("is-dragging");
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".inventory-slot");
+    if (target && !elements.inventory.hidden) returnWorldItem(drag.instanceId, drag.node);
+    activeWorldDrag = null;
+  }
 });
 elements.detailOverlay.addEventListener("click", (event) => {
   if (event.target === elements.detailOverlay) closeItemDetails();
