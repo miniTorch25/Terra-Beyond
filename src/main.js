@@ -31,6 +31,7 @@ const elements = {
   detailImage: document.querySelector("#detail-item-image"),
   detailName: document.querySelector("#detail-item-name"),
   detailDescription: document.querySelector("#detail-item-description"),
+  detailAbilities: document.querySelector("#detail-item-abilities"),
   detailOrigin: document.querySelector("#item-detail-origin"),
   detailTag: document.querySelector("#detail-item-tag"),
   detailCount: document.querySelector("#detail-item-count"),
@@ -184,6 +185,9 @@ function ejectInventoryItem(itemId, slot) {
 
 function render() {
   const { block, hp } = state;
+  document.body.dataset.biome = currentBiomeId;
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor) themeColor.content = currentBiomeId === "tundra" ? "#172b3a" : "#18251f";
   const damageTaken = block.maxHp - hp;
   const stage = Math.min(9, Math.floor((damageTaken / block.maxHp) * 10));
   elements.image.src = block.image;
@@ -341,6 +345,8 @@ function openItemDetails(id, fallbackTag) {
   elements.detailImage.alt = item.name;
   elements.detailName.textContent = item.name;
   elements.detailDescription.textContent = item.description;
+  elements.detailAbilities.textContent = (item.abilities || []).join(" · ");
+  elements.detailAbilities.closest(".detail-abilities").hidden = !(item.abilities || []).length;
   elements.detailTag.textContent = item.tag;
   elements.detailCount.textContent = String(getInventoryCount(inventoryState, item.id));
   elements.detailCount.closest(".detail-row").hidden = Boolean(item.unique);

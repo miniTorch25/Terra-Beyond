@@ -45,3 +45,18 @@ test("Ability Log collects one line per equipped item's special effect", () => {
 test("Ability Log shows a neutral empty state when no equipped item has special effects", () => {
   assert.equal(renderAbilityLog(createEquipmentState(), []), "<li>No special abilities.</li>");
 });
+
+
+test("Ability Log displays the real special abilities stored on crafted mining tools", async () => {
+  const { INVENTORY_ITEMS } = await import("../src/inventory.js");
+  const expected = {
+    sharp_stone: "Block Dmg +2 when mining Oak Log",
+    oak_pick: "Block Dmg -1 when mining Emerald Ore",
+    emerald_pick: "+1 Emerald when mining Emerald Ore",
+  };
+  for (const [id, ability] of Object.entries(expected)) {
+    const state = { ...createEquipmentState(), tool: [id, null, null] };
+    assert.deepEqual(getEquippedAbilities(state, INVENTORY_ITEMS), [ability]);
+    assert.ok(renderAbilityLog(state, INVENTORY_ITEMS).includes(ability));
+  }
+});

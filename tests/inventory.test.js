@@ -74,3 +74,12 @@ test("liquid detail metadata uses Liquid tag and omits block origin", () => {
 
 
 test("Sharp Stone appears as a unique crafted Plains tool",()=>{const x=PLAINS_INVENTORY.tool.Crafted.find(i=>i.id==="sharp_stone");assert.ok(x);assert.equal(x.name,"Sharp Stone");assert.equal(x.image,"./sprites/tool/plains/sharp_stone.png");assert.equal(x.unique,true);assert.equal(getItemDetails("sharp_stone","Crafted").tag,"Crafted")});
+
+test("crafted mining tools store their special abilities in Inventory metadata", () => {
+  const expected = {
+    sharp_stone: ["Block Dmg +2 when mining Oak Log"],
+    oak_pick: ["Block Dmg -1 when mining Emerald Ore"],
+    emerald_pick: ["+1 Emerald when mining Emerald Ore"],
+  };
+  for (const [id, abilities] of Object.entries(expected)) assert.deepEqual(getItemDetails(id, "Crafted").abilities, abilities);
+});

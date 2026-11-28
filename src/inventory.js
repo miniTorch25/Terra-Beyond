@@ -3,13 +3,13 @@ export const INVENTORY_CATEGORIES = Object.freeze([
   Object.freeze({ id: "sword", label: "Sword" }), Object.freeze({ id: "artifact", label: "Artifact" }),
 ]);
 const item = (id, name, biome) => Object.freeze({ id, name, image: `./sprites/item/${biome}/${id}.png`, count: 0, unique: false });
-const tool = (id, name, biome) => Object.freeze({ id, name, category: "tool", image: `./sprites/tool/${biome}/${id}.png`, count: 0, unique: true });
+const tool = (id, name, biome, abilities = []) => Object.freeze({ id, name, category: "tool", image: `./sprites/tool/${biome}/${id}.png`, count: 0, unique: true, abilities: Object.freeze(abilities) });
 const sword = (id, name, biome) => Object.freeze({ id, name, category: "sword", image: `./sprites/sword/${biome}/${id}.png`, count: 0, unique: true });
 const sections = (natural = [], crafted = []) => Object.freeze({ Natural: Object.freeze(natural), Crafted: Object.freeze(crafted) });
 const craftedOnly = (crafted = []) => Object.freeze({ Crafted: Object.freeze(crafted.map((entry) => Object.freeze({ ...entry, unique: true }))) });
 export const PLAINS_INVENTORY = Object.freeze({
   item: sections([item("item_grass","Grass","plains"),item("wood_scrap","Wood Scrap","plains"),item("cobble_rock","Cobble Rock","plains"),item("emerald","Emerald","plains")]),
-  tool: craftedOnly([tool("sharp_stone","Sharp Stone","plains"),tool("oak_pick","Wood Pick","plains"),tool("rock_pick","Rock Pick","plains"),tool("emerald_pick","Emerald Pick","plains")]),
+  tool: craftedOnly([tool("sharp_stone","Sharp Stone","plains",["Block Dmg +2 when mining Oak Log"]),tool("oak_pick","Wood Pick","plains",["Block Dmg -1 when mining Emerald Ore"]),tool("rock_pick","Rock Pick","plains"),tool("emerald_pick","Emerald Pick","plains",["+1 Emerald when mining Emerald Ore"])]),
   sword: craftedOnly([sword("stone_dagger","Stone Dagger","plains")]), artifact: craftedOnly(),
 });
 export const TUNDRA_INVENTORY = Object.freeze({

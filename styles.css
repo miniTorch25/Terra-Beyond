@@ -355,3 +355,81 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
   .equipment-slot-card { padding: 3px; border-radius: 6px; font-size: 9px; }
   .ability-log-list { font-size: 10px; }
 }
+
+.detail-abilities { padding:12px 0; border-bottom:1px solid #405744; }
+.detail-abilities[hidden] { display:none; }
+.detail-abilities p { margin:7px 0 0; color:#c0d0ba; font-size:12px; line-height:1.5; }
+
+/* Biome color themes: Plains uses the original green palette; Tundra switches every UI surface to pale blue. */
+body[data-biome="tundra"] { background:radial-gradient(ellipse at 50% 18%,#29485a 0,#1a3040 44%,#101d29 100%); color:#e9f3f8; }
+body[data-biome="tundra"] .brand-mark { border-color:#789bad; background:#34566a; color:#e1f2fa; }
+body[data-biome="tundra"] .eyebrow, body[data-biome="tundra"] footer { color:#a9c4d2; }
+body[data-biome="tundra"] .mine-panel, body[data-biome="tundra"] .rules-panel { border-color:#547487; background:linear-gradient(155deg,#294454,#1b303e); }
+body[data-biome="tundra"] .status-pill { border-color:#6e91a4; color:#d0e7f1; }
+body[data-biome="tundra"] .status-dot { background:#a9d9eb; box-shadow:0 0 10px #a9d9eb80; }
+body[data-biome="tundra"] .block-stage { border-color:#58798b; background:repeating-linear-gradient(45deg,#294555 0 12px,#304d5e 12px 24px); }
+body[data-biome="tundra"] .block-target { color:#e0eef5; }
+body[data-biome="tundra"] .block-target:focus-visible { outline-color:#b8e4f4; }
+body[data-biome="tundra"] .tap-hint, body[data-biome="tundra"] .hp-readout, body[data-biome="tundra"] .helper-text { color:#b7d0dd; }
+body[data-biome="tundra"] .hp-readout strong, body[data-biome="tundra"] .hp-readout small { color:#e7f3f8; }
+body[data-biome="tundra"] .hp-track { background:#10222e; }
+body[data-biome="tundra"] .hp-fill { background:linear-gradient(90deg,#76b8d4,#c1e8f5); }
+body[data-biome="tundra"] .rule-item { color:#c2d8e3; }
+body[data-biome="tundra"] .rule-item strong { color:#f0f8fb; }
+body[data-biome="tundra"] .rule-icon { color:#b8e1f0; }
+body[data-biome="tundra"] .bottom-menu { border-color:#58798b; background:#172b3af2; }
+body[data-biome="tundra"] .menu-button { color:#a8c2d0; }
+body[data-biome="tundra"] .menu-button.is-selected { background:#34566a; color:#e1f2fa; }
+body[data-biome="tundra"] .inventory-panel, body[data-biome="tundra"] .map-panel, body[data-biome="tundra"] .simple-panel { border-color:#58798b; background:linear-gradient(160deg,#203b4c,#122532); }
+body[data-biome="tundra"] .inventory-close, body[data-biome="tundra"] .inventory-collapse, body[data-biome="tundra"] .ui-half-toggle, body[data-biome="tundra"] .ui-position-toggle { border-color:#7193a5; background:#34566a; color:#e8f4f9; }
+body[data-biome="tundra"] .inventory-tab { border-color:#58798b; background:#1d3544; color:#bfd3dd; }
+body[data-biome="tundra"] .inventory-tab.is-active { border-color:#acd6e8; background:#3d6579; color:#f0f9fc; }
+body[data-biome="tundra"] .tab-check, body[data-biome="tundra"] .drawer-arrow { color:#c5eafa; }
+body[data-biome="tundra"] .biome-drawer, body[data-biome="tundra"] .map-biome-row { border-color:#58798b; background:#1b3443; }
+body[data-biome="tundra"] .biome-drawer > summary { background:#34566a; color:#e6f3f8; }
+body[data-biome="tundra"] .inventory-section + .inventory-section, body[data-biome="tundra"] .detail-origin, body[data-biome="tundra"] .detail-row, body[data-biome="tundra"] .ability-log-panel { border-color:#496b7e; }
+body[data-biome="tundra"] .inventory-section h3, body[data-biome="tundra"] .detail-label, body[data-biome="tundra"] .equipment-group > h4, body[data-biome="tundra"] .equipment-primary-headings h4, body[data-biome="tundra"] .equipment-group-artifact > h4, body[data-biome="tundra"] .ability-log-panel h4 { color:#b8d9e8; }
+body[data-biome="tundra"] .inventory-slot { border-color:#638397; background:linear-gradient(145deg,#35596b,#243f50); }
+body[data-biome="tundra"] .item-info-button { border-color:#9bc7da; background:#1b3443; color:#edf8fc; }
+body[data-biome="tundra"] .item-info-button:focus-visible, body[data-biome="tundra"] .inventory-item-button:focus-visible { outline-color:#c6eafa; }
+body[data-biome="tundra"] .item-detail-card, body[data-biome="tundra"] .duplicate-confirm-card { border-color:#7194a7; background:linear-gradient(155deg,#34566a,#172d3b); }
+body[data-biome="tundra"] .detail-item-heading img, body[data-biome="tundra"] .detail-origin-content img { border-color:#638397; background:#1d3544; }
+body[data-biome="tundra"] .detail-item-description, body[data-biome="tundra"] .detail-abilities p, body[data-biome="tundra"] .detail-origin-content, body[data-biome="tundra"] .detail-row strong { color:#e1eef4; }
+body[data-biome="tundra"] .detail-abilities { padding:12px 0; border-bottom:1px solid #496b7e; }
+body[data-biome="tundra"] .map-biome-heading h3 { color:#e6f3f8; }
+body[data-biome="tundra"] .biome-info-toggle { border-color:#7194a7; background:#34566a; color:#e3f2f8; }
+body[data-biome="tundra"] .biome-info-toggle.is-open { border-color:#b8d9e8; background:#416b80; }
+body[data-biome="tundra"] .biome-visit-button { border-color:#8ab0c2; background:#3d6579; color:#f0f9fc; }
+body[data-biome="tundra"] .biome-visit-button.is-current { border-color:#7097aa; background:#29495c; color:#c4e6f3; }
+body[data-biome="tundra"] .biome-visit-button.is-locked { border-color:#4c6574; background:#263945; color:#9eb4bf; }
+body[data-biome="tundra"] .map-biome-info, body[data-biome="tundra"] .workbench-crafting { border-color:#496b7e; }
+body[data-biome="tundra"] .map-biome-info p, body[data-biome="tundra"] .map-intro, body[data-biome="tundra"] .player-info-hint { color:#bfd3dd; }
+body[data-biome="tundra"] .simple-panel .panel-placeholder, body[data-biome="tundra"] .player-info-panel { border-color:#58798b; background:linear-gradient(150deg,#29485a,#1b303e); color:#e1eef4; }
+body[data-biome="tundra"] .player-info-panel h3 { color:#edf7fb; }
+body[data-biome="tundra"] .equipment-slot-card { border-color:#638397; background:#1a3040; color:#bfd3dd; }
+body[data-biome="tundra"] .equipment-slot-card.is-locked, body[data-biome="tundra"] .equipment-slot-card:disabled { border-color:#536b79; background:#243743; color:#a2b5bf; }
+body[data-biome="tundra"] .equipment-slot-card:not(:disabled):hover { border-color:#b8d9e8; }
+body[data-biome="tundra"] .ability-log-list { color:#d5e7ef; }
+body[data-biome="tundra"] .ability-log-list li::marker { color:#b8d9e8; }
+body[data-biome="tundra"] .player-info-damage div { border-color:#496b7e; background:#1b3443; }
+body[data-biome="tundra"] .player-info-damage span { color:#b6cfdb; }
+body[data-biome="tundra"] .player-info-damage strong { color:#edf7fb; }
+body[data-biome="tundra"] .ic-balance { border-color:#8bb4c7; background:#172b3aee; color:#f0f8fb; }
+body[data-biome="tundra"] .ic-symbol, body[data-biome="tundra"] .ic-balance small { color:#c4e6f3; }
+body[data-biome="tundra"] .duplicate-button, body[data-biome="tundra"] .equip-item-button { border-color:#8ab0c2; background:linear-gradient(135deg,#527f94,#34566a); color:#f0f9fc; }
+body[data-biome="tundra"] .duplicate-actions button { border-color:#7194a7; background:#29485a; color:#edf7fb; }
+body[data-biome="tundra"] .duplicate-actions button:last-child { background:#527f94; }
+body[data-biome="tundra"] .world-item { border-color:#8ab0c2; background:#203d4fee; }
+body[data-biome="tundra"] .workbench-station { border-color:#7194a7; background:linear-gradient(145deg,#34566a,#1d3544); color:#edf7fb; }
+body[data-biome="tundra"] .workbench-station.is-unlocked { border-color:#b8d9e8; background:linear-gradient(145deg,#416b80,#29485a); }
+body[data-biome="tundra"] .station-icon, body[data-biome="tundra"] .station-status, body[data-biome="tundra"] .workbench-section-heading span { color:#c5eafa; }
+body[data-biome="tundra"] .station-cost, body[data-biome="tundra"] .recipe-info p, body[data-biome="tundra"] .recipe-flavor { color:#bfd3dd; }
+body[data-biome="tundra"] .workbench-tab { border-color:#638397; background:#1b3443; color:#bfd3dd; }
+body[data-biome="tundra"] .workbench-tab.is-active { border-color:#b8d9e8; background:#416b80; color:#f0f9fc; }
+body[data-biome="tundra"] .recipe-card { border-color:#496b7e; background:#1b3443; color:#edf7fb; }
+body[data-biome="tundra"] .recipe-info strong, body[data-biome="tundra"] .recipe-title-line { color:#edf7fb; }
+body[data-biome="tundra"] .recipe-line { color:#c8dce5; }
+body[data-biome="tundra"] .recipe-cost, body[data-biome="tundra"] .recipe-line>b, body[data-biome="tundra"] .recipe-ingredient small { color:#c5eafa; }
+body[data-biome="tundra"] .recipe-icon { border-color:#638397; background:#142a37; }
+body[data-biome="tundra"] .recipe-craft-button { border-color:#8ab0c2; background:#416b80; color:#f0f9fc; }
+body[data-biome="tundra"] .recipe-card:not(:disabled):active { border-color:#b8d9e8; background:#29485a; }
