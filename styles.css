@@ -1004,3 +1004,42 @@ body[data-biome="cave"] .menu-button[data-nav-target="map"].is-selected {
   background: #444;
   color: #fff;
 }
+
+/* More panel: gameplay settings and destructive reset controls. */
+body[data-biome] .navigation-panel[data-nav-panel="more"] .more-section {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #9273a5;
+  border-radius: 12px;
+  background: #352640;
+}
+.more-section-heading { display: flex; align-items: center; gap: 11px; }
+.more-section-heading h3 { margin: 0; color: #fff4ff; font-size: 15px; }
+.more-section-heading p { margin: 3px 0 0; color: #cdbbd8; font-size: 11px; line-height: 1.45; }
+.more-section-icon { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border: 1px solid #9273a5; border-radius: 10px; background: #49345a; color: #f3e9fa; font-size: 20px; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 0; border-top: 1px solid #60496e; cursor: pointer; }
+.setting-row > span { display: grid; gap: 3px; min-width: 0; }
+.setting-row strong { color: #f3e9fa; font-size: 13px; }
+.setting-row small { color: #cdbbd8; font-size: 11px; line-height: 1.4; }
+.setting-row input { flex: 0 0 auto; width: 20px; height: 20px; accent-color: #b99acb; }
+.more-secondary-button, .more-danger-button {
+  width: 100%; min-height: 42px; padding: 10px 13px; border: 1px solid #9273a5; border-radius: 9px;
+  background: #49345a; color: #f3e9fa; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer;
+}
+.more-danger-section { border-color: #a75e68 !important; background: #38232d !important; }
+.more-danger-section .more-section-icon { border-color: #a75e68; background: #542d3a; color: #ffe8eb; }
+.more-danger-section .more-section-heading h3 { color: #ffe8eb; }
+.more-danger-section .more-section-heading p, .more-warning { color: #e4bdc4; }
+.more-warning { margin: 0; font-size: 11px; line-height: 1.5; }
+.more-danger-button { border-color: #c16d78; background: #713744; color: #fff0f2; }
+.more-secondary-button:focus-visible, .more-danger-button:focus-visible, .setting-row input:focus-visible { outline: 2px solid #e3c7f1; outline-offset: 3px; }
+.reset-data-overlay { position: fixed; z-index: 80; inset: 0; display: grid; place-items: center; padding: 20px; background: #08060bd9; }
+.reset-data-overlay[hidden] { display: none; }
+.reset-data-dialog { width: min(100%, 390px); padding: 22px; border: 1px solid #a75e68; border-radius: 14px; background: linear-gradient(160deg, #49303a, #241b25); color: #fff0f2; box-shadow: 0 18px 60px #000b; }
+.reset-data-dialog h2 { margin: 0 0 9px; font-size: 18px; }
+.reset-data-dialog p { margin: 0; color: #e4cbd0; font-size: 13px; line-height: 1.5; }
+.reset-data-actions { display: flex; gap: 9px; margin-top: 20px; }
+.reset-data-actions button { flex: 1; min-height: 42px; border: 1px solid #9d7f87; border-radius: 9px; background: #382c34; color: #fff0f2; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+.reset-data-actions #reset-data-confirm { border-color: #c16d78; background: #713744; }
