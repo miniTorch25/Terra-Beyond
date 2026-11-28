@@ -79,10 +79,12 @@ export function loadGameProgress(storage, inventoryItems, now = Date.now()) {
     : "plains";
 
   const block = blockById.get(saved.blockId);
-  const selectedBlock = block && BLOCKS_BY_BIOME[currentBiomeId].some((entry) => entry.id === block.id)
-    ? block
-    : BLOCKS_BY_BIOME[currentBiomeId][0];
-  const blockHp = typeof saved.blockHp === "number" && Number.isFinite(saved.blockHp) && saved.blockHp > 0
+  const hasValidSavedBlock = Boolean(block && BLOCKS_BY_BIOME[currentBiomeId].some((entry) => entry.id === block.id));
+  const selectedBlock = hasValidSavedBlock ? block : BLOCKS_BY_BIOME[currentBiomeId][0];
+  const blockHp = hasValidSavedBlock
+    && typeof saved.blockHp === "number"
+    && Number.isFinite(saved.blockHp)
+    && saved.blockHp > 0
     ? Math.min(selectedBlock.maxHp, saved.blockHp)
     : selectedBlock.maxHp;
 
