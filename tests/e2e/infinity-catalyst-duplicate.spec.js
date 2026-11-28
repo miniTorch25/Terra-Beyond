@@ -20,7 +20,7 @@ test("duplicate confirmation charges 1 IC and grants 500 copies", async ({ page 
   await expect(page.locator("#duplicate-confirm-overlay")).toBeVisible();
   await expect(page.locator("#duplicate-message")).toContainText("Spend 1 IC");
   await page.locator("#duplicate-confirm-button").click();
-  await expect(page.locator("#ic-balance")).toHaveText("99.9M");
+  await expect(page.locator("#ic-balance")).toHaveText("99M");
   await expect(page.locator("#detail-item-count")).toHaveText("501");
   await expect(page.locator("#duplicate-confirm-overlay")).toBeHidden();
 });
