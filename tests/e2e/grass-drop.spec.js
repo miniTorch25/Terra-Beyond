@@ -27,3 +27,12 @@ test("breaking a Grass block grants one Grass item in the Inventory UI", async (
   const grassCount = page.locator('.inventory-slot[data-item-id="item_grass"] .item-count');
   await expect(grassCount).toHaveText("1");
 });
+
+test("Map displays the Tundra unlock price with an Emerald icon", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#map-open").click();
+  const unlock = page.locator('[data-biome-visit="tundra"]');
+  await expect(unlock).toContainText("75");
+  await expect(unlock.locator("img")).toHaveAttribute("src", "./sprites/item/plains/emerald.png");
+  await expect(unlock).toBeDisabled();
+});
