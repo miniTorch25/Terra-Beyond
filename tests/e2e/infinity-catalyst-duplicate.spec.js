@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 async function openGrassDetails(page, withPrototype = true) {
-  await page.addInitScript(() => { Math.random = () => 0; });
+  await page.addInitScript(() => { Math.random = () => 0.3; });
   await page.goto("/");
   if (withPrototype) for (let hit = 0; hit < 5; hit += 1) await page.locator("#mine-button").click();
   await page.locator("#inventory-open").click();
