@@ -74,8 +74,24 @@ let activeCraftCategory="item";
 let equipmentState=createEquipmentState();
 let equippedToolId=null;
 const PANEL_LAYOUT_KEY = "terra-beyond-panel-layouts";
-const defaultPanelLayout = { inventory: { half: localStorage.getItem("terra-beyond-inventory-half-screen") === "true", position: "bottom" }, craft: { half: false, position: "bottom" }, gear: { half: false, position: "bottom" }, more: { half: false, position: "bottom" } };
-let panelLayouts = (() => { try { return { ...defaultPanelLayout, ...JSON.parse(localStorage.getItem(PANEL_LAYOUT_KEY) || "{}") }; } catch { return defaultPanelLayout; } })();
+const legacyInventoryHalf = localStorage.getItem("terra-beyond-inventory-half-screen");
+const defaultPanelLayout = {
+  inventory: { half: legacyInventoryHalf === null ? true : legacyInventoryHalf === "true", position: "bottom" },
+  craft: { half: true, position: "top" },
+  gear: { half: true, position: "top" },
+  more: { half: true, position: "bottom" },
+};
+let panelLayouts = (() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PANEL_LAYOUT_KEY) || "{}");
+    return Object.fromEntries(Object.entries(defaultPanelLayout).map(([name, defaults]) => [
+      name,
+      { ...defaults, ...(saved[name] && typeof saved[name] === "object" ? saved[name] : {}) },
+    ]));
+  } catch {
+    return Object.fromEntries(Object.entries(defaultPanelLayout).map(([name, layout]) => [name, { ...layout }]));
+  }
+})();
 let activeWorldDrag = null;
 let equipmentDrag = null;
 let suppressEquipClickItemId = null;
@@ -534,7 +550,7 @@ function setActivePanel(panelName) {
     activePanels.delete(panelName);
   } else if ((panelName === "inventory" && activePanels.has("gear")) || (panelName === "gear" && activePanels.has("inventory"))) {
     activePanels.add(panelName);
-    for (const name of ["inventory", "gear"]) { panelLayouts[name].half = true; panelLayouts[name].position = name === "inventory" ? "top" : "bottom"; }
+    for (const name of ["inventory", "gear"]) panelLayouts[name].half = true;
     savePanelLayouts();
   } else {
     activePanels.clear();
