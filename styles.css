@@ -289,3 +289,34 @@ footer { padding: 22px 0 0; color: #718775; font-size: 10px; text-align: center;
 .inventory-slot.is-equipped { border-color: #b0d77a; box-shadow: inset 0 0 0 1px #8daf5a, 0 0 8px #9bc66b55; }
 .equip-item-button { width: 100%; min-height: 40px; margin-top: 14px; border: 1px solid #799b59; border-radius: 8px; background: #344d30; color: #eff8e8; font-weight: 800; cursor: pointer; }
 @media (max-width: 420px) { .player-equipment { grid-template-columns: 1fr; } }
+
+
+/* Shared half-screen layout for Inventory, Workbench, Gear and More (Map excluded). */
+.navigation-panel.is-half { height: calc(50vh - env(safe-area-inset-bottom)); bottom: calc(72px + env(safe-area-inset-bottom)); transition: top .18s ease, height .18s ease; }
+.navigation-panel.is-half.is-top { top: 0; bottom: auto; }
+.navigation-panel.is-half.is-bottom { top: 50vh; bottom: calc(72px + env(safe-area-inset-bottom)); }
+.navigation-panel:not(.is-half) { top: 0; bottom: calc(72px + env(safe-area-inset-bottom)); }
+.ui-half-toggle, .ui-position-toggle {
+  display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #526b53;
+  border-radius: 9px; background: #2a3e2d; color: #eff7e9; font-size: 19px; line-height: 1; cursor: pointer;
+}
+.ui-half-toggle[aria-pressed="true"] { border-color: #a3c47c; background: #354e35; }
+.ui-position-toggle:disabled { opacity: .35; cursor: default; }
+.player-equipment { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.equipment-group { min-width: 0; }
+.equipment-group > h4 { margin: 0 0 8px; color: #b7d39b; font-size: 11px; letter-spacing: 1px; }
+.equipment-slot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.equipment-group-artifact .equipment-slot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.equipment-slot-card.is-locked { opacity: .55; border-style: dashed; }
+.equipment-slot-card[data-equipment-slot] { min-height: 100px; }
+.equipment-slot-card:not(.is-locked)[data-equipment-slot] { outline: 1px dashed transparent; }
+.equipment-slot-card:not(.is-locked)[data-equipment-slot]:hover { outline-color: #a3c47c; }
+.equipment-drag-ghost { position: fixed; z-index: 100; display: grid; place-items: center; width: 54px; height: 54px; padding: 5px; border: 1px solid #c6e69a; border-radius: 10px; background: #263b2beF; box-shadow: 0 8px 24px #000a; pointer-events: none; transform: translate(-50%, -50%) scale(1.08); }
+.equipment-drag-ghost img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+@media (max-width: 420px) {
+  .equipment-slot-grid, .equipment-group-artifact .equipment-slot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+  .equipment-slot-card { padding: 7px; }
+  .equipment-slot-item { flex-wrap: wrap; }
+  .equipment-slot-item > img { width: 32px; height: 32px; flex-basis: 32px; }
+  .equipment-slot-item button { width: 100%; }
+}
