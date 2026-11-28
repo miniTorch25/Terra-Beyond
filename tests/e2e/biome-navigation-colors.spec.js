@@ -317,3 +317,52 @@ test("Half-screen navigation panels leave the bottom shortcut bar unobstructed",
   }));
   expect(geometry.bottom).toBeLessThanOrEqual(geometry.menuTop + 1);
 });
+
+
+test("Navigation panels use the requested default sizes and positions", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => localStorage.clear());
+  await page.goto("/");
+
+  const defaults = [
+    { button: "#inventory-open", panel: '[data-nav-panel="inventory"]', position: "bottom" },
+    { button: "#craft-open", panel: '[data-nav-panel="craft"]', position: "top" },
+    { button: "#gear-open", panel: '[data-nav-panel="gear"]', position: "top" },
+    { button: "#more-open", panel: '[data-nav-panel="more"]', position: "bottom" },
+  ];
+
+  for (const item of defaults) {
+    await page.locator(item.button).click();
+    const panel = page.locator(item.panel);
+    await expect(panel).toHaveClass(/is-half/);
+    await expect(panel).toHaveClass(item.position === "top" ? /is-top/ : /is-bottom/);
+    await page.locator(item.button).click();
+  }
+
+  await page.locator("#map-open").click();
+  const map = page.locator('[data-nav-panel="map"]');
+  await expect(map).not.toHaveClass(/is-half/);
+  const mapBounds = await map.evaluate((panel) => ({
+    top: panel.getBoundingClientRect().top,
+    bottom: panel.getBoundingClientRect().bottom,
+    shortcutTop: document.querySelector(".bottom-menu").getBoundingClientRect().top,
+  }));
+  expect(mapBounds.top).toBe(0);
+  expect(mapBounds.bottom).toBeLessThanOrEqual(mapBounds.shortcutTop + 1);
+});
+
+test("Inventory and Gear keep their configured top and bottom halves when opened together", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => localStorage.clear());
+  await page.goto("/");
+
+  await page.locator("#inventory-open").click();
+  await page.locator("#gear-open").click();
+
+  const inventory = page.locator('[data-nav-panel="inventory"]');
+  const gear = page.locator('[data-nav-panel="gear"]');
+  await expect(inventory).toHaveClass(/is-half/);
+  await expect(inventory).toHaveClass(/is-bottom/);
+  await expect(gear).toHaveClass(/is-half/);
+  await expect(gear).toHaveClass(/is-top/);
+});
