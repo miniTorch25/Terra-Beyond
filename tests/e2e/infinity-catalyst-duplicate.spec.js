@@ -11,11 +11,13 @@ async function openGrassDetails(page, withPrototype = true) {
 test("IC balance appears in the upper-right corner with 100 million", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#ic-balance")).toHaveText("100M");
+  await expect(page.locator(".ic-balance")).toBeVisible();
   await expect(page.locator(".ic-balance")).toHaveCSS("position", "fixed");
 });
 
 test("duplicate confirmation charges 1 IC and grants 500 copies", async ({ page }) => {
   await openGrassDetails(page);
+  await expect(page.locator("#detail-duplicate-button")).toBeVisible();
   await page.locator("#detail-duplicate-button").click();
   await expect(page.locator("#duplicate-confirm-overlay")).toBeVisible();
   await expect(page.locator("#duplicate-message")).toContainText("Spend 1 IC");
